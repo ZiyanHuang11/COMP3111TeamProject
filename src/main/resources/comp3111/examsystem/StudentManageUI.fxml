@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.collections.FXCollections?>
+
+<?import java.lang.String?>
+<?import javafx.geometry.Insets?>
+<VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" style="-fx-background-repeat: stretch; -fx-background-position: center center;" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600" prefWidth="1023.0" spacing="20.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="comp3111.examsystem.controller.ManageStudentController">
+    <children>
+        <GridPane alignment="CENTER" hgap="10" vgap="10" prefHeight="90">
+            <columnConstraints>
+                <ColumnConstraints halignment="RIGHT" />
+                <ColumnConstraints halignment="LEFT" />
+                <ColumnConstraints halignment="LEFT" />
+            </columnConstraints>
+
+            <Label text="Username:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <TextField fx:id="usernameFilter" promptText="Please enter username" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+            <Label text="Name:" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+            <TextField fx:id="nameFilter" promptText="Please enter name" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+
+            <Label text="Department:" GridPane.columnIndex="4" GridPane.rowIndex="1"/>
+            <TextField fx:id="departmentFilter" promptText="Please enter department" GridPane.columnIndex="5" GridPane.rowIndex="1"/>
+
+            <HBox alignment="CENTER" spacing="20.0" GridPane.columnIndex="8" GridPane.rowIndex="1" GridPane.columnSpan="6">
+                <children>
+                    <Button mnemonicParsing="false" onAction="#resetFilters" text="Reset" />
+                    <Button mnemonicParsing="false" onAction="#filterStudents" text="Filter" />
+                </children>
+            </HBox>
+        </GridPane>
+
+        <HBox spacing="20.0">
+            <TableView fx:id="studentTable" prefWidth="804" prefHeight="470">
+                <columns>
+                    <TableColumn text="Username" fx:id="usernameColumn" prefWidth="134"/>
+                    <TableColumn text="Name" fx:id="nameColumn" prefWidth="134"/>
+                    <TableColumn text="Age" fx:id="ageColumn" prefWidth="134"/>
+                    <TableColumn text="Gender" fx:id="genderColumn" prefWidth="134"/>
+                    <TableColumn text="Department" fx:id="departmentColumn" prefWidth="134"/>
+                    <TableColumn text="Password" fx:id="passwordColumn" prefWidth="134"/>
+                </columns>
+            </TableView>
+
+            <VBox spacing="10.0">
+                <Label text="Username:" />
+                <TextField fx:id="usernameField" promptText="Please enter username" />
+
+                <Label text="Name:" />
+                <TextField fx:id="nameField" promptText="Please enter name" />
+
+                <Label text="Age:" />
+                <TextField fx:id="ageField" promptText="Please enter age" />
+
+                <Label text="Gender:" />
+                <ComboBox fx:id="genderComboBox">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="Male" />
+                            <String fx:value="Female" />
+                            <String fx:value="Other" />
+                        </FXCollections>
+                    </items>
+                </ComboBox>
+
+                <Label text="Department:" />
+                <TextField fx:id="departmentField" promptText="Please enter department" />
+
+                <Label text="Password:" />
+                <TextField fx:id="passwordField" promptText="Please enter password" />
+            </VBox>
+        </HBox>
+
+        <HBox alignment="CENTER_RIGHT" spacing="20.0" prefHeight="80" style="-fx-padding: 0 20 0 0;">
+            <children>
+                <Button mnemonicParsing="false" onAction="#deleteStudent" text="Delete" />
+
+                <Button mnemonicParsing="false" onAction="#refreshStudent" text="Refresh" />
+
+                <Region prefWidth="20"/>
+
+                <Button mnemonicParsing="false" onAction="#addStudent" text="Add" />
+
+                <Button mnemonicParsing="false" onAction="#updateStudent" text="Update" />
+            </children>
+        </HBox>
+    </children>
+</VBox>
