@@ -1,7 +1,7 @@
 module comp3111.examsystem {
     requires javafx.controls;
     requires javafx.fxml;
-    requires java.desktop;
+    requires jdk.jconsole;
 
 
     opens comp3111.examsystem to javafx.fxml;
