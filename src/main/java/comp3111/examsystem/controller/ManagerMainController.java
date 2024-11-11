@@ -25,7 +25,7 @@ public class ManagerMainController implements Initializable {
             Stage stage = new Stage();
             FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("StudentManageUI.fxml"));
             Scene scene = new Scene(fxmlLoader.load());
-            stage.setTitle("Student Login");
+            stage.setTitle("Student Management");
             stage.setScene(scene);
             stage.show();
         } catch (IOException e) {
@@ -39,7 +39,7 @@ public class ManagerMainController implements Initializable {
             Stage stage = new Stage();
             FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("StudentLoginUI.fxml"));
             Scene scene = new Scene(fxmlLoader.load());
-            stage.setTitle("Student Login");
+            stage.setTitle("Teacher Management");
             stage.setScene(scene);
             stage.show();
         } catch (IOException e) {
@@ -53,7 +53,7 @@ public class ManagerMainController implements Initializable {
             Stage stage = new Stage();
             FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("StudentLoginUI.fxml"));
             Scene scene = new Scene(fxmlLoader.load());
-            stage.setTitle("Student Login");
+            stage.setTitle("Course Management");
             stage.setScene(scene);
             stage.show();
         } catch (IOException e) {

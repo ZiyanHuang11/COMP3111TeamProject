@@ -33,11 +33,12 @@ public class StudentLoginController implements Initializable {
     }
 
     public StudentLoginController() {
-        URL resource = getClass().getResource("/database/students.txt");
-        if (resource != null) {
-            studentFilePath = new File(resource.getFile()).getAbsolutePath();
+        studentFilePath = "data/students.txt";
+        File studentFile = new File(studentFilePath);
+        if (studentFile.exists()) {
+            System.out.println("Student file found at: " + studentFile.getAbsolutePath());
         } else {
-            System.out.println("Users file not found!");
+            System.out.println("Student file not found!");
         }
     }
 
@@ -79,12 +80,12 @@ public class StudentLoginController implements Initializable {
             String line;
             while ((line = br.readLine()) != null) {
                 // 这里遍历database
-                // 后续注册内容完成后可能要调整txt数据结构，这里暂时是用','分开，非必要可以不要变动username和password位置
+                // 后续注册内容完成后可能要调整txt数据结构，这里暂时是用','分开，目前共有六个column，0是用户名5是密码
                 String[] credentials = line.split(",");
                 if (credentials.length == 2) {
                     // 检查username和password是否匹配
                     String storedUsername = credentials[0].trim();
-                    String storedPassword = credentials[1].trim();
+                    String storedPassword = credentials[5].trim();
                     if (storedUsername.equals(username) && storedPassword.equals(password)) {
                         return true;
                     }

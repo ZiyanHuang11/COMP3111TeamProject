@@ -34,11 +34,12 @@ public class TeacherLoginController implements Initializable {
     }
 
     public TeacherLoginController() {
-        URL resource = getClass().getResource("/database/teachers.txt");
-        if (resource != null) {
-            teacherFilePath = new File(resource.getFile()).getAbsolutePath();
+        teacherFilePath = "data/teachers.txt";
+        File studentFile = new File(teacherFilePath);
+        if (studentFile.exists()) {
+            System.out.println("Student file found at: " + studentFile.getAbsolutePath());
         } else {
-            System.out.println("Users file not found!");
+            System.out.println("Student file not found!");
         }
     }
 
