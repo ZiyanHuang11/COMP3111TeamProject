@@ -30,11 +30,12 @@ public class ManagerLoginController implements Initializable {
     }
     // using three different txt for three types of user
     public ManagerLoginController() {
-        URL resource = getClass().getResource("/database/managers.txt");
-        if (resource != null) {
-            managerFilePath = new File(resource.getFile()).getAbsolutePath();
+        managerFilePath = "data/managers.txt";
+        File studentFile = new File(managerFilePath);
+        if (studentFile.exists()) {
+            System.out.println("Student file found at: " + studentFile.getAbsolutePath());
         } else {
-            System.out.println("Users file not found!");
+            System.out.println("Student file not found!");
         }
     }
 
