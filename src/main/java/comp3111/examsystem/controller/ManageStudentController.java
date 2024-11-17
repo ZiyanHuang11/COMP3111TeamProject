@@ -9,19 +9,20 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class ManageStudentController {
 
     @FXML
-    private TextField usernameFilter;
+    TextField usernameFilter;
     @FXML
-    private TextField nameFilter;
+    TextField nameFilter;
     @FXML
-    private TextField departmentFilter;
+    TextField departmentFilter;
     @FXML
-    private TableView<Student> studentTable;
+    TableView<Student> studentTable;
     @FXML
     private TableColumn<Student, String> usernameColumn;
     @FXML
@@ -35,21 +36,29 @@ public class ManageStudentController {
     @FXML
     private TableColumn<Student, String> passwordColumn;
     @FXML
-    private TextField usernameField;
+    TextField usernameField;
     @FXML
-    private TextField nameField;
+    TextField nameField;
     @FXML
-    private TextField ageField;
+    TextField ageField;
     @FXML
-    private ComboBox<String> genderComboBox;
+    ComboBox<String> genderComboBox;
     @FXML
-    private TextField departmentField;
+    TextField departmentField;
     @FXML
-    private TextField passwordField;
+    TextField passwordField;
 
-    private String studentFilePath;
+    String studentFilePath;
 
-    private ObservableList<Student> studentList = FXCollections.observableArrayList();
+    ObservableList<Student> studentList = FXCollections.observableArrayList();
+
+    public void showAlert(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Hint");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
 
     @FXML
     public void initialize() {
@@ -119,7 +128,6 @@ public class ManageStudentController {
                         student.getName().toLowerCase().contains(name) &&
                         student.getDepartment().toLowerCase().contains(department))
                 .collect(Collectors.toList());
-
         displayStudents(FXCollections.observableArrayList(filteredList));
     }
 
@@ -161,19 +169,17 @@ public class ManageStudentController {
         String studentInput = username + ',' + name + ',' + age + ',' + gender + ',' + department + ',' + password;
         // write to txt
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(studentFilePath, true))) {
-            System.out.println("File path: " + studentFilePath);
-            System.out.println("studentInput: " + studentInput);
             bw.write(studentInput);
             bw.newLine();
-            System.out.println("success");
             displayStudents(studentList);
         } catch (IOException e) {
             e.printStackTrace();
         }
+        showAlert("Add student success");
         clearFields();
     }
 
-    private String validateInputs(String username, String name, String ageText, String gender, String department, String password) {
+    String validateInputs(String username, String name, String ageText, String gender, String department, String password) {
         if (username.isEmpty() || name.isEmpty() || ageText.isEmpty() || gender == null || department.isEmpty() || password.isEmpty()) {
             return "Each field should be filled in";
         }
@@ -193,7 +199,7 @@ public class ManageStudentController {
         return null;
     }
 
-    private boolean isValidPassword(String password) {
+    boolean isValidPassword(String password) {
         return password.length() < 8 || !password.matches("^(?=.*[a-zA-Z])(?=.*[0-9]).+$");
     }
 
@@ -214,6 +220,7 @@ public class ManageStudentController {
         departmentField.setText(student.getDepartment());
         passwordField.setText(student.getPassword());
     }
+
     @FXML
     public void updateStudent() {
         Student selectedStudent = studentTable.getSelectionModel().getSelectedItem();
@@ -236,6 +243,7 @@ public class ManageStudentController {
                 alert.showAndWait();
                 return;
             }
+
             // validate new username
             if (!newUsername.equals(originalUsername)) {
                 String usernameValidationMessage = validateUsername(newUsername);
@@ -255,12 +263,52 @@ public class ManageStudentController {
             selectedStudent.setGender(gender);
             selectedStudent.setDepartment(department);
             selectedStudent.setPassword(password);
-            displayStudents(studentList);
+            try {
+                List<Student> students = new ArrayList<>();
+                try (BufferedReader br = new BufferedReader(new FileReader(studentFilePath))) {
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        String[] parts = line.split(",");
+                        if (parts.length == 6) {
+                            Student student = new Student(parts[0], parts[1], Integer.parseInt(parts[2]), parts[3], parts[4], parts[5]);
+                            students.add(student);
+                        }
+                    }
+                }
+                for (int i = 0; i < students.size(); i++) {
+                    if (students.get(i).getUsername().equals(originalUsername)) {
+                        students.set(i, selectedStudent);
+                        break;
+                    }
+                }
+                try (BufferedWriter bw = new BufferedWriter(new FileWriter(studentFilePath))) {
+                    for (Student student : students) {
+                        String studentInput = String.join(",", student.getUsername(), student.getName(), String.valueOf(student.getAge()), student.getGender(), student.getDepartment(), student.getPassword());
+                        bw.write(studentInput);
+                        bw.newLine();
+                    }
+                }
+                System.out.println("success");
+                studentList.clear();
+                studentList.addAll(students);
+                displayStudents(studentList);
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            showAlert("Update student success");
             clearFields();
+            studentTable.getSelectionModel().clearSelection();
+        } else {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Warning");
+            alert.setHeaderText(null);
+            alert.setContentText("Please select a student to update.");
+            alert.showAndWait();
         }
     }
 
-    private String validateUpdateInputs(String name, String ageText, String gender, String department, String password) {
+    String validateUpdateInputs(String name, String ageText, String gender, String department, String password) {
         if (name.isEmpty() || ageText.isEmpty() || gender == null || department.isEmpty() || password.isEmpty()) {
             return "Each field should be filled in";
         }
@@ -279,9 +327,53 @@ public class ManageStudentController {
     public void deleteStudent() {
         Student selectedStudent = studentTable.getSelectionModel().getSelectedItem();
         if (selectedStudent != null) {
-            studentList.remove(selectedStudent);
-            displayStudents(studentList);
+            // Show confirmation dialog
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirm Deletion");
+            alert.setHeaderText("Are you sure you want to delete student " + selectedStudent.getName() + "?");
+            alert.setContentText("This action cannot be undone.");
+
+            // Get the user's choice
+            ButtonType result = alert.showAndWait().orElse(ButtonType.CANCEL);
+            if (result == ButtonType.OK) {
+                studentList.remove(selectedStudent);
+                try {
+                    List<Student> students = new ArrayList<>();
+                    try (BufferedReader br = new BufferedReader(new FileReader(studentFilePath))) {
+                        String line;
+                        while ((line = br.readLine()) != null) {
+                            String[] parts = line.split(",");
+                            if (parts.length == 6) {
+                                Student student = new Student(parts[0], parts[1], Integer.parseInt(parts[2]), parts[3], parts[4], parts[5]);
+                                students.add(student);
+                            }
+                        }
+                    }
+
+                    students.removeIf(student -> student.getUsername().equals(selectedStudent.getUsername()));
+
+                    try (BufferedWriter bw = new BufferedWriter(new FileWriter(studentFilePath))) {
+                        for (Student student : students) {
+                            String studentInput = String.join(",", student.getUsername(), student.getName(), String.valueOf(student.getAge()), student.getGender(), student.getDepartment(), student.getPassword());
+                            bw.write(studentInput);
+                            bw.newLine();
+                        }
+                    }
+
+                    System.out.println("Student " + selectedStudent.getName() + " has been deleted.");
+                    displayStudents(studentList);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } else {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Warning");
+            alert.setHeaderText(null);
+            alert.setContentText("Please select a student to delete.");
+            alert.showAndWait();
         }
+        showAlert("Delete student success");
     }
 
     @FXML
@@ -291,7 +383,7 @@ public class ManageStudentController {
         displayStudents(studentList);
     }
 
-    private void clearFields() {
+    void clearFields() {
         usernameField.clear();
         nameField.clear();
         ageField.clear();
