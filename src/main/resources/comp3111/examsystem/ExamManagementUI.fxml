@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8"
+            fx:controller="comp3111.examsystem.controller.ExamManagementController">
+
+    <!-- 顶部区域：考试和问题过滤器 -->
+    <top>
+        <VBox spacing="10">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+
+            <!-- 当前考试的过滤器 -->
+            <HBox spacing="10">
+                <Label text="Exam Name:"/>
+                <TextField fx:id="examNameFilterTxt"/>
+                <Label text="Course ID:"/>
+                <ComboBox fx:id="courseIDFilterComboBox">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="All"/>
+                            <String fx:value="COMP3111"/>
+                            <String fx:value="COMP5111"/>
+                        </FXCollections>
+                    </items>
+                </ComboBox>
+                <Label text="Publish:"/>
+                <ComboBox fx:id="publishFilterComboBox">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="All"/>
+                            <String fx:value="Yes"/>
+                            <String fx:value="No"/>
+                        </FXCollections>
+                    </items>
+                </ComboBox>
+                <Button text="Reset" onAction="#handleReset"/>
+                <Button text="Filter" onAction="#handleFilter"/>
+            </HBox>
+
+            <!-- 现有问题的过滤器 -->
+            <HBox spacing="10">
+                <Label text="Question:"/>
+                <TextField fx:id="questionFilterTxt"/>
+                <Label text="Type:"/>
+                <ComboBox fx:id="typeFilterComboBox">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="All"/>
+                            <String fx:value="Single"/>
+                            <String fx:value="Multiple"/>
+                        </FXCollections>
+                    </items>
+                </ComboBox>
+                <Label text="Score:"/>
+                <TextField fx:id="scoreFilterTxt"/>
+                <Button text="Reset" onAction="#handleQuestionFilterReset"/>
+                <Button text="Filter" onAction="#handleQuestionFilter"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- 左侧：考试列表 -->
+    <left>
+        <TableView fx:id="examTable" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="examNameColumn" text="Exam Name"/>
+                <TableColumn fx:id="courseIDColumn" text="Course ID"/>
+                <TableColumn fx:id="examTimeColumn" text="Exam Time"/>
+                <TableColumn fx:id="publishColumn" text="Publish"/>
+            </columns>
+        </TableView>
+    </left>
+
+    <!-- 中间区域：已选择的问题列表 -->
+    <center>
+        <VBox spacing="10">
+            <!-- 已选择的问题列表表格 -->
+            <TableView fx:id="selectedQuestionTable">
+                <columns>
+                    <TableColumn fx:id="selectedQuestionColumn" text="Question in Exam"/>
+                    <TableColumn fx:id="selectedTypeColumn" text="Type"/>
+                    <TableColumn fx:id="selectedScoreColumn" text="Score"/>
+                </columns>
+            </TableView>
+
+            <!-- 删除和添加按钮 -->
+            <HBox spacing="10" alignment="CENTER">
+                <Button text="Delete from Left" onAction="#handleDeleteFromLeft"/>
+                <Button text="Add to Left" onAction="#handleAddToLeft"/>
+            </HBox>
+        </VBox>
+    </center>
+
+    <!-- 右侧：现有问题列表 -->
+    <right>
+        <VBox spacing="10">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            <!-- 现有问题列表表格 -->
+            <TableView fx:id="questionTable" VBox.vgrow="ALWAYS">
+                <columns>
+                    <TableColumn fx:id="questionColumn" text="Question"/>
+                    <TableColumn fx:id="typeColumn" text="Type"/>
+                    <TableColumn fx:id="scoreColumn" text="Score"/>
+                </columns>
+            </TableView>
+        </VBox>
+    </right>
+
+    <!-- 底部区域：考试编辑字段 -->
+    <bottom>
+        <HBox spacing="10">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            <VBox spacing="10">
+                <Label text="Exam Name:"/>
+                <TextField fx:id="examNameTxt"/>
+                <Label text="Exam Time:"/>
+                <TextField fx:id="examTimeTxt"/>
+                <Label text="Course ID:"/>
+                <ComboBox fx:id="courseIDComboBox">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="COMP3111"/>
+                            <String fx:value="COMP5111"/>
+                        </FXCollections>
+                    </items>
+                </ComboBox>
+                <Label text="Publish:"/>
+                <ComboBox fx:id="publishComboBox">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="Yes"/>
+                            <String fx:value="No"/>
+                        </FXCollections>
+                    </items>
+                </ComboBox>
+            </VBox>
+            <VBox spacing="10">
+                <Button text="Add" onAction="#handleAdd"/>
+                <Button text="Update" onAction="#handleUpdate"/>
+                <Button text="Delete" onAction="#handleDelete"/>
+                <Button text="Refresh" onAction="#handleRefresh"/>
+            </VBox>
+        </HBox>
+    </bottom>
+</BorderPane>

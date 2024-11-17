@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8"
+            fx:controller="comp3111.examsystem.controller.QuestionBankManagementController">
+    <top>
+        <HBox spacing="10">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            <Label text="Question:"/>
+            <TextField fx:id="questionFilterTxt"/>
+            <Label text="Type:"/>
+            <ComboBox fx:id="typeFilterComboBox">
+                <items>
+                    <FXCollections fx:factory="observableArrayList">
+                        <String fx:value="All"/>
+                        <String fx:value="Single"/>
+                        <String fx:value="Multiple"/>
+                    </FXCollections>
+                </items>
+                <value>Type</value>
+            </ComboBox>
+            <Label text="Score:"/>
+            <TextField fx:id="scoreFilterTxt"/>
+            <Button text="Reset" onAction="#handleReset"/>
+            <Button text="Filter" onAction="#handleFilter"/>
+        </HBox>
+    </top>
+
+    <center>
+        <TableView fx:id="questionTable" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="questionColumn" text="Question"/>
+                <TableColumn fx:id="optionAColumn" text="Option A"/>
+                <TableColumn fx:id="optionBColumn" text="Option B"/>
+                <TableColumn fx:id="optionCColumn" text="Option C"/>
+                <TableColumn fx:id="optionDColumn" text="Option D"/>
+                <TableColumn fx:id="answerColumn" text="Answer"/>
+                <TableColumn fx:id="typeColumn" text="Type"/>
+                <TableColumn fx:id="scoreColumn" text="Score"/>
+            </columns>
+        </TableView>
+    </center>
+
+    <right>
+        <VBox spacing="10">
+            <padding>
+                <Insets top="10" right="10" bottom="10" left="10"/>
+            </padding>
+            <Label text="Question:"/>
+            <TextField fx:id="questionTxt"/>
+            <Label text="Option A:"/>
+            <TextField fx:id="optionATxt"/>
+            <Label text="Option B:"/>
+            <TextField fx:id="optionBTxt"/>
+            <Label text="Option C:"/>
+            <TextField fx:id="optionCTxt"/>
+            <Label text="Option D:"/>
+            <TextField fx:id="optionDTxt"/>
+            <Label text="Answer:"/>
+            <TextField fx:id="answerTxt"/>
+            <Label text="Type:"/>
+            <ComboBox fx:id="typeComboBox">
+                <items>
+                    <FXCollections fx:factory="observableArrayList">
+                        <String fx:value="Single"/>
+                        <String fx:value="Multiple"/>
+                    </FXCollections>
+                </items>
+            </ComboBox>
+            <Label text="Score:"/>
+            <TextField fx:id="scoreTxt"/>
+            <Button text="Add" onAction="#handleAdd"/>
+            <Button text="Update" onAction="#handleUpdate"/>
+            <Button text="Delete" onAction="#handleDelete"/>
+            <Button text="Refresh" onAction="#handleRefresh"/>
+        </VBox>
+    </right>
+</BorderPane>
