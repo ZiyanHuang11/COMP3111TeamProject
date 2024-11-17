@@ -1,143 +1,160 @@
 package comp3111.examsystem.controller;
 
 import comp3111.examsystem.entity.Student;
+import comp3111.examsystem.controller.ManageStudentController;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.stream.Collectors;
+import org.testfx.framework.junit5.ApplicationTest;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ManageStudentControllerTest {
+public class ManageStudentControllerTest extends ApplicationTest {
+
     private ManageStudentController controller;
-    private Path tempFilePath;
+    private ObservableList<Student> studentList;
+
+    @Override
+    public void start(Stage stage) throws Exception {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/path/to/your/fxml/file.fxml")); // Update with your FXML path
+        Scene scene = new Scene(loader.load());
+        stage.setScene(scene);
+        stage.show();
+
+        controller = loader.getController();
+        studentList = FXCollections.observableArrayList();
+        controller.studentTable.setItems(studentList); // Set the table items to the observable list
+    }
 
     @BeforeEach
-    void setUp() throws IOException {
-        controller = new ManageStudentController();
-        tempFilePath = Files.createTempFile("students", ".txt");
-        controller.studentFilePath = tempFilePath.toString();
-        try (BufferedWriter writer = Files.newBufferedWriter(tempFilePath)) {
-            writer.write("user1,Alice,20,Female,CS,Password123\n");
-            writer.write("user2,Bob,22,Male,Math,Password123\n");
-        }
-
-        loadStudentsFromFile();
-    }
-
-    private void loadStudentsFromFile() {
-        try (BufferedReader br = new BufferedReader(new FileReader(controller.studentFilePath))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] data = line.split(",");
-                if (data.length == 6) {
-                    Student student = new Student(data[0], data[1], Integer.parseInt(data[2]), data[3], data[4], data[5]);
-                    controller.studentList.add(student);
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void setUp() {
+        // Clear the student list before each test
+        studentList.clear();
     }
 
     @Test
-    void testLoadStudentsFromFile() {
-        List<Student> students = controller.studentList;
-        assertEquals(2, students.size());
-        assertEquals("Alice", students.get(0).getName());
-        assertEquals("Bob", students.get(1).getName());
+    public void testAddStudent() {
+        // Simulate user input
+        controller.usernameField.setText("john_doe");
+        controller.nameField.setText("John Doe");
+        controller.ageField.setText("20");
+        controller.genderComboBox.setValue("Male");
+        controller.departmentField.setText("Computer Science");
+        controller.passwordField.setText("Password123");
+
+        // Call the method to add a student
+        controller.addStudent();
+
+        // Assert that the student was added
+        assertEquals(1, studentList.size());
+        assertEquals("john_doe", studentList.get(0).getUsername());
     }
 
     @Test
-    void testAddStudentToFile() throws IOException {
+    public void testAddDuplicateStudent() {
+        // Add a student first
+        controller.usernameField.setText("john_doe");
+        controller.nameField.setText("John Doe");
+        controller.ageField.setText("20");
+        controller.genderComboBox.setValue("Male");
+        controller.departmentField.setText("Computer Science");
+        controller.passwordField.setText("Password123");
+        controller.addStudent();
 
-        Student newStudent = new Student("user3", "Charlie", 21, "Male", "Physics", "Password123");
-        controller.studentList.add(newStudent);
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(controller.studentFilePath, true))) {
-            writer.write("user3,Charlie,21,Male,Physics,Password123\n");
-        }
-        controller.studentList.clear();
-        loadStudentsFromFile();
-        assertEquals(3, controller.studentList.size());
-        assertTrue(controller.studentList.stream().anyMatch(s -> s.getUsername().equals("user3")));
+        // Attempt to add a duplicate student
+        controller.usernameField.setText("john_doe");
+        controller.nameField.setText("Jane Doe");
+        controller.ageField.setText("22");
+        controller.genderComboBox.setValue("Female");
+        controller.departmentField.setText("Mathematics");
+        controller.passwordField.setText("Password456");
+        controller.addStudent();
+
+        // Assert that only one student was added
+        assertEquals(1, studentList.size());
     }
 
     @Test
-    void testDeleteStudentFromFile() throws IOException {
+    public void testUpdateStudent() {
+        // Add a student first
+        controller.usernameField.setText("john_doe");
+        controller.nameField.setText("John Doe");
+        controller.ageField.setText("20");
+        controller.genderComboBox.setValue("Male");
+        controller.departmentField.setText("Computer Science");
+        controller.passwordField.setText("Password123");
+        controller.addStudent();
 
-        Student studentToDelete = controller.studentList.get(0);
-        controller.studentList.remove(studentToDelete);
+        // Select the student to update
+        controller.studentTable.getSelectionModel().selectFirst();
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(controller.studentFilePath))) {
-            for (Student student : controller.studentList) {
-                writer.write(String.join(",", student.getUsername(), student.getName(), String.valueOf(student.getAge()),
-                        student.getGender(), student.getDepartment(), student.getPassword()));
-                writer.newLine();
-            }
-        }
+        // Update student details
+        controller.usernameField.setText("john_doe_updated");
+        controller.nameField.setText("John Doe Updated");
+        controller.ageField.setText("21");
+        controller.genderComboBox.setValue("Male");
+        controller.departmentField.setText("Computer Science");
+        controller.passwordField.setText("NewPassword123");
+        controller.updateStudent();
 
-        controller.studentList.clear();
-        loadStudentsFromFile();
-        assertEquals(1, controller.studentList.size());
-        assertFalse(controller.studentList.stream().anyMatch(s -> s.getUsername().equals("user1")));
+        // Assert that the student details were updated
+        assertEquals("john_doe_updated", studentList.get(0).getUsername());
+        assertEquals("John Doe Updated", studentList.get(0).getName());
     }
 
     @Test
-    void testUpdateStudentInFile() throws IOException {
-        Student studentToUpdate = controller.studentList.get(0);
-        studentToUpdate.setName("Alice Updated");
-        studentToUpdate.setAge(21);
-        studentToUpdate.setPassword("NewPassword123");
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(controller.studentFilePath))) {
-            for (Student student : controller.studentList) {
-                writer.write(String.join(",", student.getUsername(), student.getName(), String.valueOf(student.getAge()),
-                        student.getGender(), student.getDepartment(), student.getPassword()));
-                writer.newLine();
-            }
-        }
-        controller.studentList.clear();
-        loadStudentsFromFile();
-        Student updatedStudent = controller.studentList.get(0);
-        assertEquals("Alice Updated", updatedStudent.getName());
-        assertEquals(21, updatedStudent.getAge());
-        assertEquals("NewPassword123", updatedStudent.getPassword());
+    public void testDeleteStudent() {
+        // Add a student first
+        controller.usernameField.setText("john_doe");
+        controller.nameField.setText("John Doe");
+        controller.ageField.setText("20");
+        controller.genderComboBox.setValue("Male");
+        controller.departmentField.setText("Computer Science");
+        controller.passwordField.setText("Password123");
+        controller.addStudent();
+
+        // Select the student to delete
+        controller.studentTable.getSelectionModel().selectFirst();
+        controller.deleteStudent();
+
+        // Assert that the student was deleted
+        assertEquals(0, studentList.size());
     }
 
     @Test
-    void testValidateInputs() {
-        assertNull(controller.validateInputs("user3", "Charlie", "21", "Male", "Physics", "Password123"));
-        assertEquals("Each field should be filled in", controller.validateInputs("", "name", "20", "Male", "CS", "Password123"));
-        assertEquals("Age must be a valid number", controller.validateInputs("username", "name", "twenty", "Male", "CS", "Password123"));
-        assertEquals("The user name already exists", controller.validateInputs("user1", "name", "20", "Male", "CS", "Password123"));
-        assertEquals("The password must contain both letters and numbers and be at least eight characters long",
-                controller.validateInputs("newUser", "name", "20", "Male", "CS", "short"));
+    public void testFilterStudents() {
+        // Add students for filtering
+        studentList.add(new Student("john_doe", "John Doe", 20, "Male", "Computer Science", "Password123"));
+        studentList.add(new Student("jane_doe", "Jane Doe", 21, "Female", "Mathematics", "Password456"));
+
+        // Set filter criteria
+        controller.usernameField.setText("jane");
+        controller.filterStudents();
+
+        // Assert that the filter works
+        assertEquals(1, controller.studentTable.getItems().size()); // Should only show Jane Doe
     }
 
     @Test
-    void testIsValidPassword() {
-        assertFalse(controller.isValidPassword("Password123"));
-        assertTrue(controller.isValidPassword("short"));
-        assertTrue(controller.isValidPassword("Password"));
-        assertTrue(controller.isValidPassword("12345678"));
-    }
+    public void testResetFilters() {
+        // Add students for testing reset
+        studentList.add(new Student("john_doe", "John Doe", 20, "Male", "Computer Science", "Password123"));
+        studentList.add(new Student("jane_doe", "Jane Doe", 21, "Female", "Mathematics", "Password456"));
 
-    @Test
-    void testFilterStudentsLogic() {
-        String username = "user1";
-        String name = "Alice";
-        String department = "CS";
+        // Set filter criteria
+        controller.usernameField.setText("jane");
+        controller.filterStudents();
 
-        List<Student> filteredList = controller.studentList.stream()
-                .filter(student -> student.getUsername().toLowerCase().contains(username.toLowerCase()) &&
-                        student.getName().toLowerCase().contains(name.toLowerCase()) &&
-                        student.getDepartment().toLowerCase().contains(department.toLowerCase()))
-                .collect(Collectors.toList());
+        // Reset filters
+        controller.resetFilters();
 
-        assertEquals(1, filteredList.size());
-        assertEquals("Alice", filteredList.get(0).getName());
+        // Assert that the filter is reset
+        assertEquals(2, controller.studentTable.getItems().size()); // Should show both students
     }
 }
