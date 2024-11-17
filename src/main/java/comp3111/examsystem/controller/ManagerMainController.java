@@ -37,7 +37,7 @@ public class ManagerMainController implements Initializable {
     public void openTeacherManageUI() {
         try {
             Stage stage = new Stage();
-            FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("StudentLoginUI.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("TeacherManageUI.fxml"));
             Scene scene = new Scene(fxmlLoader.load());
             stage.setTitle("Teacher Management");
             stage.setScene(scene);
