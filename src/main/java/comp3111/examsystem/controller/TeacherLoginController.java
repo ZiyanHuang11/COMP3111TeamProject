@@ -82,10 +82,10 @@ public class TeacherLoginController implements Initializable {
                 // 这里遍历database
                 // 后续注册内容完成后可能要调整txt数据结构，这里暂时是用','分开，非必要可以不要变动username和password位置
                 String[] credentials = line.split(",");
-                if (credentials.length == 2) {
+                if (credentials.length == 7) {
                     // 检查username和password是否匹配
                     String storedUsername = credentials[0].trim();
-                    String storedPassword = credentials[1].trim();
+                    String storedPassword = credentials[6].trim();
                     if (storedUsername.equals(username) && storedPassword.equals(password)) {
                         return true;
                     }
