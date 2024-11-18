@@ -1,9 +1,7 @@
-comp3111,software engineering,CSE
 comp4462,data visualization,CSE
 comp3210,Data Structures,CSE
 comp4501,Artificial Intelligence,CSE
-ee2010,Circuit Analysis,EE
-ee3050,Signal Processing,EE
+ee2011,Circuit Analysis,EE
 it2020,Cybersecurity,IT
 it3105,Database Management,IT
 me1010,Engineering Mechanics,ME
@@ -11,3 +9,4 @@ me2040,Thermodynamics,ME
 bme3010,Biomaterials,BME
 bme4502,Medical Imaging,BME
 mgt201,Operations Management,MGT
+comp3111,software engineering,CSE
