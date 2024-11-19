@@ -50,7 +50,7 @@ public class ManageStudentController {
     private ManageStudentService studentService;
 
     public ManageStudentController() {
-        studentService = new ManageStudentService("data/students.txt");
+        studentService = new ManageStudentService("data/students.txt", "data/students_exams.txt");
     }
 
     public void showAlert(String message) {
@@ -165,15 +165,9 @@ public class ManageStudentController {
                     return;
                 }
             }
-
-            selectedStudent.setUsername(newUsername);
-            selectedStudent.setName(name);
-            selectedStudent.setAge(Integer.parseInt(ageText));
-            selectedStudent.setGender(gender);
-            selectedStudent.setDepartment(department);
-            selectedStudent.setPassword(password);
+            Student updatedStudent = new Student(newUsername, name, Integer.parseInt(ageText), gender, department, password);
             try {
-                studentService.updateStudent(selectedStudent, originalUsername);
+                studentService.updateStudent(updatedStudent, originalUsername);
                 displayStudents(studentService.getStudentList());
                 showAlert("Update student success");
                 clearFields();

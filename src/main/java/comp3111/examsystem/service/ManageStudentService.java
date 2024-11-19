@@ -10,10 +10,12 @@ import java.util.stream.Collectors;
 
 public class ManageStudentService {
     private String studentFilePath;
+    private String studentExamsFilePath;
     private ObservableList<Student> studentList;
 
-    public ManageStudentService(String studentFilePath) {
+    public ManageStudentService(String studentFilePath, String studentExamsFilePath) {
         this.studentFilePath = studentFilePath;
+        this.studentExamsFilePath = studentExamsFilePath;
         this.studentList = FXCollections.observableArrayList();
         loadStudentsFromFile();
     }
@@ -60,6 +62,7 @@ public class ManageStudentService {
             throw new IOException("Student with username " + originalUsername + " does not exist.");
         }
         saveStudentsToFile();
+        updateStudentExams(originalUsername, updatedStudent.getUsername());
     }
 
     public void deleteStudent(String username) throws IOException {
@@ -68,14 +71,42 @@ public class ManageStudentService {
             throw new IOException("Student with username " + username + " does not exist.");
         }
         saveStudentsToFile();
+        deleteStudentFromExams(username);
     }
 
-    private void saveStudentsToFile() throws IOException {
+    void saveStudentsToFile() throws IOException {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(studentFilePath))) {
             for (Student student : studentList) {
                 String studentInput = String.join(",", student.getUsername(), student.getName(), String.valueOf(student.getAge()), student.getGender(), student.getDepartment(), student.getPassword());
                 bw.write(studentInput);
                 bw.newLine();
+            }
+        }
+    }
+
+    void updateStudentExams(String originalUsername, String newUsername) throws IOException {
+        List<String> lines = new BufferedReader(new FileReader(studentExamsFilePath)).lines().collect(Collectors.toList());
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(studentExamsFilePath))) {
+            for (String line : lines) {
+                String[] data = line.split(",");
+                if (data[0].equals(originalUsername)) {
+                    data[0] = newUsername;
+                }
+                bw.write(String.join(",", data));
+                bw.newLine();
+            }
+        }
+    }
+
+    void deleteStudentFromExams(String username) throws IOException {
+        List<String> lines = new BufferedReader(new FileReader(studentExamsFilePath)).lines().collect(Collectors.toList());
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(studentExamsFilePath))) {
+            for (String line : lines) {
+                String[] data = line.split(",");
+                if (!data[0].equals(username)) {
+                    bw.write(line);
+                    bw.newLine();
+                }
             }
         }
     }
