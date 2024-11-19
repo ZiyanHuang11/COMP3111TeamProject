@@ -1,14 +1,13 @@
 package comp3111.examsystem.controller;
 
+import comp3111.examsystem.service.TeacherRegisterService;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.FileReader;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TeacherRegisterController {
     @FXML
@@ -28,7 +27,7 @@ public class TeacherRegisterController {
     @FXML
     private PasswordField confirmPasswordTxt;
 
-    private String teacherFilePath = "data/teachers.txt";
+    private TeacherRegisterService registerService;
 
     @FXML
     public void initialize() {
@@ -39,59 +38,53 @@ public class TeacherRegisterController {
         // Initialize position ComboBox
         positionComboBox.getItems().addAll("Professor", "Lecturer", "Assistant Professor", "Researcher");
         positionComboBox.setValue("Position");
+
+        // Initialize the service
+        String teacherFilePath = "data/teachers.txt";
+        registerService = new TeacherRegisterService(teacherFilePath);
     }
 
     @FXML
     private void handleRegister() {
-        String username = usernameTxt.getText();
-        String name = nameTxt.getText();
+        String username = usernameTxt.getText().trim();
+        String name = nameTxt.getText().trim();
         String gender = genderComboBox.getValue();
-        String age = ageTxt.getText();
+        String ageText = ageTxt.getText().trim();
         String position = positionComboBox.getValue();
-        String department = departmentTxt.getText();
+        String department = departmentTxt.getText().trim();
         String password = passwordTxt.getText();
         String confirmPassword = confirmPasswordTxt.getText();
 
-        // 检查所有必填字段是否为空
-        if (username.isEmpty() || name.isEmpty() || gender == null || age.isEmpty() ||
-                position == null || department.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-            showAlert("Registration Failed", "All fields are required", Alert.AlertType.ERROR);
+        // Validate inputs
+        String validationMessage = registerService.validateInputs(username, name, gender, ageText, position,
+                department, password, confirmPassword);
+        if (validationMessage != null) {
+            showAlert("Registration Failed", validationMessage, Alert.AlertType.ERROR);
             return;
         }
 
-        // 检查是否选择了提示项
-        if ("Gender".equals(gender) || "Position".equals(position)) {
-            showAlert("Registration Failed", "Please select your gender and position", Alert.AlertType.ERROR);
-            return;
-        }
-
-        // 检查密码是否匹配
-        if (!password.equals(confirmPassword)) {
-            showAlert("Registration Failed", "Passwords do not match", Alert.AlertType.ERROR);
-            return;
-        }
-
-        // 检查用户名是否已存在
-        if (isUserExists(username)) {
+        // Check if user exists
+        if (registerService.isUserExists(username)) {
             showAlert("Registration Failed", "Username already exists", Alert.AlertType.ERROR);
             return;
         }
 
-        // 将新用户信息写入文件
+        // Prepare teacher information
+        Map<String, String> teacherInfo = new HashMap<>();
+        teacherInfo.put("username", username);
+        teacherInfo.put("name", name);
+        teacherInfo.put("gender", gender);
+        teacherInfo.put("age", ageText);
+        teacherInfo.put("position", position);
+        teacherInfo.put("department", department);
+        teacherInfo.put("password", password);
+
+        // Register the teacher
         try {
-            File file = new File(teacherFilePath);
-            if (!file.exists()) {
-                file.createNewFile();
-            }
-
-            // 使用 FileWriter 以追加模式写入
-            FileWriter writer = new FileWriter(file, true);
-            writer.write(username + "," + password + "," + name + "," + gender + "," + age + "," + position + "," + department + "\n");
-            writer.close();
-
+            registerService.registerTeacher(teacherInfo);
             showAlert("Registration Successful", "You have successfully registered", Alert.AlertType.INFORMATION);
 
-            // 关闭注册窗口
+            // Close the registration window
             Stage stage = (Stage) usernameTxt.getScene().getWindow();
             stage.close();
         } catch (IOException e) {
@@ -100,37 +93,18 @@ public class TeacherRegisterController {
         }
     }
 
-    // 检查用户是否已存在
-    private boolean isUserExists(String username) {
-        try (BufferedReader br = new BufferedReader(new FileReader(teacherFilePath))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] credentials = line.split(",");
-                if (credentials.length > 0) {
-                    String storedUsername = credentials[0].trim();
-                    if (storedUsername.equals(username)) {
-                        return true; // 用户已存在
-                    }
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return false; // 用户不存在
+    @FXML
+    private void handleClose() {
+        // Close the registration window
+        Stage stage = (Stage) usernameTxt.getScene().getWindow();
+        stage.close();
     }
 
-    // 显示提示框
+    // Show alert
     private void showAlert(String title, String message, Alert.AlertType type) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setContentText(message);
         alert.showAndWait();
-    }
-
-    @FXML
-    private void handleClose() {
-        // 关闭注册窗口
-        Stage stage = (Stage) usernameTxt.getScene().getWindow();
-        stage.close();
     }
 }

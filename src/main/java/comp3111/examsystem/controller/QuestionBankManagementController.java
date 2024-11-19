@@ -1,13 +1,17 @@
 package comp3111.examsystem.controller;
 
 import comp3111.examsystem.entity.Question;
+import comp3111.examsystem.service.QuestionBankManagementService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
+import java.io.IOException;
+import java.util.List;
+
 public class QuestionBankManagementController {
-    // 过滤器字段
+    // Filter fields
     @FXML
     private TextField questionFilterTxt;
     @FXML
@@ -15,7 +19,7 @@ public class QuestionBankManagementController {
     @FXML
     private TextField scoreFilterTxt;
 
-    // 问题列表和列
+    // Question table and columns
     @FXML
     private TableView<Question> questionTable;
     @FXML
@@ -35,7 +39,7 @@ public class QuestionBankManagementController {
     @FXML
     private TableColumn<Question, Integer> scoreColumn;
 
-    // 添加/更新问题的输入字段
+    // Input fields for adding/updating questions
     @FXML
     private TextField questionTxt;
     @FXML
@@ -53,22 +57,23 @@ public class QuestionBankManagementController {
     @FXML
     private TextField scoreTxt;
 
-    // 数据列表
-    private ObservableList<Question> questionList = FXCollections.observableArrayList();
+    private QuestionBankManagementService questionService;
 
     @FXML
     public void initialize() {
-        // 初始化类型过滤器 ComboBox
+        questionService = new QuestionBankManagementService("data/questions.txt");
+
+        // Initialize type filter ComboBox
         typeFilterComboBox.getItems().clear();
         typeFilterComboBox.getItems().addAll("All", "Single", "Multiple");
-        typeFilterComboBox.setValue("Type");
+        typeFilterComboBox.setValue("All");
 
-        // 初始化类型选择 ComboBox
+        // Initialize type selection ComboBox
         typeComboBox.getItems().clear();
         typeComboBox.getItems().addAll("Single", "Multiple");
-        typeComboBox.setValue("Type");
+        typeComboBox.setValue(null);
 
-        // 初始化表格列
+        // Initialize table columns
         questionColumn.setCellValueFactory(cellData -> cellData.getValue().questionProperty());
         optionAColumn.setCellValueFactory(cellData -> cellData.getValue().optionAProperty());
         optionBColumn.setCellValueFactory(cellData -> cellData.getValue().optionBProperty());
@@ -78,18 +83,15 @@ public class QuestionBankManagementController {
         typeColumn.setCellValueFactory(cellData -> cellData.getValue().typeProperty());
         scoreColumn.setCellValueFactory(cellData -> cellData.getValue().scoreProperty().asObject());
 
-        // 将数据绑定到表格
-        questionTable.setItems(questionList);
+        // Bind data to table
+        questionTable.setItems(questionService.getQuestionList());
 
-        // 添加示例数据（可选）
-        loadSampleData();
-
-        // 设置表格点击事件，点击行时在右侧显示问题信息
+        // Set table click event to show question details
         questionTable.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> showQuestionDetails(newValue));
     }
 
-    // 显示问题详情
+    // Show question details
     private void showQuestionDetails(Question question) {
         if (question != null) {
             questionTxt.setText(question.getQuestion());
@@ -101,91 +103,100 @@ public class QuestionBankManagementController {
             typeComboBox.setValue(question.getType());
             scoreTxt.setText(String.valueOf(question.getScore()));
         } else {
-            // 清空字段
-            questionTxt.clear();
-            optionATxt.clear();
-            optionBTxt.clear();
-            optionCTxt.clear();
-            optionDTxt.clear();
-            answerTxt.clear();
-            typeComboBox.setValue(null);
-            scoreTxt.clear();
+            // Clear fields
+            clearInputFields();
         }
     }
 
-    // 加载示例数据
-    private void loadSampleData() {
-        questionList.add(new Question("What is Java?", "A", "B", "C", "D", "A", "Single", 5));
-        // 可以添加更多示例数据
-    }
-
-    // 处理添加按钮
+    // Handle add button
     @FXML
     private void handleAdd() {
-        // 获取输入数据
-        String question = questionTxt.getText();
-        String optionA = optionATxt.getText();
-        String optionB = optionBTxt.getText();
-        String optionC = optionCTxt.getText();
-        String optionD = optionDTxt.getText();
-        String answer = answerTxt.getText();
+        // Get input data
+        String questionText = questionTxt.getText().trim();
+        String optionA = optionATxt.getText().trim();
+        String optionB = optionBTxt.getText().trim();
+        String optionC = optionCTxt.getText().trim();
+        String optionD = optionDTxt.getText().trim();
+        String answer = answerTxt.getText().trim();
         String type = typeComboBox.getValue();
-        int score;
+        String scoreText = scoreTxt.getText().trim();
 
+        String validationMessage = questionService.validateInputs(questionText, optionA, optionB, optionC, optionD, answer, type, scoreText);
+        if (validationMessage != null) {
+            showAlert("Invalid Input", validationMessage, Alert.AlertType.ERROR);
+            return;
+        }
+
+        int score = Integer.parseInt(scoreText);
+
+        // Add new question
+        Question newQuestion = new Question(questionText, optionA, optionB, optionC, optionD, answer, type, score);
         try {
-            score = Integer.parseInt(scoreTxt.getText());
-        } catch (NumberFormatException e) {
-            showAlert("Invalid Input", "Score must be a number", Alert.AlertType.ERROR);
-            return;
+            questionService.addQuestion(newQuestion);
+            // Update table
+            questionTable.setItems(questionService.getQuestionList());
+            // Clear input fields
+            clearInputFields();
+        } catch (IOException e) {
+            showAlert("Error", "Failed to save question to file.", Alert.AlertType.ERROR);
         }
-
-        // 数据校验
-        if (question.isEmpty() || optionA.isEmpty() || optionB.isEmpty() ||
-                optionC.isEmpty() || optionD.isEmpty() || answer.isEmpty() || type == null) {
-            showAlert("Incomplete Data", "Please fill in all fields", Alert.AlertType.ERROR);
-            return;
-        }
-
-        // 添加新问题
-        Question newQuestion = new Question(question, optionA, optionB, optionC, optionD, answer, type, score);
-        questionList.add(newQuestion);
-
-        // 清空输入字段
-        clearInputFields();
     }
 
-    // 处理更新按钮
+    // Handle update button
     @FXML
     private void handleUpdate() {
         Question selectedQuestion = questionTable.getSelectionModel().getSelectedItem();
         if (selectedQuestion != null) {
-            // 更新选定的问题
-            selectedQuestion.setQuestion(questionTxt.getText());
-            selectedQuestion.setOptionA(optionATxt.getText());
-            selectedQuestion.setOptionB(optionBTxt.getText());
-            selectedQuestion.setOptionC(optionCTxt.getText());
-            selectedQuestion.setOptionD(optionDTxt.getText());
-            selectedQuestion.setAnswer(answerTxt.getText());
-            selectedQuestion.setType(typeComboBox.getValue());
-            try {
-                selectedQuestion.setScore(Integer.parseInt(scoreTxt.getText()));
-            } catch (NumberFormatException e) {
-                showAlert("Invalid Input", "Score must be a number", Alert.AlertType.ERROR);
+            String questionText = questionTxt.getText().trim();
+            String optionA = optionATxt.getText().trim();
+            String optionB = optionBTxt.getText().trim();
+            String optionC = optionCTxt.getText().trim();
+            String optionD = optionDTxt.getText().trim();
+            String answer = answerTxt.getText().trim();
+            String type = typeComboBox.getValue();
+            String scoreText = scoreTxt.getText().trim();
+
+            String validationMessage = questionService.validateInputs(questionText, optionA, optionB, optionC, optionD, answer, type, scoreText);
+            if (validationMessage != null) {
+                showAlert("Invalid Input", validationMessage, Alert.AlertType.ERROR);
                 return;
             }
 
-            questionTable.refresh();
+            int score = Integer.parseInt(scoreText);
+
+            // Update selected question
+            Question updatedQuestion = new Question(questionText, optionA, optionB, optionC, optionD, answer, type, score);
+
+            try {
+                questionService.updateQuestion(updatedQuestion, selectedQuestion.getQuestion());
+                // Update table
+                questionTable.refresh();
+                // Clear input fields
+                clearInputFields();
+                // Clear selection
+                questionTable.getSelectionModel().clearSelection();
+            } catch (IOException e) {
+                showAlert("Error", "Failed to update question.", Alert.AlertType.ERROR);
+            }
         } else {
             showAlert("No Selection", "Please select a question to update", Alert.AlertType.WARNING);
         }
     }
 
-    // 处理删除按钮
+    // Handle delete button
     @FXML
     private void handleDelete() {
         Question selectedQuestion = questionTable.getSelectionModel().getSelectedItem();
         if (selectedQuestion != null) {
-            questionList.remove(selectedQuestion);
+            try {
+                questionService.deleteQuestion(selectedQuestion.getQuestion());
+                // Update table
+                questionTable.setItems(questionService.getQuestionList());
+                // Clear input fields
+                clearInputFields();
+            } catch (IOException e) {
+                showAlert("Error", "Failed to delete question.", Alert.AlertType.ERROR);
+            }
         } else {
             showAlert("No Selection", "Please select a question to delete", Alert.AlertType.WARNING);
         }
@@ -193,60 +204,30 @@ public class QuestionBankManagementController {
 
     @FXML
     private void handleRefresh() {
-        // 如果数据在内存中，并且已经更新，那么可以直接设置表格的数据源
-        questionTable.setItems(questionList);
+        questionTable.refresh();
     }
 
-    // 处理重置按钮
+    // Handle reset button
     @FXML
     private void handleReset() {
         questionFilterTxt.clear();
         typeFilterComboBox.setValue("All");
         scoreFilterTxt.clear();
-        questionTable.setItems(questionList);
+        questionTable.setItems(questionService.getQuestionList());
     }
 
-    // 处理过滤按钮
+    // Handle filter button
     @FXML
     private void handleFilter() {
-        String questionFilter = questionFilterTxt.getText().toLowerCase();
+        String questionFilter = questionFilterTxt.getText().trim();
         String typeFilter = typeFilterComboBox.getValue();
-        String scoreFilter = scoreFilterTxt.getText();
+        String scoreFilter = scoreFilterTxt.getText().trim();
 
-        ObservableList<Question> filteredList = FXCollections.observableArrayList();
-
-        for (Question q : questionList) {
-            boolean matches = true;
-
-            if (!questionFilter.isEmpty() && !q.getQuestion().toLowerCase().contains(questionFilter)) {
-                matches = false;
-            }
-
-            if (!typeFilter.equals("All") && !q.getType().equals(typeFilter)) {
-                matches = false;
-            }
-
-            if (!scoreFilter.isEmpty()) {
-                try {
-                    int score = Integer.parseInt(scoreFilter);
-                    if (q.getScore() != score) {
-                        matches = false;
-                    }
-                } catch (NumberFormatException e) {
-                    showAlert("Invalid Input", "Score filter must be a number", Alert.AlertType.ERROR);
-                    return;
-                }
-            }
-
-            if (matches) {
-                filteredList.add(q);
-            }
-        }
-
-        questionTable.setItems(filteredList);
+        List<Question> filteredQuestions = questionService.filterQuestions(questionFilter, typeFilter, scoreFilter);
+        questionTable.setItems(FXCollections.observableArrayList(filteredQuestions));
     }
 
-    // 清空输入字段
+    // Clear input fields
     private void clearInputFields() {
         questionTxt.clear();
         optionATxt.clear();
@@ -258,7 +239,7 @@ public class QuestionBankManagementController {
         scoreTxt.clear();
     }
 
-    // 显示提示框
+    // Show alert
     private void showAlert(String title, String message, Alert.AlertType type) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
