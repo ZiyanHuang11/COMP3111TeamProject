@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.collections.FXCollections?>
+
+<?import java.lang.String?>
+<?import javafx.geometry.Insets?>
+<VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" style="-fx-background-repeat: stretch; -fx-background-position: center center;" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600" prefWidth="1023.0" spacing="20.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="comp3111.examsystem.controller.ManageCourseController">
+    <children>
+        <GridPane alignment="CENTER" hgap="10" vgap="10" prefHeight="90">
+            <columnConstraints>
+                <ColumnConstraints halignment="RIGHT" />
+                <ColumnConstraints halignment="LEFT" />
+                <ColumnConstraints halignment="LEFT" />
+            </columnConstraints>
+
+            <Label text="Course ID:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <TextField fx:id="courseIDFilter" promptText="Please enter course ID" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+            <Label text="Course Name:" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+            <TextField fx:id="courseNameFilter" promptText="Please enter course name" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+
+            <Label text="Department:" GridPane.columnIndex="4" GridPane.rowIndex="1"/>
+            <TextField fx:id="departmentFilter" promptText="Please enter department" GridPane.columnIndex="5" GridPane.rowIndex="1"/>
+
+            <HBox alignment="CENTER" spacing="20.0" GridPane.columnIndex="8" GridPane.rowIndex="1" GridPane.columnSpan="6">
+                <children>
+                    <Button mnemonicParsing="false" onAction="#resetFilters" text="Reset" />
+                    <Button mnemonicParsing="false" onAction="#filterCourses" text="Filter" />
+                </children>
+            </HBox>
+        </GridPane>
+
+        <HBox spacing="20.0">
+            <TableView fx:id="courseTable" prefWidth="804" prefHeight="470">
+                <columns>
+                    <TableColumn text="Course ID" fx:id="courseIDColumn" prefWidth="268"/>
+                    <TableColumn text="Course Name" fx:id="courseNameColumn" prefWidth="268"/>
+                    <TableColumn text="Department" fx:id="departmentColumn" prefWidth="268"/>
+                </columns>
+            </TableView>
+
+            <VBox spacing="10.0">
+                <Label text="Course ID:" />
+                <TextField fx:id="courseIDField" promptText="Please enter username" />
+
+                <Label text="Course Name:" />
+                <TextField fx:id="courseNameField" promptText="Please enter name" />
+
+                <Label text="Department:" />
+                <TextField fx:id="departmentField" promptText="Please enter department" />
+            </VBox>
+        </HBox>
+
+        <HBox alignment="CENTER_RIGHT" spacing="20.0" prefHeight="80" style="-fx-padding: 0 20 0 0;">
+            <children>
+                <Button mnemonicParsing="false" onAction="#deleteCourse" text="Delete" />
+
+                <Button mnemonicParsing="false" onAction="#refreshCourse" text="Refresh" />
+
+                <Region prefWidth="20"/>
+
+                <Button mnemonicParsing="false" onAction="#addCourse" text="Add" />
+
+                <Button mnemonicParsing="false" onAction="#updateCourse" text="Update" />
+            </children>
+        </HBox>
+    </children>
+</VBox>
