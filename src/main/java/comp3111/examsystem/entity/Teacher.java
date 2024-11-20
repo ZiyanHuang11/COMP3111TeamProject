@@ -9,7 +9,7 @@ public class Teacher {
     private String department;
     private String password;
 
-    public Teacher(String username, String name, String gender, int age, String position, String department, String password) {
+    public Teacher(String username, String password, String name, String gender, int age, String position, String department) {
         this.username = username;
         this.name = name;
         this.gender = gender;

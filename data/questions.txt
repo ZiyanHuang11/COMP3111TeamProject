@@ -1,2 +1,4 @@
 What is Java?,A programming language,A coffee brand,An island,All of the above,A programming language,Single,5
 Explain OOP concepts.,Encapsulation,Inheritance,Polymorphism,Abstraction,All of the above,Multiple,10
+What is Java1?,A programming language,A coffee brand,An island,All of the above,A programming language,Single,5
+What is Java5?,A programming language,A coffee brand,An island,All of the above,A programming language,Single,5

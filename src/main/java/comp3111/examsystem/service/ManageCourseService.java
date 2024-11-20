@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 public class ManageCourseService {
     private String courseFilePath;
     private ObservableList<Course> courseList;
-
+    //
     public ManageCourseService(String courseFilePath) {
         this.courseFilePath = courseFilePath;
         this.courseList = FXCollections.observableArrayList();
@@ -101,5 +101,12 @@ public class ManageCourseService {
             return "Each field should be filled in";
         }
         return validateCourseID(courseID);
+    }
+
+    public String validateUpdateInputs(String courseID, String courseName, String department) {
+        if (courseID.isEmpty() || department.isEmpty() || courseName.isEmpty()) {
+            return "Each field should be filled in";
+        }
+        return null;
     }
 }

@@ -115,7 +115,7 @@ public class ManageTeacherController {
         }
 
         int age = Integer.parseInt(ageText);
-        Teacher newTeacher = new Teacher(username, name, gender, age, position, department, password);
+        Teacher newTeacher = new Teacher(username, password, name, gender, age, position, department);
 
         try {
             manageTeacherService.addTeacher(newTeacher);
@@ -147,7 +147,7 @@ public class ManageTeacherController {
                 return;
             }
 
-            Teacher updatedTeacher = new Teacher(newUsername, name, gender, Integer.parseInt(ageText), position, department, password);
+            Teacher updatedTeacher = new Teacher(newUsername, password, name, gender, Integer.parseInt(ageText), position, department);
 
             try {
                 manageTeacherService.updateTeacher(updatedTeacher, originalUsername);

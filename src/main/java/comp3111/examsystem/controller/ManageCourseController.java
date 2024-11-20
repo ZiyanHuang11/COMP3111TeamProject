@@ -108,7 +108,7 @@ public class ManageCourseController {
             String courseName = courseNameField.getText();
             String department = departmentField.getText();
 
-            String validationMessage = courseService.validateInputs(newCourseID, courseName, department);
+            String validationMessage = courseService.validateUpdateInputs(newCourseID, courseName, department);
             if (validationMessage != null) {
                 showAlert(validationMessage);
                 return;
