@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="comp3111.examsystem.controller.ExamUIController">
+    <!-- 左侧问题列表 -->
+    <left>
+        <VBox spacing="10" alignment="TOP_CENTER" prefWidth="200">
+            <Label text="Questions" style="-fx-font-size: 16px; -fx-font-weight: bold;" />
+            <ListView fx:id="questionListView" />
+        </VBox>
+    </left>
+
+    <!-- 中间问题展示区域 -->
+    <center>
+        <VBox spacing="20" alignment="TOP_CENTER" padding="20">
+            <Label fx:id="quizNameLabel" style="-fx-font-size: 18px; -fx-font-weight: bold;" />
+            <Label fx:id="questionLabel" wrapText="true" style="-fx-font-size: 14px;" />
+            <VBox spacing="10">
+                <RadioButton fx:id="optionA" toggleGroup="$optionsGroup" />
+                <RadioButton fx:id="optionB" toggleGroup="$optionsGroup" />
+                <RadioButton fx:id="optionC" toggleGroup="$optionsGroup" />
+                <RadioButton fx:id="optionD" toggleGroup="$optionsGroup" />
+            </VBox>
+        </VBox>
+    </center>
+
+    <!-- 底部按钮 -->
+    <bottom>
+        <HBox spacing="20" alignment="CENTER" padding="10">
+            <Button text="Previous" onAction="#goToPreviousQuestion" />
+            <Button text="Next" onAction="#goToNextQuestion" />
+            <Button text="Submit" onAction="#submitExam" style="-fx-font-weight: bold;" />
+        </HBox>
+    </bottom>
+
+    <!-- 顶部考试信息 -->
+    <top>
+        <VBox spacing="5" alignment="CENTER" padding="10">
+            <Label fx:id="totalQuestionsLabel" style="-fx-font-size: 14px;" />
+            <Label fx:id="timerLabel" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: red;" />
+        </VBox>
+    </top>
+</BorderPane>
+

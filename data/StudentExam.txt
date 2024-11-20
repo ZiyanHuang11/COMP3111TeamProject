@@ -1,0 +1,6 @@
+ExamName,ExamDate,CourseID,CourseName,Publish,QuestionIDs,Duration
+quiz1,2023-11-20,COMP3111,Software Engineering,Yes,1|2,600
+quiz2,2023-12-15,COMP3111,Software Engineering,Yes,3|4,900
+quiz1,2023-11-20,COMP5111,Software Engineering II,No,5|6,1200
+quiz2,2023-12-15,COMP5111,Software Engineering II,No,1800
+

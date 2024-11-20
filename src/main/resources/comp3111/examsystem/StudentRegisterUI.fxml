@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="TOP_CENTER" spacing="20.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="comp3111.examsystem.controller.StudentRegisterController">
+    <children>
+        <Label text="Student Registration" style="-fx-font-size: 24;" />
+        <GridPane hgap="10" vgap="10">
+            <columnConstraints>
+                <ColumnConstraints halignment="RIGHT" />
+                <ColumnConstraints halignment="LEFT" />
+            </columnConstraints>
+            <children>
+                <Label text="Username:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                <TextField fx:id="usernameTxt" promptText="Enter your username" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                <Label text="Password:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                <PasswordField fx:id="passwordTxt" promptText="Enter your password" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                <Label text="Confirm Password:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                <PasswordField fx:id="confirmPasswordTxt" promptText="Confirm your password" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                <Label text="Name:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                <TextField fx:id="nameTxt" promptText="Enter your full name" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                <Label text="Gender:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                <ComboBox fx:id="genderBox" promptText="Select gender" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+                <Label text="Department:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                <TextField fx:id="departmentTxt" promptText="Enter your department" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+            </children>
+        </GridPane>
+        <HBox spacing="20">
+            <Button text="Register" onAction="#register" />
+            <Button text="Cancel" onAction="#cancel" />
+        </HBox>
+    </children>
+</VBox>
+

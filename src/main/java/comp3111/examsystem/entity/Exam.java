@@ -11,6 +11,8 @@ public class Exam {
     private final StringProperty examTime;
     private final StringProperty publish;
     private final ObservableList<Question> questions;
+    private final StringProperty courseName;
+    private int duration;
 
     public Exam(String examName, String courseID, String examTime, String publish) {
         this.examName = new SimpleStringProperty(examName);
@@ -18,9 +20,20 @@ public class Exam {
         this.examTime = new SimpleStringProperty(examTime);
         this.publish = new SimpleStringProperty(publish);
         this.questions = FXCollections.observableArrayList();
+        this.courseName = new SimpleStringProperty("");
     }
 
     // Getter 和 Setter 方法
+
+    public int getDuration() {return duration;}
+
+    public void setDuration(int duration) {this.duration = duration;}
+
+    public String getCourseName() {return courseName.get();}
+
+    public void setCourseName(String courseName) {this.courseName.set(courseName);}
+
+    public StringProperty courseNameProperty() {return courseName;}
 
     public String getExamName() {
         return examName.get();
