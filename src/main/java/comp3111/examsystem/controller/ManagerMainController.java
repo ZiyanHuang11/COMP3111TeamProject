@@ -5,7 +5,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -13,12 +12,8 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public class ManagerMainController implements Initializable {
-    @FXML
-    private VBox mainbox;
-
     public void initialize(URL location, ResourceBundle resources) {
     }
-
     @FXML
     public void openStudentManageUI() {
         try {
@@ -37,7 +32,7 @@ public class ManagerMainController implements Initializable {
     public void openTeacherManageUI() {
         try {
             Stage stage = new Stage();
-            FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("StudentLoginUI.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("TeacherManageUI.fxml"));
             Scene scene = new Scene(fxmlLoader.load());
             stage.setTitle("Teacher Management");
             stage.setScene(scene);
@@ -51,7 +46,7 @@ public class ManagerMainController implements Initializable {
     public void openCourseManageUI() {
         try {
             Stage stage = new Stage();
-            FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("StudentLoginUI.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("CourseManageUI.fxml"));
             Scene scene = new Scene(fxmlLoader.load());
             stage.setTitle("Course Management");
             stage.setScene(scene);
