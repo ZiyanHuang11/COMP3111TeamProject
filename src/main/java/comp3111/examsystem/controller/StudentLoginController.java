@@ -15,90 +15,82 @@ import javafx.stage.Stage;
 import java.io.IOException;
 
 public class StudentLoginController {
+
     @FXML
     private TextField usernameTxt;
+
     @FXML
     private PasswordField passwordTxt;
-    public TextField usernameField;
-    public PasswordField passwordField;
 
-    public void handleLogin() {
-        String username = usernameField.getText();
-        String password = passwordField.getText();
+    private final StudentLoginService loginService;
 
-        // 简单校验用户名和密码
-        if ("student".equals(username) && "password".equals(password)) {
-            try {
-                FXMLLoader loader = new FXMLLoader(Main.class.getResource("StudentMainUI.fxml"));
-                Stage stage = new Stage();
-                stage.setTitle("Student Main");
-                stage.setScene(new Scene(loader.load()));
-                stage.show();
-
-                // 关闭当前窗口
-                Stage currentStage = (Stage) usernameField.getScene().getWindow();
-                currentStage.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Login Failed");
-            alert.setHeaderText(null);
-            alert.setContentText("Invalid username or password.");
-            alert.showAndWait();
-        }
-    }
-
-    private StudentLoginService loginService;
-
+    // 构造函数：初始化登录服务
     public StudentLoginController() {
         loginService = new StudentLoginService();
     }
 
+    /**
+     * 处理登录逻辑
+     */
     @FXML
     public void login(ActionEvent e) {
         String username = usernameTxt.getText().trim();
         String password = passwordTxt.getText().trim();
 
-        try {
-            if (loginService.validateLogin(username, password)) {
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Hint");
-                alert.setHeaderText(null);
-                alert.setContentText("Login successful");
-                alert.showAndWait();
+        if (username.isEmpty() || password.isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Input Error", "Username and password cannot be empty.");
+            return;
+        }
 
+        try {
+            // 验证用户名和密码
+            if (loginService.validateLogin(username, password)) {
+                // 登录成功弹窗
+                showAlert(Alert.AlertType.INFORMATION, "Login Successful", "Welcome, " + username + "!");
+
+                // 跳转到主界面
                 FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("StudentMainUI.fxml"));
                 Stage stage = new Stage();
                 stage.setTitle("Hi " + username + ", Welcome to HKUST Examination System");
                 stage.setScene(new Scene(fxmlLoader.load()));
                 stage.show();
+
+                // 关闭当前窗口
                 ((Stage) ((Button) e.getSource()).getScene().getWindow()).close();
+            } else {
+                // 登录失败
+                showAlert(Alert.AlertType.ERROR, "Login Failed", "Invalid username or password.");
             }
-        } catch (IllegalArgumentException ex) {
-            showAlert(Alert.AlertType.ERROR, "Login Failed", ex.getMessage());
-            usernameTxt.clear();
-            passwordTxt.clear();
         } catch (IOException ex) {
             ex.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while loading the next screen.");
         }
     }
 
+    /**
+     * 处理注册逻辑
+     */
     @FXML
     public void register(ActionEvent e) {
         try {
+            // 跳转到注册界面
             FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("StudentRegisterUI.fxml"));
             Stage stage = new Stage();
             stage.setTitle("Student Registration");
             stage.setScene(new Scene(fxmlLoader.load()));
             stage.show();
+
+            // 关闭当前窗口
             ((Stage) ((Button) e.getSource()).getScene().getWindow()).close();
         } catch (IOException ex) {
             ex.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while loading the registration screen.");
         }
-    };
+    }
 
+    /**
+     * 显示提示信息
+     */
     private void showAlert(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
@@ -106,5 +98,4 @@ public class StudentLoginController {
         alert.setContentText(message);
         alert.showAndWait();
     }
-
 }
