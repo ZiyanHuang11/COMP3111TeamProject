@@ -34,7 +34,8 @@ public class ManageTeacherService {
             while ((line = br.readLine()) != null) {
                 String[] data = line.split(",");
                 if (data.length == 7) {
-                    Teacher teacher = new Teacher(data[0], data[1], data[2], Integer.parseInt(data[3]), data[4], data[5], data[6]);
+                    // Updated constructor order
+                    Teacher teacher = new Teacher(data[0], data[1], data[2], data[3], Integer.parseInt(data[4]), data[5], data[6]);
                     teacherList.add(teacher);
                 }
             }
@@ -52,8 +53,9 @@ public class ManageTeacherService {
     }
 
     private void writeTeacherToFile(Teacher teacher) throws IOException {
-        String teacherInput = String.join(",", teacher.getUsername(), teacher.getName(), teacher.getGender(),
-                String.valueOf(teacher.getAge()), teacher.getPosition(), teacher.getDepartment(), teacher.getPassword());
+        // Updated order for writing to file
+        String teacherInput = String.join(",", teacher.getUsername(), teacher.getPassword(), teacher.getName(),
+                teacher.getGender(), String.valueOf(teacher.getAge()), teacher.getPosition(), teacher.getDepartment());
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(teacherFilePath, true))) {
             bw.write(teacherInput);
             bw.newLine();
@@ -78,8 +80,9 @@ public class ManageTeacherService {
     void writeAllTeachersToFile() throws IOException {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(teacherFilePath))) {
             for (Teacher teacher : teacherList) {
-                String teacherInput = String.join(",", teacher.getUsername(), teacher.getName(), teacher.getGender(),
-                        String.valueOf(teacher.getAge()), teacher.getPosition(), teacher.getDepartment(), teacher.getPassword());
+                // Updated order for writing to file
+                String teacherInput = String.join(",", teacher.getUsername(), teacher.getPassword(), teacher.getName(),
+                        teacher.getGender(), String.valueOf(teacher.getAge()), teacher.getPosition(), teacher.getDepartment());
                 bw.write(teacherInput);
                 bw.newLine();
             }

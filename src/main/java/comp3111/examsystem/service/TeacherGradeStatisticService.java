@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 public class TeacherGradeStatisticService {
     private final ObservableList<TeacherGradeStatisticController.Grade> gradeList = FXCollections.observableArrayList();
-
+    //
     public void loadGradesFromFile(String filePath) {
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;

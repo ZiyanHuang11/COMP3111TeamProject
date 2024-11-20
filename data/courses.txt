@@ -10,3 +10,4 @@ bme3010,Biomaterials,BME
 bme4502,Medical Imaging,BME
 mgt201,Operations Management,MGT
 comp3111,software engineering,CSE
+ee2012,Circuit Analysis,EE
