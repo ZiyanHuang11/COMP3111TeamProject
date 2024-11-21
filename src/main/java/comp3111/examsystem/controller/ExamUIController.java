@@ -7,6 +7,7 @@ import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.util.Duration;
+import javafx.scene.control.Alert;
 
 import java.util.HashMap;
 import java.util.List;
@@ -32,12 +33,46 @@ public class ExamUIController {
     @FXML
     private RadioButton optionD;
 
+    private ToggleGroup optionsGroup;
+
+    @FXML
+    public void initialize() {
+        // 创建 ToggleGroup 并绑定到选项按钮
+        optionsGroup = new ToggleGroup();
+        optionA.setToggleGroup(optionsGroup);
+        optionB.setToggleGroup(optionsGroup);
+        optionC.setToggleGroup(optionsGroup);
+        optionD.setToggleGroup(optionsGroup);
+    }
     private Exam selectedExam;
     private List<Question> questions;
     private int currentQuestionIndex = 0;
     private Map<Integer, String> userAnswers = new HashMap<>();
     private int remainingTime;
     private Timeline timer;
+
+    @FXML
+    private void goToPreviousQuestion() {
+        if (currentQuestionIndex > 0) {
+            saveAnswer(); // 保存当前问题的答案
+            currentQuestionIndex--; // 跳转到上一问题
+            loadQuestion(); // 加载新问题
+        } else {
+            showAlert(Alert.AlertType.INFORMATION, "Info", "This is the first question.");
+        }
+    }
+
+    @FXML
+    private void goToNextQuestion() {
+        if (currentQuestionIndex < questions.size() - 1) {
+            saveAnswer(); // 保存当前问题的答案
+            currentQuestionIndex++; // 跳转到下一问题
+            loadQuestion(); // 加载新问题
+        } else {
+            showAlert(Alert.AlertType.INFORMATION, "Info", "This is the last question.");
+        }
+    }
+
 
     public void setExam(Exam exam) {
         this.selectedExam = exam;
@@ -139,4 +174,13 @@ public class ExamUIController {
         timer.setCycleCount(Timeline.INDEFINITE);
         timer.play();
     }
+
+    private void showAlert(Alert.AlertType type, String title, String message) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null); // 不需要头部信息
+        alert.setContentText(message); // 设置提示内容
+        alert.showAndWait(); // 等待用户关闭弹窗
+    }
+
 }
