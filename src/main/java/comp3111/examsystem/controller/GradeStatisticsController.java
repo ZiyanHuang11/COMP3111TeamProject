@@ -1,19 +1,12 @@
 package comp3111.examsystem.controller;
 
 import comp3111.examsystem.entity.ExamResult;
-import javafx.collections.FXCollections;
+import comp3111.examsystem.service.GradeStatisticsService;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.chart.BarChart;
-import javafx.scene.chart.CategoryAxis;
-import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
 
 public class GradeStatisticsController {
 
@@ -43,19 +36,22 @@ public class GradeStatisticsController {
     @FXML
     private BarChart<String, Number> barChart;
 
+    private GradeStatisticsService gradeStatisticsService;
     private ObservableList<ExamResult> examResults;
 
     @FXML
     public void initialize() {
+        gradeStatisticsService = new GradeStatisticsService();
+
         // 初始化表格列
-        courseIDColumn.setCellValueFactory(new PropertyValueFactory<>("courseID"));
-        examNameColumn.setCellValueFactory(new PropertyValueFactory<>("examName"));
-        totalScoreColumn.setCellValueFactory(new PropertyValueFactory<>("totalScore"));
-        scoreColumn.setCellValueFactory(new PropertyValueFactory<>("score"));
-        passColumn.setCellValueFactory(new PropertyValueFactory<>("passStatus"));
+        courseIDColumn.setCellValueFactory(cell -> cell.getValue().courseIDProperty());
+        examNameColumn.setCellValueFactory(cell -> cell.getValue().examNameProperty());
+        totalScoreColumn.setCellValueFactory(cell -> cell.getValue().totalScoreProperty().asObject());
+        scoreColumn.setCellValueFactory(cell -> cell.getValue().scoreProperty().asObject());
+        passColumn.setCellValueFactory(cell -> cell.getValue().passStatusProperty());
 
         // 加载数据
-        examResults = loadExamResults();
+        examResults = gradeStatisticsService.loadExamResults();
         gradeTable.setItems(examResults);
 
         // 初始化课程选择框
@@ -66,36 +62,8 @@ public class GradeStatisticsController {
         updateBarChart(examResults);
     }
 
-    private ObservableList<ExamResult> loadExamResults() {
-        ObservableList<ExamResult> results = FXCollections.observableArrayList();
-        try (BufferedReader br = new BufferedReader(new FileReader("data/exam_results.txt"))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] fields = line.split(",");
-                if (fields.length >= 5) {
-                    String courseID = fields[0].trim();
-                    String examName = fields[1].trim();
-                    int totalScore = Integer.parseInt(fields[2].trim());
-                    int score = Integer.parseInt(fields[3].trim());
-                    String passStatus = fields[4].trim();
-
-                    results.add(new ExamResult(courseID, examName, totalScore, score, passStatus));
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return results;
-    }
-
     private void initializeCourseComboBox() {
-        ObservableList<String> courseList = FXCollections.observableArrayList();
-        for (ExamResult result : examResults) {
-            if (!courseList.contains(result.getCourseID())) {
-                courseList.add(result.getCourseID());
-            }
-        }
-        courseComboBox.setItems(courseList);
+        courseComboBox.setItems(gradeStatisticsService.getCourseList(examResults));
     }
 
     @FXML
@@ -106,13 +74,7 @@ public class GradeStatisticsController {
             return;
         }
 
-        ObservableList<ExamResult> filteredResults = FXCollections.observableArrayList();
-        for (ExamResult result : examResults) {
-            if (result.getCourseID().equals(selectedCourse)) {
-                filteredResults.add(result);
-            }
-        }
-
+        ObservableList<ExamResult> filteredResults = gradeStatisticsService.filterResultsByCourse(examResults, selectedCourse);
         gradeTable.setItems(filteredResults);
         updateStatistics(filteredResults);
         updateBarChart(filteredResults);
@@ -128,43 +90,21 @@ public class GradeStatisticsController {
 
     @FXML
     private void refreshData() {
-        examResults = loadExamResults();
+        examResults = gradeStatisticsService.loadExamResults();
         gradeTable.setItems(examResults);
+        initializeCourseComboBox();
         updateStatistics(examResults);
         updateBarChart(examResults);
     }
 
     private void updateStatistics(ObservableList<ExamResult> results) {
-        if (results.isEmpty()) {
-            averageScoreLabel.setText("Average Score: N/A");
-            passRateLabel.setText("Pass Rate: N/A");
-            return;
-        }
-
-        int totalScore = 0;
-        int passCount = 0;
-        for (ExamResult result : results) {
-            totalScore += result.getScore();
-            if ("Yes".equalsIgnoreCase(result.getPassStatus())) {
-                passCount++;
-            }
-        }
-
-        double averageScore = (double) totalScore / results.size();
-        double passRate = (double) passCount / results.size() * 100;
-
-        averageScoreLabel.setText(String.format("Average Score: %.2f", averageScore));
-        passRateLabel.setText(String.format("Pass Rate: %.2f%%", passRate));
+        averageScoreLabel.setText(String.format("Average Score: %.2f", gradeStatisticsService.calculateAverageScore(results)));
+        passRateLabel.setText(String.format("Pass Rate: %.2f%%", gradeStatisticsService.calculatePassRate(results)));
     }
 
     private void updateBarChart(ObservableList<ExamResult> results) {
         barChart.getData().clear();
-
-        XYChart.Series<String, Number> series = new XYChart.Series<>();
-        for (ExamResult result : results) {
-            series.getData().add(new XYChart.Data<>(result.getExamName(), result.getScore()));
-        }
-
+        XYChart.Series<String, Number> series = gradeStatisticsService.generateBarChartSeries(results);
         barChart.getData().add(series);
     }
 
@@ -176,3 +116,4 @@ public class GradeStatisticsController {
         alert.showAndWait();
     }
 }
+

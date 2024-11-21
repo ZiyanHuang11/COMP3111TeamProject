@@ -2,15 +2,13 @@ package comp3111.examsystem.controller;
 
 import comp3111.examsystem.entity.Exam;
 import comp3111.examsystem.entity.Question;
+import comp3111.examsystem.service.ExamService;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.util.Duration;
-import javafx.scene.control.Alert;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class ExamUIController {
@@ -34,67 +32,35 @@ public class ExamUIController {
     private RadioButton optionD;
 
     private ToggleGroup optionsGroup;
+    private ExamService examService; // 引入业务逻辑服务层
+    private Timeline timer; // 计时器
 
     @FXML
     public void initialize() {
-        // 创建 ToggleGroup 并绑定到选项按钮
         optionsGroup = new ToggleGroup();
         optionA.setToggleGroup(optionsGroup);
         optionB.setToggleGroup(optionsGroup);
         optionC.setToggleGroup(optionsGroup);
         optionD.setToggleGroup(optionsGroup);
+        examService = new ExamService(); // 初始化业务逻辑服务
     }
-    private Exam selectedExam;
-    private List<Question> questions;
-    private int currentQuestionIndex = 0;
-    private Map<Integer, String> userAnswers = new HashMap<>();
-    private int remainingTime;
-    private Timeline timer;
-
-    @FXML
-    private void goToPreviousQuestion() {
-        if (currentQuestionIndex > 0) {
-            saveAnswer(); // 保存当前问题的答案
-            currentQuestionIndex--; // 跳转到上一问题
-            loadQuestion(); // 加载新问题
-        } else {
-            showAlert(Alert.AlertType.INFORMATION, "Info", "This is the first question.");
-        }
-    }
-
-    @FXML
-    private void goToNextQuestion() {
-        if (currentQuestionIndex < questions.size() - 1) {
-            saveAnswer(); // 保存当前问题的答案
-            currentQuestionIndex++; // 跳转到下一问题
-            loadQuestion(); // 加载新问题
-        } else {
-            showAlert(Alert.AlertType.INFORMATION, "Info", "This is the last question.");
-        }
-    }
-
 
     public void setExam(Exam exam) {
-        this.selectedExam = exam;
-        this.questions = exam.getQuestions();
-        this.remainingTime = exam.getDuration(); // 从 Exam 中获取总时间
-        initializeExam();
+        examService.initializeExam(exam);
+        updateUI();
+        startTimer();
     }
 
-    private void initializeExam() {
-        // 设置考试信息
-        quizNameLabel.setText(selectedExam.getCourseID() + " - " + selectedExam.getExamName());
-        totalQuestionsLabel.setText("Total Questions: " + questions.size());
-        startTimer();
+    private void updateUI() {
+        // 更新考试信息
+        quizNameLabel.setText(examService.getQuizName());
+        totalQuestionsLabel.setText("Total Questions: " + examService.getTotalQuestions());
 
-        // 加载问题列表
-        for (int i = 0; i < questions.size(); i++) {
-            questionListView.getItems().add("Question " + (i + 1));
-        }
-
+        // 更新问题列表
+        questionListView.getItems().setAll(examService.getQuestionList());
         questionListView.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                currentQuestionIndex = newValue.intValue();
+                examService.setCurrentQuestionIndex(newValue.intValue());
                 loadQuestion();
             }
         });
@@ -103,70 +69,60 @@ public class ExamUIController {
     }
 
     private void loadQuestion() {
-        Question question = questions.get(currentQuestionIndex);
+        Question question = examService.getCurrentQuestion();
         questionLabel.setText(question.getQuestion());
         optionA.setText("A. " + question.getOptionA());
         optionB.setText("B. " + question.getOptionB());
         optionC.setText("C. " + question.getOptionC());
         optionD.setText("D. " + question.getOptionD());
 
-        // 加载用户选择的答案
-        String userAnswer = userAnswers.getOrDefault(currentQuestionIndex, "");
-        if (userAnswer.equals("A")) optionA.setSelected(true);
-        else if (userAnswer.equals("B")) optionB.setSelected(true);
-        else if (userAnswer.equals("C")) optionC.setSelected(true);
-        else if (userAnswer.equals("D")) optionD.setSelected(true);
-        else {
-            optionA.setSelected(false);
-            optionB.setSelected(false);
-            optionC.setSelected(false);
-            optionD.setSelected(false);
+        String userAnswer = examService.getUserAnswer();
+        optionA.setSelected("A".equals(userAnswer));
+        optionB.setSelected("B".equals(userAnswer));
+        optionC.setSelected("C".equals(userAnswer));
+        optionD.setSelected("D".equals(userAnswer));
+    }
+
+    @FXML
+    private void goToPreviousQuestion() {
+        if (examService.hasPreviousQuestion()) {
+            examService.saveAnswer(getSelectedOption());
+            examService.goToPreviousQuestion();
+            loadQuestion();
+        } else {
+            showAlert(Alert.AlertType.INFORMATION, "Info", "This is the first question.");
         }
     }
 
-    private void saveAnswer() {
-        if (optionA.isSelected()) userAnswers.put(currentQuestionIndex, "A");
-        else if (optionB.isSelected()) userAnswers.put(currentQuestionIndex, "B");
-        else if (optionC.isSelected()) userAnswers.put(currentQuestionIndex, "C");
-        else if (optionD.isSelected()) userAnswers.put(currentQuestionIndex, "D");
+    @FXML
+    private void goToNextQuestion() {
+        if (examService.hasNextQuestion()) {
+            examService.saveAnswer(getSelectedOption());
+            examService.goToNextQuestion();
+            loadQuestion();
+        } else {
+            showAlert(Alert.AlertType.INFORMATION, "Info", "This is the last question.");
+        }
     }
 
     @FXML
     private void submitExam() {
-        saveAnswer();
-        int correctAnswers = 0;
-        int totalScore = 0;
-        for (int i = 0; i < questions.size(); i++) {
-            Question question = questions.get(i);
-            String correctAnswer = question.getAnswer();
-            String userAnswer = userAnswers.getOrDefault(i, "");
-            if (correctAnswer.equals(userAnswer)) {
-                correctAnswers++;
-                totalScore += question.getScore();
-            }
-        }
-
-        // 弹窗显示结果
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Quiz Result");
-        alert.setHeaderText(null);
-        alert.setContentText(correctAnswers + "/" + questions.size() + " Correct, the precision is "
-                + (correctAnswers * 100.0 / questions.size()) + "%, the score is " + totalScore + "/" + getTotalScore());
-        alert.showAndWait();
-
-        // 停止计时器
+        examService.saveAnswer(getSelectedOption());
+        int[] results = examService.calculateResults();
+        int correctAnswers = results[0];
+        int totalScore = results[1];
+        showAlert(Alert.AlertType.INFORMATION, "Quiz Result",
+                correctAnswers + "/" + examService.getTotalQuestions() +
+                        " Correct, the precision is " + examService.getPrecision() +
+                        "%, the score is " + totalScore + "/" + examService.getMaxScore());
         if (timer != null) timer.stop();
-    }
-
-    private int getTotalScore() {
-        return questions.stream().mapToInt(Question::getScore).sum();
     }
 
     private void startTimer() {
         timer = new Timeline(new KeyFrame(Duration.seconds(1), event -> {
-            remainingTime--;
-            timerLabel.setText("Remaining Time: " + remainingTime + "s");
-            if (remainingTime <= 0) {
+            if (examService.decrementTime()) {
+                timerLabel.setText("Remaining Time: " + examService.getRemainingTime() + "s");
+            } else {
                 timer.stop();
                 submitExam();
             }
@@ -175,12 +131,19 @@ public class ExamUIController {
         timer.play();
     }
 
+    private String getSelectedOption() {
+        if (optionA.isSelected()) return "A";
+        if (optionB.isSelected()) return "B";
+        if (optionC.isSelected()) return "C";
+        if (optionD.isSelected()) return "D";
+        return "";
+    }
+
     private void showAlert(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
-        alert.setHeaderText(null); // 不需要头部信息
-        alert.setContentText(message); // 设置提示内容
-        alert.showAndWait(); // 等待用户关闭弹窗
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
-
 }
