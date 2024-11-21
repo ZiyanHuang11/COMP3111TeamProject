@@ -8,29 +8,33 @@ import javafx.collections.ObservableList;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
+import java.util.*;
 
 public class ExamService {
-    private String examFilePath;
-    private String questionFilePath;
-
     private Exam currentExam;
     private List<Question> questions;
     private Map<Integer, String> userAnswers;
     private int currentQuestionIndex;
     private int remainingTime;
 
+    private final String examFilePath;
+    private final String questionFilePath;
+
+    // Default constructor
     public ExamService() {
-        this.examFilePath = "data/exam.txt";
-        this.questionFilePath = "data/question.txt";
+        this("data/StudentExam.txt", "data/StudentExamQuestion.txt");
+    }
+
+    // Constructor with custom file paths
+    public ExamService(String examFilePath, String questionFilePath) {
+        this.examFilePath = examFilePath;
+        this.questionFilePath = questionFilePath;
         this.userAnswers = new HashMap<>();
+        this.currentQuestionIndex = 0;
     }
 
     /**
-     * 加载所有考试
+     * Load exams from the exam file.
      */
     public ObservableList<Exam> loadExams() {
         ObservableList<Exam> exams = FXCollections.observableArrayList();
@@ -39,61 +43,58 @@ public class ExamService {
             while ((line = br.readLine()) != null) {
                 String[] fields = line.split(",");
                 if (fields.length >= 7) {
-                    String examName = fields[0].trim();
-                    String examDate = fields[1].trim();
-                    String courseID = fields[2].trim();
-                    String courseName = fields[3].trim();
-                    String publish = fields[4].trim();
-                    String[] questionIDs = fields[5].split("\\|");
-                    int duration = Integer.parseInt(fields[6].trim());
-
-                    Exam exam = new Exam(examName, courseID, examDate, publish);
-                    exam.setCourseName(courseName);
-                    exam.setDuration(duration);
-
-                    ObservableList<Question> questions = loadQuestions(questionIDs);
-                    exam.setQuestions(questions);
-
-                    exams.add(exam);
+                    exams.add(parseExam(fields));
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Error reading exam file: " + e.getMessage());
         }
         return exams;
     }
 
-    /**
-     * 根据问题 ID 加载问题
-     */
+    private Exam parseExam(String[] fields) {
+        String examName = fields[0].trim();
+        String examDate = fields[1].trim();
+        String courseID = fields[2].trim();
+        String courseName = fields[3].trim();
+        String publish = fields[4].trim();
+        String[] questionIDs = fields[5].split("\\|");
+        int duration = Integer.parseInt(fields[6].trim());
+
+        Exam exam = new Exam(examName, courseID, examDate, publish);
+        exam.setCourseName(courseName);
+        exam.setDuration(duration);
+        exam.setQuestions(loadQuestions(questionIDs));
+        return exam;
+    }
+
     private ObservableList<Question> loadQuestions(String[] questionIDs) {
-        List<Question> questionList = new ArrayList<>();
+        ObservableList<Question> questionList = FXCollections.observableArrayList();
+        Set<String> questionIDSet = new HashSet<>(Arrays.asList(questionIDs));
         try (BufferedReader br = new BufferedReader(new FileReader(questionFilePath))) {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] fields = line.split(",");
-                if (fields.length >= 9) {
-                    String questionID = fields[0].trim();
-                    for (String id : questionIDs) {
-                        if (questionID.equals(id.trim())) {
-                            Question question = new Question(
-                                    fields[1], fields[2], fields[3], fields[4], fields[5],
-                                    fields[6], fields[7], Integer.parseInt(fields[8])
-                            );
-                            questionList.add(question);
-                            break;
-                        }
-                    }
+                if (fields.length >= 9 && questionIDSet.contains(fields[0].trim())) {
+                    questionList.add(parseQuestion(fields));
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Error reading question file: " + e.getMessage());
         }
-        return FXCollections.observableArrayList(questionList);
+        return questionList;
+    }
+
+    private Question parseQuestion(String[] fields) {
+        return new Question(
+                fields[1].trim(), fields[2].trim(), fields[3].trim(),
+                fields[4].trim(), fields[5].trim(), fields[6].trim(),
+                fields[7].trim(), Integer.parseInt(fields[8].trim())
+        );
     }
 
     /**
-     * 初始化考试
+     * Initialize the exam.
      */
     public void initializeExam(Exam exam) {
         this.currentExam = exam;
@@ -104,61 +105,81 @@ public class ExamService {
     }
 
     public String getQuizName() {
-        return currentExam.getCourseID() + " - " + currentExam.getExamName();
+        return currentExam != null ? currentExam.getCourseID() + " - " + currentExam.getExamName() : "No Exam Selected";
     }
 
     public int getTotalQuestions() {
-        return questions.size();
+        return questions != null ? questions.size() : 0;
     }
 
     public List<String> getQuestionList() {
-        List<String> questionTitles = new ArrayList<>();
-        for (int i = 0; i < questions.size(); i++) {
-            questionTitles.add("Question " + (i + 1));
+        if (questions == null) return List.of();
+        return questions.stream()
+                .map(q -> "Question: " + q.getQuestion())
+                .toList();
+    }
+
+    public int getMaxScore() {
+        return questions.stream().mapToInt(Question::getScore).sum();
+    }
+
+    public double getPrecision() {
+        if (questions == null || questions.isEmpty()) return 0.0;
+        int correctAnswers = calculateResults()[0];
+        return (correctAnswers * 100.0) / questions.size();
+    }
+
+    public boolean decrementTime() {
+        if (remainingTime > 0) {
+            remainingTime--;
+            return true;
         }
-        return questionTitles;
+        return false;
+    }
+
+    public int getRemainingTime() {
+        return remainingTime;
     }
 
     public Question getCurrentQuestion() {
         return questions.get(currentQuestionIndex);
     }
 
-    public boolean hasPreviousQuestion() {
-        return currentQuestionIndex > 0;
-    }
-
-    public boolean hasNextQuestion() {
-        return currentQuestionIndex < questions.size() - 1;
-    }
-
-    public void goToPreviousQuestion() {
-        if (hasPreviousQuestion()) {
-            currentQuestionIndex--;
-        }
-    }
-
-    public void setCurrentQuestionIndex(int index) {
-        if (index >= 0 && index < questions.size()) {
-            this.currentQuestionIndex = index;
-        } else {
-            throw new IllegalArgumentException("Invalid question index: " + index);
-        }
-    }
-
-    public void goToNextQuestion() {
-        if (hasNextQuestion()) {
-            currentQuestionIndex++;
-        }
-    }
-
+    /**
+     * Save the user's answer for the current question.
+     *
+     * @param answer User's answer
+     */
     public void saveAnswer(String answer) {
         userAnswers.put(currentQuestionIndex, answer);
     }
 
+    /**
+     * Get the user's answer for the current question.
+     *
+     * @return User's answer or an empty string if no answer is saved
+     */
     public String getUserAnswer() {
         return userAnswers.getOrDefault(currentQuestionIndex, "");
     }
 
+    /**
+     * Set the current question index.
+     *
+     * @param index Index of the question to set
+     */
+    public void setCurrentQuestionIndex(int index) {
+        if (index < 0 || index >= questions.size()) {
+            throw new IllegalArgumentException("Invalid question index: " + index);
+        }
+        this.currentQuestionIndex = index;
+    }
+
+    /**
+     * Calculate the results of the exam.
+     *
+     * @return An array where [0] = correct answers, [1] = total score
+     */
     public int[] calculateResults() {
         int correctAnswers = 0;
         int totalScore = 0;
@@ -176,32 +197,23 @@ public class ExamService {
         return new int[]{correctAnswers, totalScore};
     }
 
-    public int getCurrentQuestionIndex() {
-        return currentQuestionIndex;
+    public boolean hasNextQuestion() {
+        return currentQuestionIndex < questions.size() - 1;
     }
 
-    public int getMaxScore() {
-        return questions.stream().mapToInt(Question::getScore).sum();
+    public boolean hasPreviousQuestion() {
+        return currentQuestionIndex > 0;
     }
 
-    public double getPrecision() {
-        int correctAnswers = calculateResults()[0];
-        return correctAnswers * 100.0 / getTotalQuestions();
-    }
-
-    public boolean decrementTime() {
-        if (remainingTime > 0) {
-            remainingTime--;
-            return true;
+    public void goToNextQuestion() {
+        if (hasNextQuestion()) {
+            currentQuestionIndex++;
         }
-        return false;
     }
 
-    public int getRemainingTime() {
-        return remainingTime;
+    public void goToPreviousQuestion() {
+        if (hasPreviousQuestion()) {
+            currentQuestionIndex--;
+        }
     }
 }
-
-
-
-

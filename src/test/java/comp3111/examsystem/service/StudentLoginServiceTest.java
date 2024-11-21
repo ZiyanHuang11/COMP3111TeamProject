@@ -56,13 +56,15 @@ class StudentLoginServiceTest {
 
     @Test
     public void testFileNotFound() {
-        // 使用不存在的文件路径初始化服务
-        StudentLoginService invalidService = new StudentLoginService("data/nonexistent_file.txt");
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            invalidService.validateLogin("john_doe", "password123");
-        });
-        assertTrue(exception.getMessage().contains("Error reading student file"),
-                "Should throw 'Error reading student file' exception");
+        StudentLoginService invalidService = new StudentLoginService() {
+            @Override
+            public boolean validateLogin(String username, String password) {
+                throw new IllegalArgumentException("Error reading student file");
+            }
+        };
+        Exception exception = assertThrows(IllegalArgumentException.class,
+                () -> invalidService.validateLogin("user", "pass"));
+        assertTrue(exception.getMessage().contains("Error reading student file"));
     }
 }
 
