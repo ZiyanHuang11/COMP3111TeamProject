@@ -176,6 +176,10 @@ public class ExamService {
         return new int[]{correctAnswers, totalScore};
     }
 
+    public int getCurrentQuestionIndex() {
+        return currentQuestionIndex;
+    }
+
     public int getMaxScore() {
         return questions.stream().mapToInt(Question::getScore).sum();
     }
