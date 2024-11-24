@@ -1,12 +1,8 @@
-jane_smith,Jane Smith,22,Male,Business,password456
-alice_johnson,Alice Johnson,33,Female,Mathematics,password789
-daisy_white,Daisy White,22,Female,Chemistry,password303
-edward_green,Edward Green,24,Female,Art,password404
-fiona_blue,Fiona Blue,20,Female,History,password505
-hannah_yellow,Hannah Yellow,22,Female,Literature,password707
-student1,stu,19,Male,Software Engineering,123456
-john_doe,John Doe,20,Male,Computer Science,password123
-bob_brown,Bob Brown,23,Male,Engineering,password101
-charlie_black,Charlie Black,19,Male,Physics,password202
-george_red,George Red,21,Male,Philosophy,password606
-student11,stu,19,Male,Software Engineering,aaaa1111
+id:1,username:jane_smith,name:Jane Smith,age:22,gender:Female,department:Business,password:password456
+id:2,username:alice_johnson,name:Alice Johnson,age:33,gender:Female,department:Mathematics,password:password789
+id:3,username:daisy_white,name:Daisy White,age:22,gender:Female,department:Chemistry,password:password303
+id:4,username:edward_green,name:Edward Green,age:24,gender:Male,department:Art,password:password404
+id:5,username:fiona_blue,name:Fiona Blue,age:20,gender:Female,department:History,password:password505
+id:6,username:hannah_yellow,name:Hannah Yellow,age:22,gender:Female,department:Literature,password:password707
+id:7,username:student1,name:Stu Example,age:19,gender:Male,department:Software Engineering,password:123456
+id:8,username:john_doe,name:John Doe,age:20,gender:Male,department:Computer Science,password:password123

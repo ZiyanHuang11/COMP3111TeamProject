@@ -1,93 +1,48 @@
 package comp3111.examsystem.entity;
 
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import java.util.ArrayList;
+import java.util.List;
 
-public class Exam {
-    private final StringProperty examName;
-    private final StringProperty courseID;
-    private final StringProperty examTime;
-    private final StringProperty publish;
-    private final ObservableList<Question> questions;
-    private final StringProperty courseName;
+public class Exam extends Entity {
+    private String examName;
+    private String courseID;
+    private String examDate;
+    private List<String> questionIds;
     private int duration;
 
-    public Exam(String examName, String courseID, String examTime, String publish) {
-        this.examName = new SimpleStringProperty(examName);
-        this.courseID = new SimpleStringProperty(courseID);
-        this.examTime = new SimpleStringProperty(examTime);
-        this.publish = new SimpleStringProperty(publish);
-        this.questions = FXCollections.observableArrayList();
-        this.courseName = new SimpleStringProperty("");
+    public Exam(String id, String examName, String examDate, String courseID, List<String> questionIds, int duration) {
+        this.setId(id);
+        this.examName = examName;
+        this.courseID = courseID;
+        this.examDate = examDate;
+        this.questionIds = new ArrayList<>(questionIds);
+        this.duration = duration;
     }
 
-    // Getter 和 Setter 方法
+    public String getExamName() { return examName; }
+    public void setExamName(String examName) { this.examName = examName; }
 
-    public int getDuration() {return duration;}
+    public String getCourseID() { return courseID; }
+    public void setCourseID(String courseID) { this.courseID = courseID; }
 
-    public void setDuration(int duration) {this.duration = duration;}
+    public String getExamDate() { return examDate; }
+    public void setExamDate(String examDate) { this.examDate = examDate; }
 
-    public String getCourseName() {return courseName.get();}
+    public List<String> getQuestionIds() { return questionIds; }
+    public void setQuestionIds(List<String> questionIds) { this.questionIds = questionIds; }
 
-    public void setCourseName(String courseName) {this.courseName.set(courseName);}
+    public int getDuration() { return duration; }
+    public void setDuration(int duration) { this.duration = duration; }
 
-    public StringProperty courseNameProperty() {return courseName;}
-
-    public String getExamName() {
-        return examName.get();
-    }
-
-    public void setExamName(String examName) {
-        this.examName.set(examName);
-    }
-
-    public StringProperty examNameProperty() {
-        return examName;
-    }
-
-    public String getCourseID() {
-        return courseID.get();
-    }
-
-    public void setCourseID(String courseID) {
-        this.courseID.set(courseID);
-    }
-
-    public StringProperty courseIDProperty() {
-        return courseID;
-    }
-
-    public String getExamTime() {
-        return examTime.get();
-    }
-
-    public void setExamTime(String examTime) {
-        this.examTime.set(examTime);
-    }
-
-    public StringProperty examTimeProperty() {
-        return examTime;
-    }
-
-    public String getPublish() {
-        return publish.get();
-    }
-
-    public void setPublish(String publish) {
-        this.publish.set(publish);
-    }
-
-    public StringProperty publishProperty() {
-        return publish;
-    }
-
-    public ObservableList<Question> getQuestions() {
-        return questions;
-    }
-
-    public void setQuestions(ObservableList<Question> questions) {
-        this.questions.setAll(questions);
+    @Override
+    public String toString() {
+        return "Exam{" +
+                "id=" + getId() +
+                ", examName='" + examName + '\'' +
+                ", courseID='" + courseID + '\'' +
+                ", examDate='" + examDate + '\'' +
+                ", questionIds=" + questionIds +
+                ", duration=" + duration +
+                '}';
     }
 }

@@ -1,2 +1,5 @@
-Midterm Exam,2023-11-20,COMP3111,Yes,What is Java?|What is Java3?
-Final Exam,2023-12-15,COMP5111,No,Explain OOP concepts.
+id:1,examName:quiz1,examDate:2023-11-20,courseID:COMP3111,questionIDs:1|2,duration:600
+id:2,examName:quiz2,examDate:2023-12-15,courseID:COMP3111,questionIDs:3|4,duration:900
+id:3,examName:quiz1,examDate:2023-11-20,courseID:COMP5111,questionIDs:1|3,duration:600
+id:4,examName:quiz2,examDate:2023-12-15,courseID:COMP5111,questionIDs:2|4,duration:900
+

@@ -1,10 +1,5 @@
-QuestionID,Question,OptionA,OptionB,OptionC,OptionD,Answer,Type,Score
-1,What is Java?,A programming language,A coffee brand,An island,All of the above,A programming language,Single,5
-2,Explain OOP concepts.,Encapsulation,Inheritance,Polymorphism,Abstraction,All of the above,Multiple,10
-3,What is software engineering?,The application of engineering to software development,Designing bridges,Writing essays,None of the above,The application of engineering to software development,Single,5
-4,Define agile.,Iterative development,Static planning,No testing,None of the above,Iterative development,Single,5
-5,What is testing?,Validating software,Writing tests,Building test tools,None of the above,Validating software,Single,5
-6,Explain integration testing.,Testing combined modules,Testing individual units,Not testing,None of the above,Testing combined modules,Single,5
-7,What is UML?,A modeling language,A programming language,A testing framework,None of the above,A modeling language,Single,5
-8,Define DevOps.,Collaboration between development and operations,Only testing,Only development,None of the above,Collaboration between development and operations,Single,5
+id:1,question:What is Java?,optionA:A programming language,optionB:A coffee brand,optionC:An island,optionD:All of the above,answer:A programming language,type:Single,score:5
+id:2,question:Explain OOP concepts.,optionA:Encapsulation,optionB:Inheritance,optionC:Polymorphism,optionD:Abstraction,answer:All of the above,type:Multiple,score:10
+id:3,question:Define Agile.,optionA:Iterative development,optionB:Static planning,optionC:No testing,optionD:None of the above,answer:Iterative development,type:Single,score:5
+id:4,question:What is UML?,optionA:A modeling language,optionB:A programming language,optionC:A testing framework,optionD:None of the above,answer:A modeling language,type:Single,score:5
 

@@ -2,7 +2,7 @@ package comp3111.examsystem.entity;
 
 import javafx.beans.property.*;
 
-public class Question {
+public class Question extends Entity {
     private final StringProperty question;
     private final StringProperty optionA;
     private final StringProperty optionB;
@@ -12,8 +12,22 @@ public class Question {
     private final StringProperty type;
     private final IntegerProperty score;
 
-    public Question(String question, String optionA, String optionB, String optionC, String optionD,
+    // 无参构造函数（便于反射或序列化）
+    public Question() {
+        this.question = new SimpleStringProperty("");
+        this.optionA = new SimpleStringProperty("");
+        this.optionB = new SimpleStringProperty("");
+        this.optionC = new SimpleStringProperty("");
+        this.optionD = new SimpleStringProperty("");
+        this.answer = new SimpleStringProperty("");
+        this.type = new SimpleStringProperty("");
+        this.score = new SimpleIntegerProperty(0);
+    }
+
+    // 全参构造函数，包含 id
+    public Question(String id, String question, String optionA, String optionB, String optionC, String optionD,
                     String answer, String type, int score) {
+        this.setId(id); // 设置 id
         this.question = new SimpleStringProperty(question);
         this.optionA = new SimpleStringProperty(optionA);
         this.optionB = new SimpleStringProperty(optionB);
@@ -25,7 +39,6 @@ public class Question {
     }
 
     // Getter 和 Setter 方法
-
     public String getQuestion() {
         return question.get();
     }
@@ -120,5 +133,20 @@ public class Question {
 
     public IntegerProperty scoreProperty() {
         return score;
+    }
+
+    @Override
+    public String toString() {
+        return "Question{" +
+                "id=" + getId() +
+                ", question=" + getQuestion() +
+                ", optionA=" + getOptionA() +
+                ", optionB=" + getOptionB() +
+                ", optionC=" + getOptionC() +
+                ", optionD=" + getOptionD() +
+                ", answer=" + getAnswer() +
+                ", type=" + getType() +
+                ", score=" + getScore() +
+                '}';
     }
 }

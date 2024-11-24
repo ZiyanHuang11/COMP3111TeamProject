@@ -1,84 +1,45 @@
 package comp3111.examsystem.entity;
 
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+public class ExamResult extends Entity {
+    private String studentID;
+    private String examID;
+    private int score;
+    private int totalScore;
+    private String passStatus;
 
-public class ExamResult {
-    private final StringProperty courseID;   // 课程代码
-    private final StringProperty examName;   // 考试名称
-    private final IntegerProperty totalScore; // 总分
-    private final IntegerProperty score;     // 得分
-    private final StringProperty passStatus; // 是否通过
-
-    // 构造函数
-    public ExamResult(String courseID, String examName, int totalScore, int score, String passStatus) {
-        this.courseID = new SimpleStringProperty(courseID);
-        this.examName = new SimpleStringProperty(examName);
-        this.totalScore = new SimpleIntegerProperty(totalScore);
-        this.score = new SimpleIntegerProperty(score);
-        this.passStatus = new SimpleStringProperty(passStatus);
+    public ExamResult(String id, String studentID, String examID, int score, int totalScore, String passStatus) {
+        this.setId(id);
+        this.studentID = studentID;
+        this.examID = examID;
+        this.score = score;
+        this.totalScore = totalScore;
+        this.passStatus = passStatus;
     }
 
-    // Getters 和 Setters（JavaFX 风格，返回 Property）
-    public StringProperty courseIDProperty() {
-        return courseID;
-    }
+    public String getStudentID() { return studentID; }
+    public void setStudentID(String studentID) { this.studentID = studentID; }
 
-    public String getCourseID() {
-        return courseID.get();
-    }
+    public String getExamID() { return examID; }
+    public void setExamID(String examID) { this.examID = examID; }
 
-    public void setCourseID(String courseID) {
-        this.courseID.set(courseID);
-    }
+    public int getScore() { return score; }
+    public void setScore(int score) { this.score = score; }
 
-    public StringProperty examNameProperty() {
-        return examName;
-    }
+    public int getTotalScore() { return totalScore; }
+    public void setTotalScore(int totalScore) { this.totalScore = totalScore; }
 
-    public String getExamName() {
-        return examName.get();
-    }
+    public String getPassStatus() { return passStatus; }
+    public void setPassStatus(String passStatus) { this.passStatus = passStatus; }
 
-    public void setExamName(String examName) {
-        this.examName.set(examName);
-    }
-
-    public IntegerProperty totalScoreProperty() {
-        return totalScore;
-    }
-
-    public int getTotalScore() {
-        return totalScore.get();
-    }
-
-    public void setTotalScore(int totalScore) {
-        this.totalScore.set(totalScore);
-    }
-
-    public IntegerProperty scoreProperty() {
-        return score;
-    }
-
-    public int getScore() {
-        return score.get();
-    }
-
-    public void setScore(int score) {
-        this.score.set(score);
-    }
-
-    public StringProperty passStatusProperty() {
-        return passStatus;
-    }
-
-    public String getPassStatus() {
-        return passStatus.get();
-    }
-
-    public void setPassStatus(String passStatus) {
-        this.passStatus.set(passStatus);
+    @Override
+    public String toString() {
+        return "ExamResult{" +
+                "id=" + getId() +
+                ", studentID='" + studentID + '\'' +
+                ", examID='" + examID + '\'' +
+                ", score=" + score +
+                ", totalScore=" + totalScore +
+                ", passStatus='" + passStatus + '\'' +
+                '}';
     }
 }

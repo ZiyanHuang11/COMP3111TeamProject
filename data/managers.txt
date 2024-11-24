@@ -1,1 +1,2 @@
-ABA,123456
+id:1,username:ABA,password:123456
+

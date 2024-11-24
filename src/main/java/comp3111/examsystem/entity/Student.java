@@ -1,6 +1,6 @@
 package comp3111.examsystem.entity;
 
-public class Student {
+public class Student extends Entity {
     private String username;
     private String name;
     private int age;
@@ -8,7 +8,8 @@ public class Student {
     private String department;
     private String password;
 
-    public Student(String username, String name, int age, String gender, String department, String password) {
+    public Student(String id, String username, String name, int age, String gender, String department, String password) {
+        this.setId(id);
         this.username = username;
         this.name = name;
         this.age = age;
@@ -24,27 +25,23 @@ public class Student {
     public String getPassword() { return password; }
     public String getGender() { return gender; }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
+    public void setUsername(String username) { this.username = username; }
+    public void setName(String name) { this.name = name; }
+    public void setAge(int age) { this.age = age; }
+    public void setGender(String gender) { this.gender = gender; }
+    public void setDepartment(String department) { this.department = department; }
+    public void setPassword(String password) { this.password = password; }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
-
-    public void setDepartment(String department) {
-        this.department = department;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+    @Override
+    public String toString() {
+        return "Student{" +
+                "id=" + getId() +
+                ", username='" + username + '\'' +
+                ", name='" + name + '\'' +
+                ", age=" + age +
+                ", gender='" + gender + '\'' +
+                ", department='" + department + '\'' +
+                ", password='" + password + '\'' +
+                '}';
     }
 }
