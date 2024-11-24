@@ -1,10 +1,10 @@
 package comp3111.examsystem.controller;
 
 import comp3111.examsystem.Main;
+import comp3111.examsystem.service.StudentLoginService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -12,92 +12,90 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.net.URL;
-import java.util.List;
-import java.util.ResourceBundle;
 
-public class StudentLoginController implements Initializable {
+public class StudentLoginController {
+
     @FXML
     private TextField usernameTxt;
+
     @FXML
     private PasswordField passwordTxt;
-    // private存学生信息路径
-    private String studentFilePath;
 
-    public void initialize(URL location, ResourceBundle resources) {
+    private final StudentLoginService loginService;
 
-    }
-
+    // 构造函数：初始化登录服务
     public StudentLoginController() {
-        studentFilePath = "data/students.txt";
-        File studentFile = new File(studentFilePath);
-        if (studentFile.exists()) {
-            System.out.println("Student file found at: " + studentFile.getAbsolutePath());
-        } else {
-            System.out.println("Student file not found!");
-        }
+        loginService = new StudentLoginService();
     }
 
+    /**
+     * 处理登录逻辑
+     */
     @FXML
     public void login(ActionEvent e) {
-        String username = usernameTxt.getText();
-        String password = passwordTxt.getText();
+        String username = usernameTxt.getText().trim();
+        String password = passwordTxt.getText().trim();
 
-        if (validate(username, password)) {
-            // 登陆成功后先弹窗再显示fxml界面
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Hint");
-            alert.setHeaderText(null);
-            alert.setContentText("Login successful");
-            alert.showAndWait();
-            FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("StudentMainUI.fxml"));
-            Stage stage = new Stage();
-            stage.setTitle("Hi " + username + ", Welcome to HKUST Examination System");
-            try {
+        if (username.isEmpty() || password.isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Input Error", "Username and password cannot be empty.");
+            return;
+        }
+
+        try {
+            // 验证用户名和密码
+            if (loginService.validateLogin(username, password)) {
+                // 登录成功弹窗
+                showAlert(Alert.AlertType.INFORMATION, "Login Successful", "Welcome, " + username + "!");
+
+                // 跳转到主界面
+                FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("StudentMainUI.fxml"));
+                Stage stage = new Stage();
+                stage.setTitle("Hi " + username + ", Welcome to HKUST Examination System");
                 stage.setScene(new Scene(fxmlLoader.load()));
-            } catch (IOException e1) {
-                e1.printStackTrace();
+                stage.show();
+
+                // 关闭当前窗口
+                ((Stage) ((Button) e.getSource()).getScene().getWindow()).close();
+            } else {
+                // 登录失败
+                showAlert(Alert.AlertType.ERROR, "Login Failed", "Invalid username or password.");
             }
-            stage.show();
-            ((Stage) ((Button) e.getSource()).getScene().getWindow()).close();
-        } else {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Hint");
-            alert.setHeaderText(null);
-            alert.setContentText("Invalid username or password");
-            alert.showAndWait();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while loading the next screen.");
         }
     }
 
-    // 这里封装一个函数用来从txt读用户信息
-    private boolean validate(String username, String password) {
-        // bufferedReader，用来读文件内容
-        try (BufferedReader br = new BufferedReader(new FileReader(studentFilePath))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                // 这里遍历database
-                // 后续注册内容完成后可能要调整txt数据结构，这里暂时是用','分开，目前共有六个column，0是用户名5是密码
-                String[] credentials = line.split(",");
-                if (credentials.length == 2) {
-                    // 检查username和password是否匹配
-                    String storedUsername = credentials[0].trim();
-                    String storedPassword = credentials[5].trim();
-                    if (storedUsername.equals(username) && storedPassword.equals(password)) {
-                        return true;
-                    }
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return false; // 没有找到匹配的用户名和密码
-    }
-
+    /**
+     * 处理注册逻辑
+     */
     @FXML
-    public void register() {
+    public void register(ActionEvent e) {
+        try {
+            // 跳转到注册界面
+            FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("StudentRegisterUI.fxml"));
+            Stage stage = new Stage();
+            stage.setTitle("Student Registration");
+            stage.setScene(new Scene(fxmlLoader.load()));
+            stage.show();
+
+            // 关闭当前窗口
+            ((Stage) ((Button) e.getSource()).getScene().getWindow()).close();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while loading the registration screen.");
+        }
+    }
+
+    /**
+     * 显示提示信息
+     */
+    private void showAlert(Alert.AlertType type, String title, String message) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }
