@@ -6,6 +6,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.chart.XYChart;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
@@ -13,9 +14,22 @@ public class GradeStatisticsService {
 
     public ObservableList<ExamResult> loadExamResults() {
         ObservableList<ExamResult> results = FXCollections.observableArrayList();
-        try (BufferedReader br = new BufferedReader(new FileReader("data/exam_results.txt"))) {
+        File file = new File("data/exam_results.txt");
+
+        if (!file.exists()) {
+            System.err.println("Exam results file not found");
+            return results;
+        }
+
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
             String line;
+            boolean isHeader = true; // 标志变量，用于跳过标题行
             while ((line = br.readLine()) != null) {
+                if (isHeader) {
+                    isHeader = false; // 跳过第一行
+                    continue;
+                }
+
                 String[] fields = line.split(",");
                 if (fields.length >= 5) {
                     String courseID = fields[0].trim();
@@ -27,7 +41,7 @@ public class GradeStatisticsService {
                     results.add(new ExamResult(courseID, examName, totalScore, score, passStatus));
                 }
             }
-        } catch (IOException e) {
+        } catch (IOException | NumberFormatException e) {
             e.printStackTrace();
         }
         return results;
@@ -73,3 +87,4 @@ public class GradeStatisticsService {
         return series;
     }
 }
+

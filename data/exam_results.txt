@@ -1,0 +1,5 @@
+CS101,Midterm,100,80,Yes
+CS101,Final,100,70,Yes
+MA101,Midterm,100,60,No
+MA101,Final,100,90,Yes
+PH101,Midterm,100,50,No

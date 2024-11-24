@@ -1,6 +1,6 @@
 package comp3111.examsystem.service;
+
 import comp3111.examsystem.entity.ExamResult;
-import comp3111.examsystem.service.GradeStatisticsService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.chart.XYChart;
@@ -30,7 +30,9 @@ public class GradeStatisticsServiceTest {
 
     @Test
     public void testLoadExamResults() {
+        // 在测试环境中准备测试数据文件
         ObservableList<ExamResult> results = gradeStatisticsService.loadExamResults();
+
         assertNotNull(results, "Results should not be null");
         assertFalse(results.isEmpty(), "Results should not be empty");
 
@@ -87,4 +89,5 @@ public class GradeStatisticsServiceTest {
         assertEquals(80, firstDataPoint.getYValue(), "First Y value should be 80");
     }
 }
+
 

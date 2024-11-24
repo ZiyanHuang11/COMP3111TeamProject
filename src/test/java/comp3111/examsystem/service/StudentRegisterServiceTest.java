@@ -35,9 +35,13 @@ public class StudentRegisterServiceTest {
 
     @Test
     public void testIsUsernameTaken() {
-        assertTrue(studentRegisterService.isUsernameTaken("john_doe"), "Username 'john_doe' should be taken");
-        assertTrue(studentRegisterService.isUsernameTaken("jane_smith"), "Username 'jane_smith' should be taken");
-        assertFalse(studentRegisterService.isUsernameTaken("new_user"), "Username 'new_user' should not be taken");
+        try {
+            assertTrue(studentRegisterService.isUsernameTaken("john_doe"), "Username 'john_doe' should be taken");
+            assertTrue(studentRegisterService.isUsernameTaken("jane_smith"), "Username 'jane_smith' should be taken");
+            assertFalse(studentRegisterService.isUsernameTaken("new_user"), "Username 'new_user' should not be taken");
+        } catch (IOException e) {
+            fail("IOException was thrown during testIsUsernameTaken: " + e.getMessage());
+        }
     }
 
     @Test
@@ -83,23 +87,38 @@ public class StudentRegisterServiceTest {
     @Test
     public void testFileNotFoundDuringUsernameCheck() {
         // 使用不存在的文件路径
-        StudentRegisterService invalidService = new StudentRegisterService("data/nonexistent_file.txt");
+        String nonexistentFilePath = "data/nonexistent_file.txt";
+        StudentRegisterService invalidService = new StudentRegisterService(nonexistentFilePath);
 
-        assertFalse(invalidService.isUsernameTaken("nonexistent_user"), "Should return false if file not found");
+        // 确保文件路径上没有文件
+        File file = new File(nonexistentFilePath);
+        if (file.exists()) {
+            file.delete();
+        }
+
+        Exception exception = assertThrows(IOException.class, () -> {
+            invalidService.isUsernameTaken("nonexistent_user");
+        });
+
+        assertEquals("Student file not found", exception.getMessage());
     }
 
     @Test
     public void testFileNotFoundDuringRegistration() {
         // 使用不存在的文件路径
-        StudentRegisterService invalidService = new StudentRegisterService("data/nonexistent_file.txt");
+        String nonexistentFilePath = "data/nonexistent_file.txt";
+        StudentRegisterService invalidService = new StudentRegisterService(nonexistentFilePath);
+
+        // 确保文件路径上没有文件
+        File file = new File(nonexistentFilePath);
+        if (file.exists()) {
+            file.delete();
+        }
 
         Exception exception = assertThrows(IOException.class, () -> {
             invalidService.registerStudent("new_user", "password", "New User", "Male", "New Department");
         });
 
-        assertNotNull(exception, "An exception should be thrown when the file does not exist during registration");
+        assertEquals("Student file not found", exception.getMessage());
     }
 }
-
-
-

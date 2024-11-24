@@ -19,8 +19,16 @@ public class StudentRegisterService {
         this.studentFilePath = studentFilePath;
     }
 
-    public boolean isUsernameTaken(String username) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(studentFilePath))) {
+    public boolean isUsernameTaken(String username) throws IOException {
+        File file = new File(studentFilePath);
+
+        // 检查文件是否存在
+        if (!file.exists()) {
+            throw new IOException("Student file not found");
+        }
+
+        // 读取文件并检查用户名是否存在
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] credentials = line.split(",");
@@ -28,20 +36,27 @@ public class StudentRegisterService {
                     return true;
                 }
             }
-        } catch (IOException ex) {
-            ex.printStackTrace();
         }
         return false;
     }
 
     public void registerStudent(String username, String password, String name, String gender, String department) throws IOException {
+        File file = new File(studentFilePath);
+
+        // 检查文件是否存在
+        if (!file.exists()) {
+            throw new IOException("Student file not found");
+        }
+
+        // 检查用户名是否已存在
         if (isUsernameTaken(username)) {
             throw new IOException("Username already exists");
         }
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(studentFilePath, true))) {
+
+        // 将新学生信息写入文件
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, true))) {
             String newStudent = String.format("%s,%s,%d,%s,%s,%s\n", username, name, 0, gender, department, password);
             writer.write(newStudent);
         }
     }
 }
-
