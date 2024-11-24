@@ -1,4 +1,5 @@
 package comp3111.examsystem.entity;
+import comp3111.examsystem.data.DataManager;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -15,15 +16,17 @@ public class Exam extends Entity {
     private final StringProperty courseName; // 新增的 courseName 属性
     private int duration;
 
-    // 原有构造函数
-    public Exam(String examName, String courseID, String examTime, String publish) {
+    // 默认构造函数
+    public Exam(String examName, String courseID, String examTime, String publish, List<String> questionIds, int duration) {
         this.examName = new SimpleStringProperty(examName);
         this.courseID = new SimpleStringProperty(courseID);
         this.examTime = new SimpleStringProperty(examTime);
         this.publish = new SimpleStringProperty(publish);
-        this.questionIds = new ArrayList<>();
+        this.questionIds = new ArrayList<>(questionIds); // 初始化问题 ID 列表
+        this.duration = duration; // 设置考试时长
         this.courseName = new SimpleStringProperty(""); // 初始化 courseName
     }
+
 
     // 新增带问题 ID 列表的构造函数
     public Exam(String examName, String courseID, String examTime, String publish, List<String> questionIds) {
@@ -33,6 +36,34 @@ public class Exam extends Entity {
         this.publish = new SimpleStringProperty(publish);
         this.questionIds = new ArrayList<>(questionIds); // 复制问题 ID 列表
         this.courseName = new SimpleStringProperty(""); // 初始化 courseName
+    }
+
+    /**
+     * 提供无参 `getQuestions` 方法，通过静态方法从全局 `DataManager` 获取所有问题。
+     * 确保 DataManager 已经被初始化，并且包含所有问题的列表。
+     *
+     * @return 与考试相关的问题对象列表
+     */
+    public List<Question> getQuestions() {
+        return getQuestions(DataManager.getInstance().getQuestions());
+    }
+
+    /**
+     * 根据问题 ID 获取完整的问题对象列表
+     *
+     * @param allQuestions 所有可用的问题列表
+     * @return 与考试相关的问题对象列表
+     */
+    public List<Question> getQuestions(List<Question> allQuestions) {
+        List<Question> associatedQuestions = new ArrayList<>();
+        for (String questionId : questionIds) {
+            for (Question question : allQuestions) {
+                if (question.getId().equals(questionId)) { // 根据 ID 匹配问题
+                    associatedQuestions.add(question);
+                }
+            }
+        }
+        return associatedQuestions;
     }
 
     // Getter 和 Setter 方法

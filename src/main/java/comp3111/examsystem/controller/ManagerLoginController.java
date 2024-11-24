@@ -1,6 +1,7 @@
 package comp3111.examsystem.controller;
 
 import comp3111.examsystem.Main;
+import comp3111.examsystem.data.DataManager;
 import comp3111.examsystem.service.ManagerLoginService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -23,45 +24,58 @@ public class ManagerLoginController implements Initializable {
     @FXML
     private PasswordField passwordTxt;
 
-    private ManagerLoginService managerLoginService;
+    private final ManagerLoginService managerLoginService;
 
     public ManagerLoginController() {
-        managerLoginService = new ManagerLoginService("data/managers.txt");
+        // 使用 DataManager 初始化服务
+        DataManager dataManager = new DataManager();
+        managerLoginService = new ManagerLoginService(dataManager);
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
+        // 初始化逻辑（如果需要）
     }
 
     @FXML
     public void login(ActionEvent e) {
-        String username = usernameTxt.getText();
-        String password = passwordTxt.getText();
+        String username = usernameTxt.getText().trim();
+        String password = passwordTxt.getText().trim();
+
+        if (username.isEmpty() || password.isEmpty()) {
+            showAlert(Alert.AlertType.WARNING, "Input Error", "Username and password cannot be empty.");
+            return;
+        }
 
         if (managerLoginService.validate(username, password)) {
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Hint");
-            alert.setHeaderText(null);
-            alert.setContentText("Login successful");
-            alert.showAndWait();
+            // 登录成功提示
+            showAlert(Alert.AlertType.INFORMATION, "Login Successful", "Welcome, " + username + "!");
 
-            FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("ManagerMainUI.fxml"));
-            Stage stage = new Stage();
-            stage.setTitle("Hi " + username + ", Welcome to HKUST Examination System");
+            // 跳转到管理员主界面
             try {
+                FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("ManagerMainUI.fxml"));
+                Stage stage = new Stage();
+                stage.setTitle("Hi " + username + ", Welcome to HKUST Examination System");
                 stage.setScene(new Scene(fxmlLoader.load()));
-            } catch (IOException e1) {
-                e1.printStackTrace();
+                stage.show();
+
+                // 关闭当前窗口
+                ((Stage) ((Button) e.getSource()).getScene().getWindow()).close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while loading the next screen.");
             }
-            stage.show();
-            ((Stage) ((Button) e.getSource()).getScene().getWindow()).close();
         } else {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Hint");
-            alert.setHeaderText(null);
-            alert.setContentText("Invalid username or password");
-            alert.showAndWait();
+            // 登录失败提示
+            showAlert(Alert.AlertType.ERROR, "Login Failed", "Invalid username or password.");
         }
+    }
+
+    private void showAlert(Alert.AlertType type, String title, String message) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

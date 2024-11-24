@@ -1,62 +1,82 @@
 package comp3111.examsystem.service;
 
-import org.junit.jupiter.api.AfterEach;
+import comp3111.examsystem.data.DataManager;
+
+import comp3111.examsystem.data.DataManager;
+import comp3111.examsystem.entity.Manager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ManagerLoginServiceTest {
+class ManagerLoginServiceTest {
+
     private ManagerLoginService managerLoginService;
-    private String testFilePath;
+
+    // 使用 Mock 的 DataManager
+    private static class MockDataManager extends DataManager {
+        private final List<Manager> mockManagers = new ArrayList<>();
+
+        @Override
+        public List<Manager> getManagers() {
+            return mockManagers;
+        }
+
+        public void addMockManager(String id, String username, String password) {
+            mockManagers.add(new Manager(id, username, password));
+        }
+    }
+
+    private MockDataManager mockDataManager;
 
     @BeforeEach
-    public void setUp() throws IOException {
-        testFilePath = "test_managers.txt";
+    public void setUp() {
+        // 初始化 Mock DataManager
+        mockDataManager = new MockDataManager();
+        mockDataManager.addMockManager("1", "admin", "admin123");
+        mockDataManager.addMockManager("2", "manager1", "pass123");
+        mockDataManager.addMockManager("3", "manager2", "123456");
 
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(testFilePath))) {
-            writer.write("admin,admin123\n");
-            writer.write("manager1,password1\n");
-            writer.write("manager2,password2\n");
-        }
-        managerLoginService = new ManagerLoginService(testFilePath);
+        // 初始化 ManagerLoginService
+        managerLoginService = new ManagerLoginService(mockDataManager);
     }
 
     @Test
-    public void testValidateWithValidCredentials() {
-        assertTrue(managerLoginService.validate("admin", "admin123"));
-        assertTrue(managerLoginService.validate("manager1", "password1"));
-        assertTrue(managerLoginService.validate("manager2", "password2"));
+    public void testValidateLoginSuccess() {
+        // 验证正确的用户名和密码
+        assertTrue(managerLoginService.validate("admin", "admin123"),
+                "Login should succeed for valid credentials");
+        assertTrue(managerLoginService.validate("manager1", "pass123"),
+                "Login should succeed for valid credentials");
     }
 
     @Test
-    public void testValidateWithInvalidCredentials() {
-        assertFalse(managerLoginService.validate("admin", "wrongpassword"));
-        assertFalse(managerLoginService.validate("unknownUser", "password1"));
-        assertFalse(managerLoginService.validate("manager1", "wrongpassword"));
+    public void testValidateLoginInvalidPassword() {
+        // 验证用户名正确但密码错误
+        assertFalse(managerLoginService.validate("admin", "wrongpassword"),
+                "Login should fail for invalid password");
+        assertFalse(managerLoginService.validate("manager2", "wrongpass"),
+                "Login should fail for invalid password");
     }
 
     @Test
-    public void testValidateWithEmptyCredentials() {
-        assertFalse(managerLoginService.validate("", ""));
-        assertFalse(managerLoginService.validate("admin", ""));
-        assertFalse(managerLoginService.validate("", "admin123"));
+    public void testValidateLoginNonExistentUsername() {
+        // 验证不存在的用户名
+        assertFalse(managerLoginService.validate("nonexistent", "password"),
+                "Login should fail for nonexistent username");
     }
 
     @Test
-    public void testFileNotFound() {
-        ManagerLoginService invalidService = new ManagerLoginService("invalid_path/managers.txt");
-        assertFalse(invalidService.validate("admin", "admin123")); // Should return false since file does not exist
-    }
-
-    @AfterEach
-    public void tearDown() throws IOException {
-        Files.deleteIfExists(Paths.get(testFilePath));
+    public void testValidateLoginEmptyUsernameOrPassword() {
+        // 验证空用户名或密码
+        assertFalse(managerLoginService.validate("", "admin123"),
+                "Login should fail for empty username");
+        assertFalse(managerLoginService.validate("admin", ""),
+                "Login should fail for empty password");
+        assertFalse(managerLoginService.validate("", ""),
+                "Login should fail for empty username and password");
     }
 }

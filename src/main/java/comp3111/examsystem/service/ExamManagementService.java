@@ -1,29 +1,25 @@
 package comp3111.examsystem.service;
 
+import comp3111.examsystem.data.DataManager;
 import comp3111.examsystem.entity.Exam;
 import comp3111.examsystem.entity.Question;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import java.io.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class ExamManagementService {
-    private ObservableList<Exam> examList;
-    private ObservableList<Question> questionList;
+    private final DataManager dataManager;
+    private final ObservableList<Exam> examList;
+    private final ObservableList<Question> questionList;
 
-    private String examFilePath;
-    private String questionFilePath;
+    public ExamManagementService(DataManager dataManager) {
+        this.dataManager = dataManager;
 
-    public ExamManagementService(String examFilePath, String questionFilePath) {
-        this.examFilePath = examFilePath;
-        this.questionFilePath = questionFilePath;
-        this.examList = FXCollections.observableArrayList();
-        this.questionList = FXCollections.observableArrayList();
-        loadQuestions();
-        loadExams();
+        // 从 DataManager 中加载考试和问题列表
+        this.examList = FXCollections.observableArrayList(dataManager.getExams());
+        this.questionList = FXCollections.observableArrayList(dataManager.getQuestions());
     }
 
     public ObservableList<Exam> getExamList() {
@@ -34,134 +30,41 @@ public class ExamManagementService {
         return questionList;
     }
 
-    // Load questions from file
-    public void loadQuestions() {
-        try (BufferedReader br = new BufferedReader(new FileReader(questionFilePath))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] parts = line.split(",");
-                if (parts.length >= 8) {
-                    String questionText = parts[0];
-                    String optionA = parts[1];
-                    String optionB = parts[2];
-                    String optionC = parts[3];
-                    String optionD = parts[4];
-                    String answer = parts[5];
-                    String type = parts[6];
-                    int score = Integer.parseInt(parts[7]);
-
-                    Question question = new Question(
-                            questionText,
-                            optionA,
-                            optionB,
-                            optionC,
-                            optionD,
-                            answer,
-                            type,
-                            score
-                    );
-                    questionList.add(question);
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            // Handle exception appropriately
-        }
-    }
-
-    // Load exams from file
-    public void loadExams() {
-        try (BufferedReader br = new BufferedReader(new FileReader(examFilePath))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] parts = line.split(",", 5);
-                if (parts.length >= 5) {
-                    String examName = parts[0];
-                    String examTime = parts[1];
-                    String courseID = parts[2];
-                    String publishStatus = parts[3];
-                    String questionNames = parts[4];
-
-                    Exam exam = new Exam(examName, courseID, examTime, publishStatus);
-
-                    // Parse question names
-                    String[] questionArray = questionNames.split("\\|");
-                    for (String qName : questionArray) {
-                        for (Question q : questionList) {
-                            if (q.getQuestion().equals(qName)) {
-                                exam.getQuestions().add(q);
-                                break;
-                            }
-                        }
-                    }
-
-                    examList.add(exam);
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            // Handle exception appropriately
-        }
-    }
-
-    // Save exams to file
-    public void saveExams() throws IOException {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(examFilePath))) {
-            for (Exam exam : examList) {
-                StringBuilder sb = new StringBuilder();
-                sb.append(exam.getExamName()).append(",");
-                sb.append(exam.getExamTime()).append(",");
-                sb.append(exam.getCourseID()).append(",");
-                sb.append(exam.getPublish()).append(",");
-
-                // Add question names
-                List<String> questionNames = new ArrayList<>();
-                for (Question q : exam.getQuestions()) {
-                    questionNames.add(q.getQuestion());
-                }
-                sb.append(String.join("|", questionNames));
-
-                bw.write(sb.toString());
-                bw.newLine();
-            }
-        }
-    }
-
-    // Add a new exam
-    public boolean addExam(Exam newExam) throws IOException {
+    // 添加考试
+    public boolean addExam(Exam newExam) {
         for (Exam exam : examList) {
             if (exam.getExamName().equalsIgnoreCase(newExam.getExamName())) {
-                return false; // Exam with same name exists
+                return false; // 已存在同名考试
             }
         }
         examList.add(newExam);
-        saveExams();
+        dataManager.getExams().add(newExam); // 更新到 DataManager
         return true;
     }
 
-    // Update an existing exam
-    public boolean updateExam(Exam updatedExam, String originalExamName) throws IOException {
+    // 更新考试
+    public boolean updateExam(Exam updatedExam, String originalExamName) {
         for (Exam exam : examList) {
             if (exam.getExamName().equalsIgnoreCase(originalExamName)) {
-                // Check for duplicate name (excluding the exam being updated)
+                // 检查是否存在重复的考试名称（排除当前考试）
                 for (Exam otherExam : examList) {
                     if (otherExam != exam && otherExam.getExamName().equalsIgnoreCase(updatedExam.getExamName())) {
-                        return false; // Duplicate name exists
+                        return false; // 存在重复名称
                     }
                 }
+                // 更新考试信息
                 exam.setExamName(updatedExam.getExamName());
                 exam.setExamTime(updatedExam.getExamTime());
                 exam.setCourseID(updatedExam.getCourseID());
                 exam.setPublish(updatedExam.getPublish());
-                saveExams();
                 return true;
             }
         }
-        return false; // Exam not found
+        return false; // 未找到指定考试
     }
 
-    // Delete an exam
-    public boolean deleteExam(String examName) throws IOException {
+    // 删除考试
+    public boolean deleteExam(String examName) {
         Exam examToRemove = null;
         for (Exam exam : examList) {
             if (exam.getExamName().equalsIgnoreCase(examName)) {
@@ -171,32 +74,30 @@ public class ExamManagementService {
         }
         if (examToRemove != null) {
             examList.remove(examToRemove);
-            saveExams();
+            dataManager.getExams().remove(examToRemove); // 更新到 DataManager
             return true;
         }
-        return false; // Exam not found
+        return false; // 未找到考试
     }
 
-    // Add a question to an exam
-    public boolean addQuestionToExam(Exam exam, Question question) throws IOException {
+    // 添加问题到考试
+    public boolean addQuestionToExam(Exam exam, Question question) {
         if (!exam.getQuestions().contains(question)) {
             exam.getQuestions().add(question);
-            saveExams();
             return true;
         }
-        return false; // Question already exists in the exam
+        return false; // 问题已存在于考试中
     }
 
-    // Remove a question from an exam
-    public boolean removeQuestionFromExam(Exam exam, Question question) throws IOException {
+    // 从考试中移除问题
+    public boolean removeQuestionFromExam(Exam exam, Question question) {
         if (exam.getQuestions().remove(question)) {
-            saveExams();
             return true;
         }
-        return false; // Question not found in the exam
+        return false; // 问题未找到
     }
 
-    // Filter exams based on criteria
+    // 过滤考试
     public List<Exam> filterExams(String examName, String courseID, String publishStatus) {
         return examList.stream()
                 .filter(exam -> (examName.isEmpty() || exam.getExamName().toLowerCase().contains(examName.toLowerCase())) &&
@@ -205,7 +106,7 @@ public class ExamManagementService {
                 .collect(Collectors.toList());
     }
 
-    // Filter questions based on criteria
+    // 过滤问题
     public List<Question> filterQuestions(String questionText, String type, String scoreText) {
         return questionList.stream()
                 .filter(q -> (questionText.isEmpty() || q.getQuestion().toLowerCase().contains(questionText.toLowerCase())) &&

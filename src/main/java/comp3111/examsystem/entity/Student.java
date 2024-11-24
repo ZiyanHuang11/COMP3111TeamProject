@@ -1,6 +1,7 @@
 package comp3111.examsystem.entity;
 
 public class Student extends Entity {
+    private String id; // 从父类 Entity 继承的 id
     private String username;
     private String name;
     private int age;
@@ -8,19 +9,12 @@ public class Student extends Entity {
     private String department;
     private String password;
 
-    // 无参构造函数（必要，用于反射或默认初始化）
-    public Student() {
-        this.username = "";
-        this.name = "";
-        this.age = 0;
-        this.gender = "";
-        this.department = "";
-        this.password = "";
-    }
+    // 默认构造函数（无参数）
+    public Student() {}
 
-    // 有参构造函数
+    // 全参数构造函数
     public Student(String id, String username, String name, int age, String gender, String department, String password) {
-        this.setId(id); // 设置 ID
+        this.setId(id); // 调用 Entity 类的 setId 方法
         this.username = username;
         this.name = name;
         this.age = age;
@@ -29,7 +23,26 @@ public class Student extends Entity {
         this.password = password;
     }
 
-    // Getter 和 Setter 方法
+    // 构造函数（不包含 ID，ID 会在其他地方设置）
+    public Student(String username, String name, int age, String gender, String department, String password) {
+        this.username = username;
+        this.name = name;
+        this.age = age;
+        this.gender = gender;
+        this.department = department;
+        this.password = password;
+    }
+
+    // Getters 和 Setters
+    public String getId() {
+        return id;
+    }
+
+    @Override
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String getUsername() {
         return username;
     }
@@ -81,7 +94,7 @@ public class Student extends Entity {
     @Override
     public String toString() {
         return "Student{" +
-                "id=" + getId() +
+                "id='" + id + '\'' +
                 ", username='" + username + '\'' +
                 ", name='" + name + '\'' +
                 ", age=" + age +
@@ -91,4 +104,3 @@ public class Student extends Entity {
                 '}';
     }
 }
-

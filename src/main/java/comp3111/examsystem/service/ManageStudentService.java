@@ -1,114 +1,50 @@
 package comp3111.examsystem.service;
 
+import comp3111.examsystem.data.DataManager;
 import comp3111.examsystem.entity.Student;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import java.io.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class ManageStudentService {
-    private String studentFilePath;
-    private String studentExamsFilePath;
+    private final DataManager dataManager;
     private ObservableList<Student> studentList;
-    //
-    public ManageStudentService(String studentFilePath, String studentExamsFilePath) {
-        this.studentFilePath = studentFilePath;
-        this.studentExamsFilePath = studentExamsFilePath;
-        this.studentList = FXCollections.observableArrayList();
-        loadStudentsFromFile();
+
+    // 使用 DataManager 构造服务类
+    public ManageStudentService(DataManager dataManager) {
+        this.dataManager = dataManager;
+        this.studentList = FXCollections.observableArrayList(dataManager.getStudents());
     }
 
     public ObservableList<Student> getStudentList() {
         return studentList;
     }
 
-    public void loadStudentsFromFile() {
-        try (BufferedReader br = new BufferedReader(new FileReader(studentFilePath))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] data = line.split(",");
-                if (data.length == 6 && !data[0].trim().isEmpty() && !data[1].trim().isEmpty() && !data[2].trim().isEmpty() &&
-                        !data[3].trim().isEmpty() && !data[4].trim().isEmpty() && !data[5].trim().isEmpty()) {
-                    Student student = new Student(data[0].trim(), data[1].trim(), Integer.parseInt(data[2].trim()), data[3].trim(), data[4].trim(), data[5].trim());
-                    studentList.add(student);
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void addStudent(Student newStudent) throws IOException {
+    public void addStudent(Student newStudent) {
+        dataManager.getStudents().add(newStudent);
         studentList.add(newStudent);
-        String studentInput = String.join(",", newStudent.getUsername(), newStudent.getName(), String.valueOf(newStudent.getAge()), newStudent.getGender(), newStudent.getDepartment(), newStudent.getPassword());
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(studentFilePath, true))) {
-            bw.write(studentInput);
-            bw.newLine();
-        }
+        dataManager.saveStudents(); // 调用 DataManager 保存更改
     }
 
-    public void updateStudent(Student updatedStudent, String originalUsername) throws IOException {
-        boolean found = false;
-        for (int i = 0; i < studentList.size(); i++) {
-            if (studentList.get(i).getUsername().equals(originalUsername)) {
-                studentList.set(i, updatedStudent);
-                found = true;
+    public void updateStudent(Student updatedStudent, String originalUsername) {
+        List<Student> students = dataManager.getStudents();
+        for (int i = 0; i < students.size(); i++) {
+            if (students.get(i).getUsername().equals(originalUsername)) {
+                students.set(i, updatedStudent);
                 break;
             }
         }
-        if (!found) {
-            throw new IOException("Student with username " + originalUsername + " does not exist.");
-        }
-        saveStudentsToFile();
-        updateStudentExams(originalUsername, updatedStudent.getUsername());
+        studentList.setAll(dataManager.getStudents());
+        dataManager.saveStudents(); // 调用 DataManager 保存更改
     }
 
-    public void deleteStudent(String username) throws IOException {
-        boolean removed = studentList.removeIf(student -> student.getUsername().equals(username));
-        if (!removed) {
-            throw new IOException("Student with username " + username + " does not exist.");
-        }
-        saveStudentsToFile();
-        deleteStudentFromExams(username);
-    }
-
-    void saveStudentsToFile() throws IOException {
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(studentFilePath))) {
-            for (Student student : studentList) {
-                String studentInput = String.join(",", student.getUsername(), student.getName(), String.valueOf(student.getAge()), student.getGender(), student.getDepartment(), student.getPassword());
-                bw.write(studentInput);
-                bw.newLine();
-            }
-        }
-    }
-
-    void updateStudentExams(String originalUsername, String newUsername) throws IOException {
-        List<String> lines = new BufferedReader(new FileReader(studentExamsFilePath)).lines().collect(Collectors.toList());
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(studentExamsFilePath))) {
-            for (String line : lines) {
-                String[] data = line.split(",");
-                if (data[0].equals(originalUsername)) {
-                    data[0] = newUsername;
-                }
-                bw.write(String.join(",", data));
-                bw.newLine();
-            }
-        }
-    }
-
-    void deleteStudentFromExams(String username) throws IOException {
-        List<String> lines = new BufferedReader(new FileReader(studentExamsFilePath)).lines().collect(Collectors.toList());
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(studentExamsFilePath))) {
-            for (String line : lines) {
-                String[] data = line.split(",");
-                if (!data[0].equals(username)) {
-                    bw.write(line);
-                    bw.newLine();
-                }
-            }
-        }
+    public void deleteStudent(String username) {
+        List<Student> students = dataManager.getStudents();
+        students.removeIf(student -> student.getUsername().equals(username));
+        studentList.setAll(students);
+        dataManager.saveStudents(); // 调用 DataManager 保存更改
     }
 
     public List<Student> filterStudents(String username, String name, String department) {

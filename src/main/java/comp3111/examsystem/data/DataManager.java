@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DataManager {
+    private static DataManager instance;
     private List<Student> students;
     private List<Course> courses;
     private List<Exam> exams;
@@ -14,6 +15,7 @@ public class DataManager {
     private List<Question> questions;
     private List<Teacher> teachers;
     private List<Manager> managers;
+
 
     public DataManager() {
         students = loadStudents();
@@ -23,6 +25,13 @@ public class DataManager {
         questions = loadQuestions();
         teachers = loadTeachers();
         managers = loadManagers();
+    }
+
+    public static DataManager getInstance() {
+        if (instance == null) {
+            instance = new DataManager();
+        }
+        return instance;
     }
 
     public List<Student> getStudents() {
@@ -83,6 +92,23 @@ public class DataManager {
         }
         return courseList;
     }
+    /**
+     * 保存学生数据的方法
+     */
+    private void saveStudents() {
+        List<String> lines = new ArrayList<>();
+        for (Student student : students) {
+            lines.add(String.format("id:%s,username:%s,name:%s,age:%d,gender:%s,department:%s,password:%s",
+                    student.getId(),
+                    student.getUsername(),
+                    student.getName(),
+                    student.getAge(),
+                    student.getGender(),
+                    student.getDepartment(),
+                    student.getPassword()));
+        }
+        FileUtil.writeFile("data/students.txt", lines);
+    }
 
     private List<Exam> loadExams() {
         List<Exam> examList = new ArrayList<>();
@@ -109,13 +135,17 @@ public class DataManager {
         List<String> lines = FileUtil.readFileByLines("data/exam_results.txt");
         for (String line : lines) {
             String[] parts = line.split(",");
-            String id = parts[0].split(":")[1];
-            String studentID = parts[1].split(":")[1];
-            String examID = parts[2].split(":")[1];
-            int score = Integer.parseInt(parts[3].split(":")[1]);
-            int totalScore = Integer.parseInt(parts[4].split(":")[1]);
-            String passStatus = parts[5].split(":")[1];
-            resultList.add(new ExamResult(id, studentID, examID, score, totalScore, passStatus));
+            if (parts.length >= 8) {
+                String id = parts[0].split(":")[1];
+                String studentID = parts[1].split(":")[1];
+                String examID = parts[2].split(":")[1];
+                String examName = parts[3].split(":")[1];
+                String courseID = parts[4].split(":")[1];
+                int score = Integer.parseInt(parts[5].split(":")[1]);
+                int totalScore = Integer.parseInt(parts[6].split(":")[1]);
+                String passStatus = parts[7].split(":")[1];
+                resultList.add(new ExamResult(id, studentID, examID, examName, courseID, score, totalScore, passStatus));
+            }
         }
         return resultList;
     }
@@ -169,4 +199,7 @@ public class DataManager {
         }
         return managerList;
     }
+
 }
+
+

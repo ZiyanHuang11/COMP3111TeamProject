@@ -1,5 +1,6 @@
 package comp3111.examsystem.controller;
 
+import comp3111.examsystem.data.DataManager;
 import comp3111.examsystem.entity.Student;
 import comp3111.examsystem.service.ManageStudentService;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -9,7 +10,6 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
-import java.io.IOException;
 import java.util.List;
 
 public class ManageStudentController {
@@ -22,6 +22,8 @@ public class ManageStudentController {
     TextField departmentFilter;
     @FXML
     TableView<Student> studentTable;
+    @FXML
+    private TableColumn<Student, String> idColumn;
     @FXML
     private TableColumn<Student, String> usernameColumn;
     @FXML
@@ -50,7 +52,7 @@ public class ManageStudentController {
     private ManageStudentService studentService;
 
     public ManageStudentController() {
-        studentService = new ManageStudentService("data/students.txt", "data/students_exams.txt");
+        studentService = new ManageStudentService(new DataManager());
     }
 
     public void showAlert(String message) {
@@ -63,6 +65,7 @@ public class ManageStudentController {
 
     @FXML
     public void initialize() {
+        idColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getId()));
         usernameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getUsername()));
         nameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getName()));
         ageColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getAge()).asObject());
@@ -112,24 +115,16 @@ public class ManageStudentController {
 
         String validationMessage = studentService.validateInputs(username, name, ageText, gender, department, password);
         if (validationMessage != null) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Hint");
-            alert.setHeaderText(null);
-            alert.setContentText(validationMessage);
-            alert.showAndWait();
+            showAlert(validationMessage);
             return;
         }
 
         int age = Integer.parseInt(ageText);
         Student newStudent = new Student(username, name, age, gender, department, password);
-        try {
-            studentService.addStudent(newStudent);
-            displayStudents(studentService.getStudentList());
-            showAlert("Add student success");
-            clearFields();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        studentService.addStudent(newStudent);
+        displayStudents(studentService.getStudentList());
+        showAlert("Add student success");
+        clearFields();
     }
 
     @FXML
@@ -146,41 +141,25 @@ public class ManageStudentController {
 
             String validationMessage = studentService.validateUpdateInputs(name, ageText, gender, department, password);
             if (validationMessage != null) {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Hint");
-                alert.setHeaderText(null);
-                alert.setContentText(validationMessage);
-                alert.showAndWait();
+                showAlert(validationMessage);
                 return;
             }
 
             if (!newUsername.equals(originalUsername)) {
                 String usernameValidationMessage = studentService.validateUsername(newUsername);
                 if (usernameValidationMessage != null) {
-                    Alert alert = new Alert(Alert.AlertType.ERROR);
-                    alert.setTitle("Hint");
-                    alert.setHeaderText(null);
-                    alert.setContentText(usernameValidationMessage);
-                    alert.showAndWait();
+                    showAlert(usernameValidationMessage);
                     return;
                 }
             }
             Student updatedStudent = new Student(newUsername, name, Integer.parseInt(ageText), gender, department, password);
-            try {
-                studentService.updateStudent(updatedStudent, originalUsername);
-                displayStudents(studentService.getStudentList());
-                showAlert("Update student success");
-                clearFields();
-                studentTable.getSelectionModel().clearSelection();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            studentService.updateStudent(updatedStudent, originalUsername);
+            displayStudents(studentService.getStudentList());
+            showAlert("Update student success");
+            clearFields();
+            studentTable.getSelectionModel().clearSelection();
         } else {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Warning");
-            alert.setHeaderText(null);
-            alert.setContentText("Please select a student to update.");
-            alert.showAndWait();
+            showAlert("Please select a student to update.");
         }
     }
 
@@ -195,20 +174,12 @@ public class ManageStudentController {
 
             ButtonType result = alert.showAndWait().orElse(ButtonType.CANCEL);
             if (result == ButtonType.OK) {
-                try {
-                    studentService.deleteStudent(selectedStudent.getUsername());
-                    displayStudents(studentService.getStudentList());
-                    showAlert("Delete student success");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                studentService.deleteStudent(selectedStudent.getUsername());
+                displayStudents(studentService.getStudentList());
+                showAlert("Delete student success");
             }
         } else {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Warning");
-            alert.setHeaderText(null);
-            alert.setContentText("Please select a student to delete.");
-            alert.showAndWait();
+            showAlert("Please select a student to delete.");
         }
     }
 

@@ -10,8 +10,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.util.Duration;
 
-import java.util.List;
-
 public class ExamUIController {
     @FXML
     private Label quizNameLabel;

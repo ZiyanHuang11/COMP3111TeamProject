@@ -11,6 +11,12 @@ public class Course extends Entity {
         this.courseName = courseName;
         this.department = department;
     }
+    // 无 ID 的简化构造函数（用于控制器）
+    public Course(String courseID, String courseName, String department) {
+        this.courseID = courseID;
+        this.courseName = courseName;
+        this.department = department;
+    }
 
     public String getCourseID() { return courseID; }
     public String getCourseName() { return courseName; }

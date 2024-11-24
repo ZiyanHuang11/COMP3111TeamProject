@@ -3,8 +3,6 @@ package comp3111.examsystem.service;
 import comp3111.examsystem.data.DataManager;
 import comp3111.examsystem.entity.Exam;
 import comp3111.examsystem.entity.Question;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 
 import java.util.*;
 
@@ -77,6 +75,10 @@ public class ExamService {
         return questions.isEmpty() ? 0 : (calculateResults()[0] * 100.0 / questions.size());
     }
 
+    public int getMaxScore() {
+        return questions.stream().mapToInt(Question::getScore).sum();
+    }
+
     public boolean decrementTime() {
         if (remainingTime > 0) {
             remainingTime--;
@@ -108,4 +110,11 @@ public class ExamService {
             currentQuestionIndex--;
         }
     }
+
+    public void setCurrentQuestionIndex(int index) {
+        if (index >= 0 && index < questions.size()) {
+            currentQuestionIndex = index;
+        }
+    }
 }
+

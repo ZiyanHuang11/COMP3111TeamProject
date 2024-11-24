@@ -1,5 +1,6 @@
 package comp3111.examsystem.controller;
 
+import comp3111.examsystem.data.DataManager;
 import comp3111.examsystem.entity.Course;
 import comp3111.examsystem.service.ManageCourseService;
 import javafx.beans.property.SimpleStringProperty;
@@ -8,35 +9,46 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
-import java.io.IOException;
 import java.util.List;
 
 public class ManageCourseController {
+
     @FXML
-    TextField courseIDFilter;
+    private TextField courseIDFilter;
+
     @FXML
-    TextField courseNameFilter;
+    private TextField courseNameFilter;
+
     @FXML
-    TextField departmentFilter;
+    private TextField departmentFilter;
+
     @FXML
-    TableView<Course> courseTable;
+    private TableView<Course> courseTable;
+
     @FXML
     private TableColumn<Course, String> courseIDColumn;
+
     @FXML
     private TableColumn<Course, String> courseNameColumn;
+
     @FXML
     private TableColumn<Course, String> departmentColumn;
-    @FXML
-    TextField courseIDField;
-    @FXML
-    TextField courseNameField;
-    @FXML
-    TextField departmentField;
 
-    private ManageCourseService courseService;
+    @FXML
+    private TextField courseIDField;
 
+    @FXML
+    private TextField courseNameField;
+
+    @FXML
+    private TextField departmentField;
+
+    private final ManageCourseService courseService;
+
+    // 使用单例 DataManager 初始化服务
     public ManageCourseController() {
-        courseService = new ManageCourseService("data/courses.txt");
+        DataManager dataManager = DataManager.getInstance();
+        courseService = new ManageCourseService(dataManager);
     }
 
     @FXML
@@ -44,7 +56,8 @@ public class ManageCourseController {
         courseIDColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getCourseID()));
         courseNameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getCourseName()));
         departmentColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getDepartment()));
-        displayCourses(courseService.getCourseList());
+
+        displayCourses(FXCollections.observableArrayList(courseService.getCourses()));
         courseTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 updateFields(newValue);
@@ -63,7 +76,7 @@ public class ManageCourseController {
         courseIDFilter.clear();
         courseNameFilter.clear();
         departmentFilter.clear();
-        displayCourses(courseService.getCourseList());
+        displayCourses(FXCollections.observableArrayList(courseService.getCourses()));
     }
 
     @FXML
@@ -89,14 +102,10 @@ public class ManageCourseController {
         }
 
         Course newCourse = new Course(courseID, courseName, department);
-        try {
-            courseService.addCourse(newCourse);
-            displayCourses(courseService.getCourseList());
-            showAlert("Add course success");
-            clearFields();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        courseService.addCourse(newCourse);
+        refreshCourseList();
+        showAlert("Course added successfully.");
+        clearFields();
     }
 
     @FXML
@@ -115,15 +124,10 @@ public class ManageCourseController {
             }
 
             Course updatedCourse = new Course(newCourseID, courseName, department);
-            try {
-                courseService.updateCourse(updatedCourse, originalCourseID);
-                displayCourses(courseService.getCourseList());
-                showAlert("Update course success");
-                clearFields();
-                courseTable.getSelectionModel().clearSelection();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            courseService.updateCourse(updatedCourse, originalCourseID);
+            refreshCourseList();
+            showAlert("Course updated successfully.");
+            clearFields();
         } else {
             showAlert("Please select a course to update.");
         }
@@ -133,50 +137,33 @@ public class ManageCourseController {
     public void deleteCourse() {
         Course selectedCourse = courseTable.getSelectionModel().getSelectedItem();
         if (selectedCourse != null) {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Confirm Deletion");
-            alert.setHeaderText("Are you sure you want to delete course " + selectedCourse.getCourseName() + "?");
-            alert.setContentText("This action cannot be undone.");
-
-            ButtonType result = alert.showAndWait().orElse(ButtonType.CANCEL);
-            if (result == ButtonType.OK) {
-                try {
-                    courseService.deleteCourse(selectedCourse.getCourseID());
-                    displayCourses(courseService.getCourseList());
-                    showAlert("Delete course success");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            courseService.deleteCourse(selectedCourse.getCourseID());
+            refreshCourseList();
+            showAlert("Course deleted successfully.");
         } else {
             showAlert("Please select a course to delete.");
         }
     }
 
-    @FXML
-    public void refreshCourse() {
-        clearFields();
-        courseTable.getSelectionModel().clearSelection();
-        courseService.getCourseList().clear();
-        courseService.loadCoursesFromFile();
-        displayCourses(courseService.getCourseList());
+    private void refreshCourseList() {
+        displayCourses(FXCollections.observableArrayList(courseService.getCourses()));
     }
 
-    void clearFields() {
+    private void clearFields() {
         courseIDField.clear();
         courseNameField.clear();
         departmentField.clear();
     }
 
-    public void showAlert(String message) {
+    private void showAlert(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Hint");
+        alert.setTitle("Information");
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
     }
 
-    public void updateFields(Course course) {
+    private void updateFields(Course course) {
         courseIDField.setText(course.getCourseID());
         courseNameField.setText(course.getCourseName());
         departmentField.setText(course.getDepartment());
