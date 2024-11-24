@@ -1,59 +1,44 @@
 package comp3111.examsystem.service;
+
+import comp3111.examsystem.data.DataManager;
 import comp3111.examsystem.entity.Exam;
-import comp3111.examsystem.service.ExamService;
-import comp3111.examsystem.service.StudentMainService;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-// 暂时使用硬编码进行测试
 public class StudentMainServiceTest {
-
     private StudentMainService studentMainService;
-    private ExamService examService;
+    private DataManager mockDataManager;
 
     @BeforeEach
     public void setUp() {
-        // 使用真实的 ExamService
-        examService = new ExamService() {
+        // 创建模拟的 DataManager
+        mockDataManager = new DataManager() {
             @Override
-            public ObservableList<Exam> loadExams() {
-                // 使用硬编码的测试数据代替文件读取
-                ObservableList<Exam> mockExams = FXCollections.observableArrayList(
-                        new Exam("Midterm", "CS101", "2024-11-22", "Published"),
-                        new Exam("Final", "CS101", "2024-12-10", "Draft"),
-                        new Exam("Midterm", "MA101", "2024-11-23", "Published")
-                );
-                mockExams.get(0).setCourseName("Introduction to Computer Science");
-                mockExams.get(1).setCourseName("Introduction to Computer Science");
-                mockExams.get(2).setCourseName("Calculus I");
+            public List<Exam> getExams() {
+                List<Exam> mockExams = new ArrayList<>();
+                Exam exam1 = new Exam("Midterm", "CS101", "2024-11-22", "Published");
+                exam1.setCourseName("Introduction to Computer Science");
+                mockExams.add(exam1);
+
+                Exam exam2 = new Exam("Final", "CS101", "2024-12-10", "Draft");
+                exam2.setCourseName("Introduction to Computer Science");
+                mockExams.add(exam2);
+
+                Exam exam3 = new Exam("Midterm", "MA101", "2024-11-23", "Published");
+                exam3.setCourseName("Calculus I");
+                mockExams.add(exam3);
+
                 return mockExams;
             }
         };
 
-        // 创建 StudentMainService 实例并使用真实的 ExamService
-        studentMainService = new StudentMainService() {
-            @Override
-            public List<String> getExamDisplayTexts() {
-                return examService.loadExams().stream()
-                        .map(exam -> exam.getCourseID() + " " + exam.getCourseName() + " | " + exam.getExamName())
-                        .toList();
-            }
-
-            @Override
-            public Exam getExamByDisplayText(String displayText) {
-                return examService.loadExams().stream()
-                        .filter(exam -> (exam.getCourseID() + " " + exam.getCourseName() + " | " + exam.getExamName())
-                                .equals(displayText))
-                        .findFirst()
-                        .orElse(null);
-            }
-        };
+        // 使用模拟的 DataManager 初始化 Service
+        studentMainService = new StudentMainService(mockDataManager);
     }
 
     @Test
@@ -86,5 +71,3 @@ public class StudentMainServiceTest {
         assertNull(nonexistentExam, "Exam should be null for an invalid display text");
     }
 }
-
-

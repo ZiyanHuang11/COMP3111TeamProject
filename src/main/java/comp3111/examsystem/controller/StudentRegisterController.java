@@ -1,13 +1,13 @@
 package comp3111.examsystem.controller;
 
+import comp3111.examsystem.data.DataManager;
+import comp3111.examsystem.entity.Student;
 import comp3111.examsystem.service.StudentRegisterService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
-
-import java.io.IOException;
 
 public class StudentRegisterController {
 
@@ -26,7 +26,8 @@ public class StudentRegisterController {
 
     // 构造函数
     public StudentRegisterController() {
-        this.registerService = new StudentRegisterService();
+        DataManager dataManager = new DataManager(); // 初始化 DataManager
+        this.registerService = new StudentRegisterService(dataManager); // 将 DataManager 传递给服务类
     }
 
     @FXML
@@ -57,7 +58,7 @@ public class StudentRegisterController {
             // 清空输入字段
             clearFields();
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             showAlert(Alert.AlertType.ERROR, "Error", "An error occurred: " + e.getMessage());
             e.printStackTrace();
         }
@@ -79,4 +80,3 @@ public class StudentRegisterController {
         alert.showAndWait();
     }
 }
-

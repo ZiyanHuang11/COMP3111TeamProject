@@ -1,7 +1,8 @@
 package comp3111.examsystem.controller;
 
 import comp3111.examsystem.Main;
-import comp3111.examsystem.service.StudentLoginService;
+import comp3111.examsystem.data.DataManager;
+import comp3111.examsystem.entity.Student;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -22,11 +23,11 @@ public class StudentLoginController {
     @FXML
     private PasswordField passwordTxt;
 
-    private final StudentLoginService loginService;
+    private final DataManager dataManager;
 
-    // 构造函数：初始化登录服务
+    // 构造函数：初始化 DataManager
     public StudentLoginController() {
-        loginService = new StudentLoginService();
+        dataManager = new DataManager();
     }
 
     /**
@@ -42,28 +43,33 @@ public class StudentLoginController {
             return;
         }
 
-        try {
-            // 验证用户名和密码
-            if (loginService.validateLogin(username, password)) {
-                // 登录成功弹窗
-                showAlert(Alert.AlertType.INFORMATION, "Login Successful", "Welcome, " + username + "!");
+        // 验证用户名和密码
+        Student student = dataManager.getStudents().stream()
+                .filter(s -> s.getUsername().equals(username) && s.getPassword().equals(password))
+                .findFirst()
+                .orElse(null);
 
+        if (student != null) {
+            // 登录成功弹窗
+            showAlert(Alert.AlertType.INFORMATION, "Login Successful", "Welcome, " + student.getName() + "!");
+
+            try {
                 // 跳转到主界面
                 FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("StudentMainUI.fxml"));
                 Stage stage = new Stage();
-                stage.setTitle("Hi " + username + ", Welcome to HKUST Examination System");
+                stage.setTitle("Hi " + student.getName() + ", Welcome to HKUST Examination System");
                 stage.setScene(new Scene(fxmlLoader.load()));
                 stage.show();
 
                 // 关闭当前窗口
                 ((Stage) ((Button) e.getSource()).getScene().getWindow()).close();
-            } else {
-                // 登录失败
-                showAlert(Alert.AlertType.ERROR, "Login Failed", "Invalid username or password.");
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while loading the next screen.");
             }
-        } catch (IOException ex) {
-            ex.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while loading the next screen.");
+        } else {
+            // 登录失败
+            showAlert(Alert.AlertType.ERROR, "Login Failed", "Invalid username or password.");
         }
     }
 

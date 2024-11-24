@@ -36,13 +36,16 @@ public class GradeStatisticsController {
     @FXML
     private BarChart<String, Number> barChart;
 
-    private GradeStatisticsService gradeStatisticsService;
+    private final GradeStatisticsService gradeStatisticsService;
+
     private ObservableList<ExamResult> examResults;
+
+    public GradeStatisticsController() {
+        gradeStatisticsService = new GradeStatisticsService();
+    }
 
     @FXML
     public void initialize() {
-        gradeStatisticsService = new GradeStatisticsService();
-
         // 初始化表格列
         courseIDColumn.setCellValueFactory(cell -> cell.getValue().courseIDProperty());
         examNameColumn.setCellValueFactory(cell -> cell.getValue().examNameProperty());
@@ -116,4 +119,3 @@ public class GradeStatisticsController {
         alert.showAndWait();
     }
 }
-

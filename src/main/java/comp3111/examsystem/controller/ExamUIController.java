@@ -1,5 +1,6 @@
 package comp3111.examsystem.controller;
 
+import comp3111.examsystem.data.DataManager;
 import comp3111.examsystem.entity.Exam;
 import comp3111.examsystem.entity.Question;
 import comp3111.examsystem.service.ExamService;
@@ -9,7 +10,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.util.Duration;
 
-import java.util.Map;
+import java.util.List;
 
 public class ExamUIController {
     @FXML
@@ -32,8 +33,12 @@ public class ExamUIController {
     private RadioButton optionD;
 
     private ToggleGroup optionsGroup;
-    private ExamService examService; // 引入业务逻辑服务层
-    private Timeline timer; // 计时器
+    private ExamService examService;
+    private Timeline timer;
+
+    public ExamUIController() {
+        this.examService = new ExamService(new DataManager()); // 使用 DataManager 初始化
+    }
 
     @FXML
     public void initialize() {
@@ -42,7 +47,6 @@ public class ExamUIController {
         optionB.setToggleGroup(optionsGroup);
         optionC.setToggleGroup(optionsGroup);
         optionD.setToggleGroup(optionsGroup);
-        examService = new ExamService(); // 初始化业务逻辑服务
     }
 
     public void setExam(Exam exam) {
@@ -52,11 +56,9 @@ public class ExamUIController {
     }
 
     private void updateUI() {
-        // 更新考试信息
         quizNameLabel.setText(examService.getQuizName());
         totalQuestionsLabel.setText("Total Questions: " + examService.getTotalQuestions());
 
-        // 更新问题列表
         questionListView.getItems().setAll(examService.getQuestionList());
         questionListView.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {

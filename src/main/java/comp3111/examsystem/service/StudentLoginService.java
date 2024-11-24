@@ -1,45 +1,46 @@
 package comp3111.examsystem.service;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import comp3111.examsystem.data.DataManager;
+import comp3111.examsystem.entity.Student;
+
+import java.util.List;
 
 public class StudentLoginService {
-    private final String studentFilePath;
+    private final DataManager dataManager;
 
-    // 默认构造函数，使用默认文件路径
-    public StudentLoginService() {
-        this.studentFilePath = "data/students.txt";
+    // 构造函数：通过 DataManager 加载学生数据
+    public StudentLoginService(DataManager dataManager) {
+        this.dataManager = dataManager;
     }
 
-    // 自定义文件路径的构造函数
-    public StudentLoginService(String studentFilePath) {
-        this.studentFilePath = studentFilePath;
-    }
-
+    /**
+     * 验证学生登录
+     *
+     * @param username 用户名
+     * @param password 密码
+     * @return 如果用户名和密码匹配，返回 true，否则抛出异常
+     * @throws IllegalArgumentException 如果用户名不存在或密码错误
+     */
     public boolean validateLogin(String username, String password) throws IllegalArgumentException {
-        try (BufferedReader br = new BufferedReader(new FileReader(studentFilePath))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] credentials = line.split(",");
-                if (credentials.length >= 6) {
-                    String storedUsername = credentials[0].trim();
-                    String storedPassword = credentials[5].trim();
-                    if (storedUsername.equals(username)) {
-                        if (storedPassword.equals(password)) {
-                            return true;
-                        } else {
-                            throw new IllegalArgumentException("Incorrect password");
-                        }
-                    }
+        // 从 DataManager 获取学生列表
+        List<Student> students = dataManager.getStudents();
+
+        for (Student student : students) {
+            if (student.getUsername().equals(username)) {
+                if (student.getPassword().equals(password)) {
+                    return true; // 验证成功
+                } else {
+                    throw new IllegalArgumentException("Incorrect password");
                 }
             }
-            throw new IllegalArgumentException("Username not found");
-        } catch (IOException e) {
-            throw new IllegalArgumentException("Error reading student file");
         }
+
+        // 如果未找到匹配的用户名
+        throw new IllegalArgumentException("Username not found");
     }
 }
+
+
 
 
 

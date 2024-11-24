@@ -1,50 +1,21 @@
 package comp3111.examsystem.service;
 
 import comp3111.examsystem.entity.ExamResult;
+import comp3111.examsystem.data.DataManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.chart.XYChart;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-
 public class GradeStatisticsService {
 
+    private final DataManager dataManager;
+
+    public GradeStatisticsService() {
+        this.dataManager = new DataManager();
+    }
+
     public ObservableList<ExamResult> loadExamResults() {
-        ObservableList<ExamResult> results = FXCollections.observableArrayList();
-        File file = new File("data/exam_results.txt");
-
-        if (!file.exists()) {
-            System.err.println("Exam results file not found");
-            return results;
-        }
-
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            String line;
-            boolean isHeader = true; // 标志变量，用于跳过标题行
-            while ((line = br.readLine()) != null) {
-                if (isHeader) {
-                    isHeader = false; // 跳过第一行
-                    continue;
-                }
-
-                String[] fields = line.split(",");
-                if (fields.length >= 5) {
-                    String courseID = fields[0].trim();
-                    String examName = fields[1].trim();
-                    int totalScore = Integer.parseInt(fields[2].trim());
-                    int score = Integer.parseInt(fields[3].trim());
-                    String passStatus = fields[4].trim();
-
-                    results.add(new ExamResult(courseID, examName, totalScore, score, passStatus));
-                }
-            }
-        } catch (IOException | NumberFormatException e) {
-            e.printStackTrace();
-        }
-        return results;
+        return FXCollections.observableArrayList(dataManager.getExamResults());
     }
 
     public ObservableList<String> getCourseList(ObservableList<ExamResult> examResults) {
@@ -87,4 +58,3 @@ public class GradeStatisticsService {
         return series;
     }
 }
-

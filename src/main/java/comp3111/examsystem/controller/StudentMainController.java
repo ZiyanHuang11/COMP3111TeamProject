@@ -1,18 +1,19 @@
 package comp3111.examsystem.controller;
 
+import comp3111.examsystem.data.DataManager;
 import comp3111.examsystem.entity.Exam;
 import comp3111.examsystem.service.StudentMainService;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.io.IOException;
 
 public class StudentMainController implements Initializable {
     @FXML
@@ -22,10 +23,15 @@ public class StudentMainController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        studentMainService = new StudentMainService();
+        // 创建 DataManager 并注入到 Service 中
+        DataManager dataManager = new DataManager();
+        studentMainService = new StudentMainService(dataManager);
         loadExams();
     }
 
+    /**
+     * 加载考试列表到 ComboBox
+     */
     private void loadExams() {
         for (String examDisplayText : studentMainService.getExamDisplayTexts()) {
             examCombox.getItems().add(examDisplayText);
@@ -87,5 +93,6 @@ public class StudentMainController implements Initializable {
         alert.showAndWait();
     }
 }
+
 
 
