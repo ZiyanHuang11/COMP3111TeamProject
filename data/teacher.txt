@@ -1,2 +1,0 @@
-username:teacher2,password:bbbb2222,name:Susan,gender:Female,age:35,title:Lecturer,department:IT,id:2,
-username:teacher3,password:cccc3333,name:Michael,gender:Male,age:40,title:Senior Lecturer,department:EE,id:3,

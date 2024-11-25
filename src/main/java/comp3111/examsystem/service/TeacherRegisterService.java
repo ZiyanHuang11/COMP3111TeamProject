@@ -1,17 +1,38 @@
 package comp3111.examsystem.service;
 
-import comp3111.examsystem.data.DataManager;
-import comp3111.examsystem.entity.Teacher;
+import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 
-import java.util.Optional;
-
+/**
+ * The TeacherRegisterService class provides functionalities for registering new teachers.
+ * It validates registration inputs, checks for existing users, and writes new teacher information to a file.
+ */
 public class TeacherRegisterService {
-    private final DataManager dataManager;
+    private String teacherFilePath;
 
-    public TeacherRegisterService(DataManager dataManager) {
-        this.dataManager = dataManager;
+    /**
+     * Constructs a TeacherRegisterService instance with the specified path to the teacher credentials file.
+     *
+     * @param teacherFilePath The path to the file containing teacher credentials.
+     */
+    public TeacherRegisterService(String teacherFilePath) {
+        this.teacherFilePath = teacherFilePath;
     }
 
+    /**
+     * Validates the registration inputs.
+     *
+     * @param username        The username entered.
+     * @param name            The name entered.
+     * @param gender          The gender selected.
+     * @param ageText         The age entered as text.
+     * @param position        The position selected.
+     * @param department      The department entered.
+     * @param password        The password entered.
+     * @param confirmPassword The password confirmation entered.
+     * @return null if all inputs are valid; otherwise, an error message.
+     */
     public String validateInputs(String username, String name, String gender, String ageText, String position,
                                  String department, String password, String confirmPassword) {
         if (username.isEmpty() || name.isEmpty() || gender == null || ageText.isEmpty() ||
@@ -36,32 +57,55 @@ public class TeacherRegisterService {
         return null; // All inputs are valid
     }
 
+    /**
+     * Checks if a user with the given username already exists.
+     *
+     * @param username The username to check.
+     * @return true if the user exists; false otherwise.
+     */
     public boolean isUserExists(String username) {
-        return dataManager.getTeachers().stream().anyMatch(teacher -> teacher.getUsername().equals(username));
-    }
-
-    public Optional<Teacher> prepareTeacher(String username, String name, String gender, String ageText,
-                                            String position, String department, String password) {
-        try {
-            int age = Integer.parseInt(ageText);
-            Teacher teacher = new Teacher();
-            teacher.setUsername(username);
-            teacher.setName(name);
-            teacher.setGender(gender);
-            teacher.setAge(age);
-            teacher.setTitle(position);
-            teacher.setDepartment(department);
-            teacher.setPassword(password);
-
-            return Optional.of(teacher);
-        } catch (NumberFormatException e) {
+        try (BufferedReader br = new BufferedReader(new FileReader(teacherFilePath))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] credentials = line.split(",");
+                if (credentials.length > 0) {
+                    String storedUsername = credentials[0].trim();
+                    if (storedUsername.equals(username)) {
+                        return true; // User already exists
+                    }
+                }
+            }
+        } catch (IOException e) {
             e.printStackTrace();
-            return Optional.empty();
+            // Handle exception appropriately, possibly rethrow or log
         }
+        return false; // User does not exist
     }
 
-    public void registerTeacher(Teacher teacher) {
-        dataManager.getTeachers().add(teacher);
-        dataManager.saveTeachers(); // Save updated data to the database
+    /**
+     * Registers a new teacher by writing their information to the file.
+     *
+     * @param teacherInfo A map containing the teacher's information.
+     * @throws IOException If an I/O error occurs while writing to the file.
+     */
+    public void registerTeacher(Map<String, String> teacherInfo) throws IOException {
+        File file = new File(teacherFilePath);
+        if (!file.exists()) {
+            file.createNewFile();
+        }
+
+        try (FileWriter writer = new FileWriter(file, true)) {
+            // Build the line to write to the file
+            StringBuilder sb = new StringBuilder();
+            sb.append(teacherInfo.get("username")).append(",");
+            sb.append(teacherInfo.get("password")).append(",");
+            sb.append(teacherInfo.get("name")).append(",");
+            sb.append(teacherInfo.get("gender")).append(",");
+            sb.append(teacherInfo.get("age")).append(",");
+            sb.append(teacherInfo.get("position")).append(",");
+            sb.append(teacherInfo.get("department")).append("\n");
+
+            writer.write(sb.toString());
+        }
     }
 }

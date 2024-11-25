@@ -1,39 +1,39 @@
 package comp3111.examsystem.controller;
 
 import comp3111.examsystem.Main;
-import comp3111.examsystem.data.DataManager;
-import comp3111.examsystem.entity.Teacher;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ * Controller for managing the main interface for teachers in the examination system.
+ */
 public class TeacherMainController implements Initializable {
+
     @FXML
     private VBox mainbox;
 
-    private final DataManager dataManager;
-    private Teacher loggedInTeacher;
-
-    // 构造函数：注入 DataManager 和当前登录的教师信息
-    public TeacherMainController(DataManager dataManager, Teacher loggedInTeacher) {
-        this.dataManager = dataManager;
-        this.loggedInTeacher = loggedInTeacher;
-    }
-
-    @Override
+    /**
+     * Initializes the controller after its root element has been processed.
+     *
+     * @param location  the location used to resolve relative paths for the root object,
+     *                  or null if the location is not known
+     * @param resources the resources used to localize the root object,
+     *                  or null if the root object was not localized
+     */
     public void initialize(URL location, ResourceBundle resources) {
-        if (loggedInTeacher != null) {
-            showAlert(Alert.AlertType.INFORMATION, "Welcome", "Welcome, " + loggedInTeacher.getName() + "!");
-        }
+        // No specific initialization required at this moment
     }
 
+    /**
+     * Opens the Question Bank Management user interface.
+     */
     @FXML
     public void openQuestionManageUI() {
         try {
@@ -41,17 +41,15 @@ public class TeacherMainController implements Initializable {
             Stage stage = new Stage();
             stage.setTitle("Question Bank Management");
             stage.setScene(new Scene(fxmlLoader.load()));
-
-            // 注入 DataManager 和教师数据到 QuestionBankManagementController
-            QuestionBankManagementController controller = new QuestionBankManagementController(dataManager, loggedInTeacher);
-            fxmlLoader.setController(controller);
-
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * Opens the Exam Management user interface.
+     */
     @FXML
     public void openExamManageUI() {
         try {
@@ -59,17 +57,15 @@ public class TeacherMainController implements Initializable {
             Stage stage = new Stage();
             stage.setTitle("Exam Management");
             stage.setScene(new Scene(fxmlLoader.load()));
-
-            // 注入 DataManager 和教师数据到 ExamManagementController
-            ExamManagementController controller = new ExamManagementController(dataManager, loggedInTeacher);
-            fxmlLoader.setController(controller);
-
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * Opens the Grade Statistics user interface.
+     */
     @FXML
     public void openGradeStatistic() {
         try {
@@ -77,30 +73,17 @@ public class TeacherMainController implements Initializable {
             Stage stage = new Stage();
             stage.setTitle("Grade Statistics");
             stage.setScene(new Scene(fxmlLoader.load()));
-
-            // 注入 DataManager 和教师数据到 TeacherGradeStatisticController
-            TeacherGradeStatisticController controller = new TeacherGradeStatisticController(dataManager, loggedInTeacher);
-            fxmlLoader.setController(controller);
-
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * Exits the application.
+     */
     @FXML
     public void exit() {
         System.exit(0);
-    }
-
-    /**
-     * 显示提示信息
-     */
-    private void showAlert(Alert.AlertType type, String title, String message) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
     }
 }

@@ -1,4 +1,0 @@
-id:1,studentID:7,examName:Quiz 1,courseID:COMP3111,courseName:Software Engineering,time:30,score:80,fullScore:100
-id:2,studentID:7,examName:Quiz 2,courseID:COMP3111,courseName:Software Engineering,time:30,score:60,fullScore:100
-id:3,studentID:8,examName:Quiz 1,courseID:COMP5111,courseName:Software Engineering II,time:40,score:90,fullScore:100
-id:4,studentID:8,examName:Quiz 2,courseID:COMP5111,courseName:Software Engineering II,time:40,score:70,fullScore:100

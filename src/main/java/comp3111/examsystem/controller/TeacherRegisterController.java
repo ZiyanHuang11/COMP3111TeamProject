@@ -1,15 +1,19 @@
 package comp3111.examsystem.controller;
 
-import comp3111.examsystem.data.DataManager;
-import comp3111.examsystem.entity.Teacher;
 import comp3111.examsystem.service.TeacherRegisterService;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
-import java.util.Optional;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
+/**
+ * Controller for managing the teacher registration interface in the examination system.
+ */
 public class TeacherRegisterController {
+
     @FXML
     private TextField usernameTxt;
     @FXML
@@ -29,6 +33,9 @@ public class TeacherRegisterController {
 
     private TeacherRegisterService registerService;
 
+    /**
+     * Initializes the controller and sets up the gender and position ComboBoxes.
+     */
     @FXML
     public void initialize() {
         // Initialize gender ComboBox
@@ -39,11 +46,14 @@ public class TeacherRegisterController {
         positionComboBox.getItems().addAll("Professor", "Lecturer", "Assistant Professor", "Researcher");
         positionComboBox.setValue("Position");
 
-        // Initialize the service with DataManager
-        DataManager dataManager = new DataManager();
-        registerService = new TeacherRegisterService(dataManager);
+        // Initialize the service
+        String teacherFilePath = "data/teachers.txt";
+        registerService = new TeacherRegisterService(teacherFilePath);
     }
 
+    /**
+     * Handles the registration of a teacher when the register button is clicked.
+     */
     @FXML
     private void handleRegister() {
         String username = usernameTxt.getText().trim();
@@ -63,27 +73,39 @@ public class TeacherRegisterController {
             return;
         }
 
-        // Check if the username already exists
+        // Check if user exists
         if (registerService.isUserExists(username)) {
             showAlert("Registration Failed", "Username already exists", Alert.AlertType.ERROR);
             return;
         }
 
         // Prepare teacher information
-        Optional<Teacher> teacherOptional = registerService.prepareTeacher(username, name, gender, ageText, position, department, password);
+        Map<String, String> teacherInfo = new HashMap<>();
+        teacherInfo.put("username", username);
+        teacherInfo.put("name", name);
+        teacherInfo.put("gender", gender);
+        teacherInfo.put("age", ageText);
+        teacherInfo.put("position", position);
+        teacherInfo.put("department", department);
+        teacherInfo.put("password", password);
 
-        if (teacherOptional.isPresent()) {
-            registerService.registerTeacher(teacherOptional.get());
+        // Register the teacher
+        try {
+            registerService.registerTeacher(teacherInfo);
             showAlert("Registration Successful", "You have successfully registered", Alert.AlertType.INFORMATION);
 
             // Close the registration window
             Stage stage = (Stage) usernameTxt.getScene().getWindow();
             stage.close();
-        } else {
-            showAlert("Registration Failed", "Error preparing teacher data.", Alert.AlertType.ERROR);
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Registration Failed", "Error occurred while saving user data", Alert.AlertType.ERROR);
         }
     }
 
+    /**
+     * Handles the action of closing the registration window.
+     */
     @FXML
     private void handleClose() {
         // Close the registration window
@@ -91,6 +113,13 @@ public class TeacherRegisterController {
         stage.close();
     }
 
+    /**
+     * Displays an alert dialog with the specified title, message, and alert type.
+     *
+     * @param title   the title of the alert dialog
+     * @param message the message to be displayed in the alert dialog
+     * @param type    the type of alert (e.g., ERROR, INFORMATION)
+     */
     private void showAlert(String title, String message, Alert.AlertType type) {
         Alert alert = new Alert(type);
         alert.setTitle(title);

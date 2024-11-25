@@ -1,111 +1,99 @@
 package comp3111.examsystem.service;
 
-import comp3111.examsystem.data.DataManager;
-import comp3111.examsystem.entity.Teacher;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import org.junit.jupiter.api.*;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class DummyDataManager extends DataManager {
-    private List<Teacher> teachers = new ArrayList<>();
-
-    @Override
-    public List<Teacher> getTeachers() {
-        return teachers;
-    }
-
-    @Override
-    public void saveTeachers() {
-        // Dummy implementation for saving teachers
-    }
-}
-
 public class TeacherRegisterServiceTest {
-    private TeacherRegisterService teacherRegisterService;
-    private DummyDataManager dataManager;
+    private TeacherRegisterService registerService;
+    private String testTeacherFilePath = "test_data/test_teachers.txt";
 
     @BeforeEach
-    public void setUp() {
-        dataManager = new DummyDataManager();
-        teacherRegisterService = new TeacherRegisterService(dataManager);
+    public void setUp() throws IOException {
+        // Create test data directory if it doesn't exist
+        Files.createDirectories(Paths.get("test_data"));
+
+        // Write test teacher data to file
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(testTeacherFilePath))) {
+            writer.write("teacher1,password1,Name1,Male,30,Professor,CS\n");
+            writer.write("teacher2,password2,Name2,Female,35,Lecturer,Math\n");
+        }
+
+        // Initialize the service with the test file path
+        registerService = new TeacherRegisterService(testTeacherFilePath);
     }
 
     @Test
-    public void testValidateInputs_AllFieldsValid() {
-        String result = teacherRegisterService.validateInputs("user1", "John Doe", "Male", "30", "Professor", "CS", "password", "password");
-        assertNull(result);
+    public void testValidateInputsValid() {
+        String validationMessage = registerService.validateInputs("teacher3", "Name3", "Male", "40",
+                "Professor", "Physics", "pass123", "pass123");
+        assertNull(validationMessage);
     }
 
     @Test
-    public void testValidateInputs_EmptyFields() {
-        String result = teacherRegisterService.validateInputs("", "John Doe", "Male", "30", "Professor", "CS", "password", "password");
-        assertEquals("All fields are required.", result);
+    public void testValidateInputsMissingFields() {
+        String validationMessage = registerService.validateInputs("", "Name3", "Male", "40",
+                "Professor", "Physics", "pass123", "pass123");
+        assertEquals("All fields are required.", validationMessage);
     }
 
     @Test
-    public void testValidateInputs_InvalidGenderPosition() {
-        String result = teacherRegisterService.validateInputs("user1", "John Doe", "Gender", "30", "Position", "CS", "password", "password");
-        assertEquals("Please select your gender and position.", result);
+    public void testValidateInputsInvalidAge() {
+        String validationMessage = registerService.validateInputs("teacher3", "Name3", "Male", "abc",
+                "Professor", "Physics", "pass123", "pass123");
+        assertEquals("Age must be a valid number.", validationMessage);
     }
 
     @Test
-    public void testValidateInputs_PasswordsDoNotMatch() {
-        String result = teacherRegisterService.validateInputs("user1", "John Doe", "Male", "30", "Professor", "CS", "password", "wrongpassword");
-        assertEquals("Passwords do not match.", result);
+    public void testValidateInputsPasswordMismatch() {
+        String validationMessage = registerService.validateInputs("teacher3", "Name3", "Male", "40",
+                "Professor", "Physics", "pass123", "pass456");
+        assertEquals("Passwords do not match.", validationMessage);
     }
 
     @Test
-    public void testValidateInputs_InvalidAge() {
-        String result = teacherRegisterService.validateInputs("user1", "John Doe", "Male", "thirty", "Professor", "CS", "password", "password");
-        assertEquals("Age must be a valid number.", result);
+    public void testIsUserExists() {
+        assertTrue(registerService.isUserExists("teacher1"));
+        assertFalse(registerService.isUserExists("teacher3"));
     }
 
     @Test
-    public void testIsUserExists_UserExists() {
-        Teacher teacher = new Teacher();
-        teacher.setUsername("user1");
-        dataManager.getTeachers().add(teacher);
+    public void testRegisterTeacher() throws IOException {
+        Map<String, String> teacherInfo = new HashMap<>();
+        teacherInfo.put("username", "teacher3");
+        teacherInfo.put("password", "pass123");
+        teacherInfo.put("name", "Name3");
+        teacherInfo.put("gender", "Male");
+        teacherInfo.put("age", "40");
+        teacherInfo.put("position", "Professor");
+        teacherInfo.put("department", "Physics");
 
-        assertTrue(teacherRegisterService.isUserExists("user1"));
+        registerService.registerTeacher(teacherInfo);
+
+        // Verify that the teacher was added to the file
+        assertTrue(registerService.isUserExists("teacher3"));
+
+        // Read the file and verify the content
+        try (BufferedReader br = new BufferedReader(new FileReader(testTeacherFilePath))) {
+            String line;
+            boolean found = false;
+            while ((line = br.readLine()) != null) {
+                if (line.startsWith("teacher3,")) {
+                    found = true;
+                    break;
+                }
+            }
+            assertTrue(found, "Teacher3 should be in the file.");
+        }
     }
 
-    @Test
-    public void testIsUserExists_UserDoesNotExist() {
-        assertFalse(teacherRegisterService.isUserExists("user1"));
-    }
-
-    @Test
-    public void testPrepareTeacher_ValidInput() {
-        Optional<Teacher> teacherOptional = teacherRegisterService.prepareTeacher("user1", "John Doe", "Male", "30", "Professor", "CS", "password");
-        assertTrue(teacherOptional.isPresent());
-        Teacher teacher = teacherOptional.get();
-        assertEquals("user1", teacher.getUsername());
-        assertEquals("John Doe", teacher.getName());
-        assertEquals("Male", teacher.getGender());
-        assertEquals(30, teacher.getAge());
-        assertEquals("Professor", teacher.getTitle());
-        assertEquals("CS", teacher.getDepartment());
-        assertEquals("password", teacher.getPassword());
-    }
-
-    @Test
-    public void testPrepareTeacher_InvalidAge() {
-        Optional<Teacher> teacherOptional = teacherRegisterService.prepareTeacher("user1", "John Doe", "Male", "thirty", "Professor", "CS", "password");
-        assertFalse(teacherOptional.isPresent());
-    }
-
-    @Test
-    public void testRegisterTeacher() {
-        Teacher teacher = new Teacher();
-        teacher.setUsername("user1");
-
-        teacherRegisterService.registerTeacher(teacher);
-        assertEquals(1, dataManager.getTeachers().size());
-        assertEquals("user1", dataManager.getTeachers().get(0).getUsername());
+    @AfterEach
+    public void tearDown() throws IOException {
+        Files.deleteIfExists(Paths.get(testTeacherFilePath));
     }
 }

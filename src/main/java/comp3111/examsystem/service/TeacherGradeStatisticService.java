@@ -1,130 +1,144 @@
 package comp3111.examsystem.service;
 
-import comp3111.examsystem.data.DataManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.chart.*;
+import comp3111.examsystem.controller.TeacherGradeStatisticController;
 
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * The TeacherGradeStatisticService class provides functionalities to manage and analyze teacher grade statistics.
+ * It allows loading grades from a file, updating charts with statistical data, and filtering grades based on criteria.
+ */
 public class TeacherGradeStatisticService {
+    private final ObservableList<TeacherGradeStatisticController.Grade> gradeList = FXCollections.observableArrayList();
 
-    private final DataManager dataManager;
-    private final ObservableList<Map<String, String>> gradeList;
-
-    public TeacherGradeStatisticService(DataManager dataManager) {
-        this.dataManager = dataManager;
-        this.gradeList = FXCollections.observableArrayList(loadGrades());
+    /**
+     * Loads grades from a specified file into the gradeList.
+     *
+     * @param filePath The path to the file containing grade data.
+     */
+    public void loadGradesFromFile(String filePath) {
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split(",");
+                if (data.length == 6) {
+                    TeacherGradeStatisticController.Grade grade = new TeacherGradeStatisticController.Grade(
+                            data[0].trim(), data[1].trim(), data[2].trim(),
+                            data[3].trim(), data[4].trim(), data[5].trim());
+                    gradeList.add(grade);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    private List<Map<String, String>> loadGrades() {
-        List<Map<String, String>> grades = new ArrayList<>();
-
-        // 示例数据加载，您需要根据实际情况从 dataManager 获取数据
-        // 以下仅为示例，请根据您的数据结构进行修改
-
-        Map<String, String> grade1 = new HashMap<>();
-        grade1.put("studentName", "Alice");
-        grade1.put("courseNum", "CS101");
-        grade1.put("examName", "Midterm");
-        grade1.put("score", "85");
-        grade1.put("fullScore", "100");
-        grade1.put("passStatus", "Pass");
-        grades.add(grade1);
-
-        Map<String, String> grade2 = new HashMap<>();
-        grade2.put("studentName", "Bob");
-        grade2.put("courseNum", "CS101");
-        grade2.put("examName", "Midterm");
-        grade2.put("score", "90");
-        grade2.put("fullScore", "100");
-        grade2.put("passStatus", "Pass");
-        grades.add(grade2);
-
-        Map<String, String> grade3 = new HashMap<>();
-        grade3.put("studentName", "Alice");
-        grade3.put("courseNum", "CS102");
-        grade3.put("examName", "Final");
-        grade3.put("score", "95");
-        grade3.put("fullScore", "100");
-        grade3.put("passStatus", "Pass");
-        grades.add(grade3);
-
-        return grades;
-    }
-
-    public ObservableList<Map<String, String>> getGradeList() {
+    /**
+     * Returns the list of grades.
+     *
+     * @return An ObservableList of Grade objects.
+     */
+    public ObservableList<TeacherGradeStatisticController.Grade> getGradeList() {
         return gradeList;
     }
 
-    public List<String> getCourses() {
-        return gradeList.stream().map(g -> g.get("courseNum")).filter(Objects::nonNull).distinct().collect(Collectors.toList());
-    }
+    /**
+     * Updates the provided BarChart with average scores for each course based on the given grades.
+     *
+     * @param barChart The BarChart to be updated.
+     * @param grades   The list of grades used to calculate average scores.
+     */
+    public void updateBarChart(BarChart<String, Number> barChart, List<TeacherGradeStatisticController.Grade> grades) {
+        Map<String, Double> courseAverageScores = new HashMap<>();
+        Map<String, Integer> courseScoreCounts = new HashMap<>();
 
-    public List<String> getExams() {
-        return gradeList.stream().map(g -> g.get("examName")).filter(Objects::nonNull).distinct().collect(Collectors.toList());
-    }
+        for (TeacherGradeStatisticController.Grade grade : grades) {
+            String course = grade.getCourseNum();
+            double score = Double.parseDouble(grade.getScore());
 
-    public List<String> getStudents() {
-        return gradeList.stream().map(g -> g.get("studentName")).filter(Objects::nonNull).distinct().collect(Collectors.toList());
-    }
+            courseAverageScores.put(course, courseAverageScores.getOrDefault(course, 0.0) + score);
+            courseScoreCounts.put(course, courseScoreCounts.getOrDefault(course, 0) + 1);
+        }
 
-    public void updateBarChart(BarChart<String, Number> barChart, List<Map<String, String>> grades) {
-        Map<String, Double> courseAverageScores = grades.stream()
-                .filter(g -> g.get("courseNum") != null && g.get("score") != null)
-                .collect(Collectors.groupingBy(
-                        g -> g.get("courseNum"),
-                        Collectors.averagingDouble(g -> Double.parseDouble(g.get("score")))
-                ));
-
-        XYChart.Series<String, Number> series = new XYChart.Series<>();
-        courseAverageScores.forEach((course, average) ->
-                series.getData().add(new XYChart.Data<>(course, average))
-        );
-
+        XYChart.Series<String, Number> seriesBar = new XYChart.Series<>();
+        for (String course : courseAverageScores.keySet()) {
+            double averageScore = courseAverageScores.get(course) / courseScoreCounts.get(course);
+            seriesBar.getData().add(new XYChart.Data<>(course, averageScore));
+        }
         barChart.getData().clear();
-        barChart.getData().add(series);
+        barChart.getData().add(seriesBar);
     }
 
-    public void updatePieChart(PieChart pieChart, List<Map<String, String>> grades) {
-        Map<String, Integer> studentScores = grades.stream()
-                .filter(g -> g.get("studentName") != null && g.get("score") != null)
-                .collect(Collectors.groupingBy(
-                        g -> g.get("studentName"),
-                        Collectors.summingInt(g -> Integer.parseInt(g.get("score")))
-                ));
+    /**
+     * Updates the provided PieChart with total scores for each student based on the given grades.
+     *
+     * @param pieChart The PieChart to be updated.
+     * @param grades   The list of grades used to calculate total scores.
+     */
+    public void updatePieChart(PieChart pieChart, List<TeacherGradeStatisticController.Grade> grades) {
+        Map<String, Integer> studentScoreCounts = new HashMap<>();
+
+        for (TeacherGradeStatisticController.Grade grade : grades) {
+            String student = grade.getStudentName();
+            studentScoreCounts.put(student, studentScoreCounts.getOrDefault(student, 0) + Integer.parseInt(grade.getScore()));
+        }
 
         pieChart.getData().clear();
-        studentScores.forEach((student, score) ->
-                pieChart.getData().add(new PieChart.Data(student, score))
-        );
+        for (String student : studentScoreCounts.keySet()) {
+            pieChart.getData().add(new PieChart.Data(student, studentScoreCounts.get(student)));
+        }
     }
 
-    public void updateLineChart(LineChart<String, Number> lineChart, List<Map<String, String>> grades) {
-        Map<String, Double> examAverageScores = grades.stream()
-                .filter(g -> g.get("examName") != null && g.get("score") != null)
-                .collect(Collectors.groupingBy(
-                        g -> g.get("examName"),
-                        Collectors.averagingDouble(g -> Double.parseDouble(g.get("score")))
-                ));
+    /**
+     * Updates the provided LineChart with average scores for each exam based on the given grades.
+     *
+     * @param lineChart The LineChart to be updated.
+     * @param grades    The list of grades used to calculate average scores.
+     */
+    public void updateLineChart(LineChart<String, Number> lineChart, List<TeacherGradeStatisticController.Grade> grades) {
+        Map<String, Double> examAverageScores = new HashMap<>();
+        Map<String, Integer> examScoreCounts = new HashMap<>();
 
-        XYChart.Series<String, Number> series = new XYChart.Series<>();
-        examAverageScores.forEach((exam, average) ->
-                series.getData().add(new XYChart.Data<>(exam, average))
-        );
+        for (TeacherGradeStatisticController.Grade grade : grades) {
+            String exam = grade.getExamName();
+            double score = Double.parseDouble(grade.getScore());
 
+            examAverageScores.put(exam, examAverageScores.getOrDefault(exam, 0.0) + score);
+            examScoreCounts.put(exam, examScoreCounts.getOrDefault(exam, 0) + 1);
+        }
+
+        XYChart.Series<String, Number> seriesLine = new XYChart.Series<>();
+        for (String exam : examAverageScores.keySet()) {
+            double averageScore = examAverageScores.get(exam) / examScoreCounts.get(exam);
+            seriesLine.getData().add(new XYChart.Data<>(exam, averageScore));
+        }
         lineChart.getData().clear();
-        lineChart.getData().add(series);
+        lineChart.getData().add(seriesLine);
     }
 
-    public List<Map<String, String>> filterGrades(String selectedCourse, String selectedExam, String selectedStudent) {
+    /**
+     * Filters the grades based on the selected course, exam, and student.
+     *
+     * @param selectedCourse The course to filter by.
+     * @param selectedExam   The exam to filter by.
+     * @param selectedStudent The student to filter by.
+     * @return A list of grades matching the filter criteria.
+     */
+
+    public List<TeacherGradeStatisticController.Grade> filterGrades(String selectedCourse, String selectedExam, String selectedStudent) {
         return gradeList.stream()
-                .filter(grade ->
-                        (selectedCourse == null || selectedCourse.isEmpty() || selectedCourse.equals(grade.get("courseNum"))) &&
-                                (selectedExam == null || selectedExam.isEmpty() || selectedExam.equals(grade.get("examName"))) &&
-                                (selectedStudent == null || selectedStudent.isEmpty() || selectedStudent.equals(grade.get("studentName")))
-                )
+                .filter(grade -> (selectedCourse == null || grade.getCourseNum().equals(selectedCourse)) &&
+                        (selectedExam == null || grade.getExamName().equals(selectedExam)) &&
+                        (selectedStudent == null || grade.getStudentName().equals(selectedStudent)))
                 .collect(Collectors.toList());
     }
 }

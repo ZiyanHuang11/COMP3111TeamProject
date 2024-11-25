@@ -1,35 +1,54 @@
 package comp3111.examsystem.service;
 
-import comp3111.examsystem.data.DataManager;
-import comp3111.examsystem.entity.Manager;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 
-import java.util.List;
-
+/**
+ * Service class for managing the login functionality for managers in the examination system.
+ */
 public class ManagerLoginService {
-    private final DataManager dataManager;
+    private String managerFilePath;
 
-    // 构造函数：通过 DataManager 获取管理员数据
-    public ManagerLoginService(DataManager dataManager) {
-        this.dataManager = dataManager;
+    /**
+     * Constructs a ManagerLoginService with the specified file path for manager credentials.
+     *
+     * @param managerFilePath the file path for storing manager credentials
+     */
+    public ManagerLoginService(String managerFilePath) {
+        this.managerFilePath = managerFilePath;
+        File managerFile = new File(managerFilePath);
+        if (managerFile.exists()) {
+            System.out.println("Manager file found at: " + managerFile.getAbsolutePath());
+        } else {
+            System.out.println("Manager file not found!");
+        }
     }
 
     /**
-     * 验证管理员登录
+     * Validates the provided username and password against stored credentials.
      *
-     * @param username 用户名
-     * @param password 密码
-     * @return 如果用户名和密码匹配，返回 true；否则返回 false
+     * @param username the username to validate
+     * @param password the password to validate
+     * @return true if the username and password match an entry in the file, false otherwise
      */
     public boolean validate(String username, String password) {
-        // 获取所有管理员
-        List<Manager> managers = dataManager.getManagers();
-
-        for (Manager manager : managers) {
-            if (manager.getUsername().equals(username) && manager.getPassword().equals(password)) {
-                return true; // 验证成功
+        try (BufferedReader br = new BufferedReader(new FileReader(managerFilePath))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] credentials = line.split(",");
+                if (credentials.length == 2) {
+                    String storedUsername = credentials[0].trim();
+                    String storedPassword = credentials[1].trim();
+                    if (storedUsername.equals(username) && storedPassword.equals(password)) {
+                        return true;
+                    }
+                }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-        return false; // 验证失败
+        return false;
     }
 }

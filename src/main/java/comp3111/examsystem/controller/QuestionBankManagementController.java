@@ -1,16 +1,21 @@
 package comp3111.examsystem.controller;
 
-import comp3111.examsystem.data.DataManager;
 import comp3111.examsystem.entity.Question;
-import comp3111.examsystem.entity.Teacher;
 import comp3111.examsystem.service.QuestionBankManagementService;
 import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
+import java.io.IOException;
 import java.util.List;
 
+/**
+ * Controller for teacher to manage the questions bank
+ */
+
 public class QuestionBankManagementController {
+    // Filter fields
     @FXML
     private TextField questionFilterTxt;
     @FXML
@@ -18,18 +23,19 @@ public class QuestionBankManagementController {
     @FXML
     private TextField scoreFilterTxt;
 
+    // Question table and columns
     @FXML
     private TableView<Question> questionTable;
     @FXML
     private TableColumn<Question, String> questionColumn;
     @FXML
-    private TableColumn<Question, String> option1Column; // 修改名称
+    private TableColumn<Question, String> optionAColumn;
     @FXML
-    private TableColumn<Question, String> option2Column;
+    private TableColumn<Question, String> optionBColumn;
     @FXML
-    private TableColumn<Question, String> option3Column;
+    private TableColumn<Question, String> optionCColumn;
     @FXML
-    private TableColumn<Question, String> option4Column;
+    private TableColumn<Question, String> optionDColumn;
     @FXML
     private TableColumn<Question, String> answerColumn;
     @FXML
@@ -37,16 +43,17 @@ public class QuestionBankManagementController {
     @FXML
     private TableColumn<Question, Integer> scoreColumn;
 
+    // Input fields for adding/updating questions
     @FXML
     private TextField questionTxt;
     @FXML
-    private TextField option1Txt; // 修改名称
+    private TextField optionATxt;
     @FXML
-    private TextField option2Txt;
+    private TextField optionBTxt;
     @FXML
-    private TextField option3Txt;
+    private TextField optionCTxt;
     @FXML
-    private TextField option4Txt;
+    private TextField optionDTxt;
     @FXML
     private TextField answerTxt;
     @FXML
@@ -54,141 +61,175 @@ public class QuestionBankManagementController {
     @FXML
     private TextField scoreTxt;
 
-    private final QuestionBankManagementService questionService;
-    private final Teacher loggedInTeacher;
+    private QuestionBankManagementService questionService;
 
-    public QuestionBankManagementController(DataManager dataManager, Teacher loggedInTeacher) {
-        this.questionService = new QuestionBankManagementService(dataManager);
-        this.loggedInTeacher = loggedInTeacher;
-    }
-
+    /**
+     * Initializes the controller and sets up the necessary components.
+     */
     @FXML
     public void initialize() {
-        // Initialize ComboBoxes
+        questionService = new QuestionBankManagementService("data/questions.txt");
+
+        // Initialize type filter ComboBox
+        typeFilterComboBox.getItems().clear();
         typeFilterComboBox.getItems().addAll("All", "Single", "Multiple");
         typeFilterComboBox.setValue("All");
 
+        // Initialize type selection ComboBox
+        typeComboBox.getItems().clear();
         typeComboBox.getItems().addAll("Single", "Multiple");
         typeComboBox.setValue(null);
 
-        // Set table columns
+        // Initialize table columns
         questionColumn.setCellValueFactory(cellData -> cellData.getValue().questionProperty());
-        option1Column.setCellValueFactory(cellData -> cellData.getValue().option1Property());
-        option2Column.setCellValueFactory(cellData -> cellData.getValue().option2Property());
-        option3Column.setCellValueFactory(cellData -> cellData.getValue().option3Property());
-        option4Column.setCellValueFactory(cellData -> cellData.getValue().option4Property());
+        optionAColumn.setCellValueFactory(cellData -> cellData.getValue().optionAProperty());
+        optionBColumn.setCellValueFactory(cellData -> cellData.getValue().optionBProperty());
+        optionCColumn.setCellValueFactory(cellData -> cellData.getValue().optionCProperty());
+        optionDColumn.setCellValueFactory(cellData -> cellData.getValue().optionDProperty());
         answerColumn.setCellValueFactory(cellData -> cellData.getValue().answerProperty());
         typeColumn.setCellValueFactory(cellData -> cellData.getValue().typeProperty());
         scoreColumn.setCellValueFactory(cellData -> cellData.getValue().scoreProperty().asObject());
 
-        // Bind question list to table
-        refreshQuestionTable();
+        // Bind data to table
+        questionTable.setItems(questionService.getQuestionList());
 
-        // Set table selection listener
+        // Set table click event to show question details
         questionTable.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> showQuestionDetails(newValue));
     }
 
-    private void refreshQuestionTable() {
-        questionTable.setItems(questionService.getQuestionList());
-    }
-
+    /**
+     * Displays the details of the selected question in the input fields.
+     *
+     * @param question the selected question to display
+     */
     private void showQuestionDetails(Question question) {
         if (question != null) {
             questionTxt.setText(question.getQuestion());
-            option1Txt.setText(question.getOption1());
-            option2Txt.setText(question.getOption2());
-            option3Txt.setText(question.getOption3());
-            option4Txt.setText(question.getOption4());
+            optionATxt.setText(question.getOptionA());
+            optionBTxt.setText(question.getOptionB());
+            optionCTxt.setText(question.getOptionC());
+            optionDTxt.setText(question.getOptionD());
             answerTxt.setText(question.getAnswer());
             typeComboBox.setValue(question.getType());
             scoreTxt.setText(String.valueOf(question.getScore()));
         } else {
+            // Clear fields
             clearInputFields();
         }
     }
 
+    /**
+     * Handles the action of adding a new question.
+     */
     @FXML
     private void handleAdd() {
-        // 获取输入的值
-        String questionText = questionTxt.getText();
-        String option1 = option1Txt.getText();
-        String option2 = option2Txt.getText();
-        String option3 = option3Txt.getText();
-        String option4 = option4Txt.getText();
-        String answer = answerTxt.getText();
+        // Get input data
+        String questionText = questionTxt.getText().trim();
+        String optionA = optionATxt.getText().trim();
+        String optionB = optionBTxt.getText().trim();
+        String optionC = optionCTxt.getText().trim();
+        String optionD = optionDTxt.getText().trim();
+        String answer = answerTxt.getText().trim();
         String type = typeComboBox.getValue();
-        int score;
+        String scoreText = scoreTxt.getText().trim();
 
-        try {
-            score = Integer.parseInt(scoreTxt.getText());
-        } catch (NumberFormatException e) {
-            showAlert("Invalid Input", "Score must be an integer.", Alert.AlertType.ERROR);
+        String validationMessage = questionService.validateInputs(questionText, optionA, optionB, optionC, optionD, answer, type, scoreText);
+        if (validationMessage != null) {
+            showAlert("Invalid Input", validationMessage, Alert.AlertType.ERROR);
             return;
         }
 
-        // 创建新问题
-        Question newQuestion = new Question();
-        newQuestion.setQuestion(questionText);
-        newQuestion.setOption1(option1);
-        newQuestion.setOption2(option2);
-        newQuestion.setOption3(option3);
-        newQuestion.setOption4(option4);
-        newQuestion.setAnswer(answer);
-        newQuestion.setType(type);
-        newQuestion.setScore(score);
+        int score = Integer.parseInt(scoreText);
 
-        // 添加到数据管理器
-        questionService.addQuestion(newQuestion);
-        refreshQuestionTable();
-        clearInputFields();
+        // Add new question
+        Question newQuestion = new Question(questionText, optionA, optionB, optionC, optionD, answer, type, score);
+        try {
+            questionService.addQuestion(newQuestion);
+            // Update table
+            questionTable.setItems(questionService.getQuestionList());
+            // Clear input fields
+            clearInputFields();
+        } catch (IOException e) {
+            showAlert("Error", "Failed to save question to file.", Alert.AlertType.ERROR);
+        }
     }
 
+    /**
+     * Handles the action of updating the selected question.
+     */
     @FXML
     private void handleUpdate() {
         Question selectedQuestion = questionTable.getSelectionModel().getSelectedItem();
         if (selectedQuestion != null) {
-            selectedQuestion.setQuestion(questionTxt.getText());
-            selectedQuestion.setOption1(option1Txt.getText());
-            selectedQuestion.setOption2(option2Txt.getText());
-            selectedQuestion.setOption3(option3Txt.getText());
-            selectedQuestion.setOption4(option4Txt.getText());
-            selectedQuestion.setAnswer(answerTxt.getText());
-            selectedQuestion.setType(typeComboBox.getValue());
+            String questionText = questionTxt.getText().trim();
+            String optionA = optionATxt.getText().trim();
+            String optionB = optionBTxt.getText().trim();
+            String optionC = optionCTxt.getText().trim();
+            String optionD = optionDTxt.getText().trim();
+            String answer = answerTxt.getText().trim();
+            String type = typeComboBox.getValue();
+            String scoreText = scoreTxt.getText().trim();
 
-            try {
-                selectedQuestion.setScore(Integer.parseInt(scoreTxt.getText()));
-            } catch (NumberFormatException e) {
-                showAlert("Invalid Input", "Score must be an integer.", Alert.AlertType.ERROR);
+            String validationMessage = questionService.validateInputs(questionText, optionA, optionB, optionC, optionD, answer, type, scoreText);
+            if (validationMessage != null) {
+                showAlert("Invalid Input", validationMessage, Alert.AlertType.ERROR);
                 return;
             }
 
-            questionService.updateQuestion(selectedQuestion);
-            refreshQuestionTable();
-            clearInputFields();
+            int score = Integer.parseInt(scoreText);
+
+            // Update selected question
+            Question updatedQuestion = new Question(questionText, optionA, optionB, optionC, optionD, answer, type, score);
+
+            try {
+                questionService.updateQuestion(updatedQuestion, selectedQuestion.getQuestion());
+                // Update table
+                questionTable.refresh();
+                // Clear input fields
+                clearInputFields();
+                // Clear selection
+                questionTable.getSelectionModel().clearSelection();
+            } catch (IOException e) {
+                showAlert("Error", "Failed to update question.", Alert.AlertType.ERROR);
+            }
         } else {
-            showAlert("No Selection", "Please select a question to update.", Alert.AlertType.WARNING);
+            showAlert("No Selection", "Please select a question to update", Alert.AlertType.WARNING);
         }
     }
 
+    /**
+     * Handles the action of deleting the selected question.
+     */
     @FXML
     private void handleDelete() {
         Question selectedQuestion = questionTable.getSelectionModel().getSelectedItem();
         if (selectedQuestion != null) {
-            questionService.deleteQuestion(selectedQuestion.getId());
-            refreshQuestionTable();
-            clearInputFields();
+            try {
+                questionService.deleteQuestion(selectedQuestion.getQuestion());
+                // Update table
+                questionTable.setItems(questionService.getQuestionList());
+                // Clear input fields
+                clearInputFields();
+            } catch (IOException e) {
+                showAlert("Error", "Failed to delete question.", Alert.AlertType.ERROR);
+            }
         } else {
-            showAlert("No Selection", "Please select a question to delete.", Alert.AlertType.WARNING);
+            showAlert("No Selection", "Please select a question to delete", Alert.AlertType.WARNING);
         }
     }
 
+    /**
+     * Refreshes the question table.
+     */
     @FXML
     private void handleRefresh() {
         questionTable.refresh();
     }
 
-    // Handle reset button
+    /**
+     * Resets the filter fields and refreshes the question table.
+     */
     @FXML
     private void handleReset() {
         questionFilterTxt.clear();
@@ -197,7 +238,9 @@ public class QuestionBankManagementController {
         questionTable.setItems(questionService.getQuestionList());
     }
 
-    // Handle filter button
+    /**
+     * Filters the questions based on the input criteria.
+     */
     @FXML
     private void handleFilter() {
         String questionFilter = questionFilterTxt.getText().trim();
@@ -208,17 +251,27 @@ public class QuestionBankManagementController {
         questionTable.setItems(FXCollections.observableArrayList(filteredQuestions));
     }
 
+    /**
+     * Clears all input fields.
+     */
     private void clearInputFields() {
         questionTxt.clear();
-        option1Txt.clear();
-        option2Txt.clear();
-        option3Txt.clear();
-        option4Txt.clear();
+        optionATxt.clear();
+        optionBTxt.clear();
+        optionCTxt.clear();
+        optionDTxt.clear();
         answerTxt.clear();
         typeComboBox.setValue(null);
         scoreTxt.clear();
     }
 
+    /**
+     * Displays an alert dialog with the specified title, message, and alert type.
+     *
+     * @param title   the title of the alert dialog
+     * @param message the message to be displayed in the alert dialog
+     * @param type    the type of alert (e.g., ERROR, WARNING, INFORMATION)
+     */
     private void showAlert(String title, String message, Alert.AlertType type) {
         Alert alert = new Alert(type);
         alert.setTitle(title);

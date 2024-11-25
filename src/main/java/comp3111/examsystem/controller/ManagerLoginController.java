@@ -1,7 +1,6 @@
 package comp3111.examsystem.controller;
 
 import comp3111.examsystem.Main;
-import comp3111.examsystem.data.DataManager;
 import comp3111.examsystem.service.ManagerLoginService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -18,64 +17,71 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ * Controller for the manager login action
+ */
+
 public class ManagerLoginController implements Initializable {
     @FXML
-    private TextField usernameTxt;
+    private TextField usernameTxt; // TextField for entering the username
     @FXML
-    private PasswordField passwordTxt;
+    private PasswordField passwordTxt; // PasswordField for entering the password
 
-    private final ManagerLoginService managerLoginService;
+    private ManagerLoginService managerLoginService; // Service for managing login operations
 
+    /**
+     * Constructs a ManagerLoginController and initializes the ManagerLoginService.
+     */
     public ManagerLoginController() {
-        // 使用 DataManager 初始化服务
-        DataManager dataManager = new DataManager();
-        managerLoginService = new ManagerLoginService(dataManager);
+        managerLoginService = new ManagerLoginService("data/managers.txt");
     }
 
+    /**
+     * Initializes the controller after its root element has been processed.
+     *
+     * @param location  The location used to resolve relative paths for the root object,
+     *                  or null if the location is not known.
+     * @param resources The resources used to localize the root object,
+     *                  or null if the root object was not localized.
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // 初始化逻辑（如果需要）
+        // Initialization logic can be added here if needed
     }
 
+    /**
+     * Handles the login action when the user clicks the login button.
+     *
+     * @param e The ActionEvent triggered by the button click.
+     */
     @FXML
     public void login(ActionEvent e) {
-        String username = usernameTxt.getText().trim();
-        String password = passwordTxt.getText().trim();
-
-        if (username.isEmpty() || password.isEmpty()) {
-            showAlert(Alert.AlertType.WARNING, "Input Error", "Username and password cannot be empty.");
-            return;
-        }
+        String username = usernameTxt.getText();
+        String password = passwordTxt.getText();
 
         if (managerLoginService.validate(username, password)) {
-            // 登录成功提示
-            showAlert(Alert.AlertType.INFORMATION, "Login Successful", "Welcome, " + username + "!");
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Hint");
+            alert.setHeaderText(null);
+            alert.setContentText("Login successful");
+            alert.showAndWait();
 
-            // 跳转到管理员主界面
+            FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("ManagerMainUI.fxml"));
+            Stage stage = new Stage();
+            stage.setTitle("Hi " + username + ", Welcome to HKUST Examination System");
             try {
-                FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("ManagerMainUI.fxml"));
-                Stage stage = new Stage();
-                stage.setTitle("Hi " + username + ", Welcome to HKUST Examination System");
                 stage.setScene(new Scene(fxmlLoader.load()));
-                stage.show();
-
-                // 关闭当前窗口
-                ((Stage) ((Button) e.getSource()).getScene().getWindow()).close();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-                showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while loading the next screen.");
+            } catch (IOException e1) {
+                e1.printStackTrace();
             }
+            stage.show();
+            ((Stage) ((Button) e.getSource()).getScene().getWindow()).close();
         } else {
-            // 登录失败提示
-            showAlert(Alert.AlertType.ERROR, "Login Failed", "Invalid username or password.");
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Hint");
+            alert.setHeaderText(null);
+            alert.setContentText("Invalid username or password");
+            alert.showAndWait();
         }
-    }
-
-    private void showAlert(Alert.AlertType type, String title, String message) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
     }
 }

@@ -1,150 +1,120 @@
 package comp3111.examsystem.service;
 
-import comp3111.examsystem.data.DataManager;
 import comp3111.examsystem.entity.Exam;
 import comp3111.examsystem.entity.Question;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import javafx.collections.ObservableList;
+import org.junit.jupiter.api.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ExamManagementServiceTest {
-
+public class ExamManagementServiceTest {
     private ExamManagementService examService;
-
-    // In-memory mock data
-    private List<Exam> inMemoryExams;
-    private List<Question> inMemoryQuestions;
+    private final String testExamFilePath = "test_data/test_exams.txt";
+    private final String testQuestionFilePath = "test_data/test_questions.txt";
 
     @BeforeEach
-    void setUp() {
-        // Initialize in-memory data
-        inMemoryExams = new ArrayList<>(Arrays.asList(
-                new Exam("Quiz 1", "COMP3111", "2023-11-20", "Published", new ArrayList<>(Arrays.asList("1", "2")), 600),
-                new Exam("Quiz 2", "COMP3111", "2023-12-15", "Draft", new ArrayList<>(Arrays.asList("3", "4")), 900)
-        ));
+    public void setUp() throws IOException {
+        // Create test data directory if it doesn't exist
+        Files.createDirectories(Paths.get("test_data"));
 
-        inMemoryQuestions = new ArrayList<>(Arrays.asList(
-                new Question("1", "What is Java?", "A programming language", "A coffee brand", "An island", "All of the above", "A programming language", "Single", 5),
-                new Question("2", "Explain OOP concepts", "Encapsulation", "Inheritance", "Polymorphism", "Abstraction", "All of the above", "Multiple", 10),
-                new Question("3", "Define Agile", "Iterative development", "Static planning", "No testing", "None of the above", "Iterative development", "Single", 5),
-                new Question("4", "What is UML?", "A modeling language", "A programming language", "A testing framework", "None of the above", "A modeling language", "Single", 5)
-        ));
+        // Write test questions to file
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(testQuestionFilePath))) {
+            writer.write("What is Java?,A programming language,A coffee brand,An island,All of the above,A programming language,Single,5\n");
+            writer.write("Explain OOP concepts.,Encapsulation,Inheritance,Polymorphism,Abstraction,All of the above,Multiple,10\n");
+        }
 
-        // Initialize ExamManagementService with in-memory data
-        examService = new ExamManagementService(new InMemoryDataManager());
+        // Write test exams to file
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(testExamFilePath))) {
+            writer.write("Midterm Exam,2023-11-20,COMP3111,Yes,What is Java?\n");
+            writer.write("Final Exam,2023-12-15,COMP5111,No,Explain OOP concepts.\n");
+        }
+
+        // Initialize the service with test file paths
+        examService = new ExamManagementService(testExamFilePath, testQuestionFilePath);
     }
 
     @Test
-    void testLoadExams() {
-        assertEquals(2, examService.getExamList().size(), "Exam list should contain 2 exams.");
-        assertEquals("Quiz 1", examService.getExamList().get(0).getExamName(), "First exam should be 'Quiz 1'.");
+    public void testLoadQuestions() {
+        ObservableList<Question> questions = examService.getQuestionList();
+        assertEquals(2, questions.size());
+        assertEquals("What is Java?", questions.get(0).getQuestion());
     }
 
     @Test
-    void testLoadQuestions() {
-        assertEquals(4, examService.getQuestionList().size(), "Question list should contain 4 questions.");
-        assertEquals("What is Java?", examService.getQuestionList().get(0).getQuestion(), "First question should be 'What is Java?'.");
+    public void testLoadExams() {
+        ObservableList<Exam> exams = examService.getExamList();
+        assertEquals(2, exams.size());
+        assertEquals("Midterm Exam", exams.get(0).getExamName());
+        assertEquals(1, exams.get(0).getQuestions().size());
     }
 
     @Test
-    void testAddExam() {
-        Exam newExam = new Exam("Midterm", "COMP5111", "2023-11-30", "Published", new ArrayList<>(Arrays.asList("1", "3")), 1200);
+    public void testAddExam() throws IOException {
+        Exam newExam = new Exam("Test Exam", "2024-01-01", "COMP1234", "No");
         boolean result = examService.addExam(newExam);
-        assertTrue(result, "New exam should be added successfully.");
-        assertEquals(3, examService.getExamList().size(), "Exam list should now contain 3 exams.");
+        assertTrue(result);
+
+        ObservableList<Exam> exams = examService.getExamList();
+        assertEquals(3, exams.size());
+        assertTrue(exams.stream().anyMatch(e -> e.getExamName().equals("Test Exam")));
     }
 
     @Test
-    void testAddExamDuplicate() {
-        Exam duplicateExam = new Exam("Quiz 1", "COMP3111", "2023-11-20", "Published", new ArrayList<>(Arrays.asList("1", "2")), 600);
-        boolean result = examService.addExam(duplicateExam);
-        assertFalse(result, "Duplicate exam should not be added.");
-        assertEquals(2, examService.getExamList().size(), "Exam list should still contain 2 exams.");
+    public void testAddDuplicateExam() throws IOException {
+        Exam newExam = new Exam("Midterm Exam", "2024-01-01", "COMP1234", "No");
+        boolean result = examService.addExam(newExam);
+        assertFalse(result); // Duplicate exam should not be added
     }
 
     @Test
-    void testUpdateExam() {
-        Exam updatedExam = new Exam("Updated Quiz 1", "COMP3111", "2023-11-25", "Published", new ArrayList<>(Arrays.asList("1", "3")), 700);
-        boolean result = examService.updateExam(updatedExam, "Quiz 1");
-        assertTrue(result, "Exam should be updated successfully.");
-        assertEquals("Updated Quiz 1", examService.getExamList().get(0).getExamName(), "First exam name should be updated.");
+    public void testUpdateExam() throws IOException {
+        Exam updatedExam = new Exam("Updated Exam", "2023-12-20", "COMP5111", "Yes");
+        boolean result = examService.updateExam(updatedExam, "Midterm Exam");
+        assertTrue(result);
+
+        ObservableList<Exam> exams = examService.getExamList();
+        Exam exam = exams.stream().filter(e -> e.getExamName().equals("Updated Exam")).findFirst().orElse(null);
+        assertNotNull(exam);
+        assertEquals("COMP5111", exam.getExamTime());
     }
 
     @Test
-    void testDeleteExam() {
-        boolean result = examService.deleteExam("Quiz 1");
-        assertTrue(result, "Exam should be deleted successfully.");
-        assertEquals(1, examService.getExamList().size(), "Exam list should now contain 1 exam.");
+    public void testDeleteExam() throws IOException {
+        boolean result = examService.deleteExam("Midterm Exam");
+        assertTrue(result);
+
+        ObservableList<Exam> exams = examService.getExamList();
+        assertEquals(1, exams.size());
+        assertFalse(exams.stream().anyMatch(e -> e.getExamName().equals("Midterm Exam")));
     }
 
     @Test
-    void testAddQuestionToExam() {
-        Exam exam = examService.getExamList().get(0); // Quiz 1
-        Question question = examService.getQuestionList().get(2); // Define Agile
+    public void testAddQuestionToExam() throws IOException {
+        Exam exam = examService.getExamList().get(0);
+        Question question = examService.getQuestionList().get(1); // Second question
+
         boolean result = examService.addQuestionToExam(exam, question);
-        assertTrue(result, "Question should be added to exam.");
-        assertTrue(exam.getQuestionIds().contains(question.getId()), "Exam should now contain the added question ID.");
+        assertTrue(result);
+        assertEquals(2, exam.getQuestions().size());
     }
 
     @Test
-    void testRemoveQuestionFromExam() {
-        Exam exam = examService.getExamList().get(0); // Quiz 1
-        Question question = examService.getQuestionList().get(0); // What is Java?
+    public void testRemoveQuestionFromExam() throws IOException {
+        Exam exam = examService.getExamList().get(0);
+        Question question = exam.getQuestions().get(0);
 
-        assertTrue(exam.getQuestionIds().contains(question.getId()), "Exam should initially contain the question ID.");
         boolean result = examService.removeQuestionFromExam(exam, question);
-        assertTrue(result, "Question should be removed from exam.");
-        assertFalse(exam.getQuestionIds().contains(question.getId()), "Exam should no longer contain the removed question ID.");
+        assertTrue(result);
+        assertEquals(0, exam.getQuestions().size());
     }
 
-    @Test
-    void testFilterExams() {
-        List<Exam> filteredExams = examService.filterExams("", "COMP3111", "All");
-        assertEquals(2, filteredExams.size(), "Both exams should match the courseID 'COMP3111'.");
-    }
-
-    @Test
-    void testFilterQuestions() {
-        List<Question> filteredQuestions = examService.filterQuestions("Java", "All", "");
-        assertEquals(1, filteredQuestions.size(), "Only one question should contain 'Java'.");
-    }
-
-    // In-memory DataManager implementation
-    private class InMemoryDataManager extends DataManager {
-
-        @Override
-        public List<Exam> getExams() {
-            return inMemoryExams;
-        }
-
-        @Override
-        public List<Question> getQuestions() {
-            return inMemoryQuestions;
-        }
-
-        @Override
-        public void addExam(Exam exam) {
-            inMemoryExams.add(exam);
-        }
-
-        @Override
-        public void updateExam(String id, Exam updatedExam) {
-            for (int i = 0; i < inMemoryExams.size(); i++) {
-                if (inMemoryExams.get(i).getExamName().equals(id)) {
-                    inMemoryExams.set(i, updatedExam);
-                    return;
-                }
-            }
-        }
-
-        @Override
-        public void deleteExam(String id) {
-            inMemoryExams.removeIf(exam -> exam.getExamName().equals(id));
-        }
+    @AfterEach
+    public void tearDown() throws IOException {
+        Files.deleteIfExists(Paths.get(testExamFilePath));
+        Files.deleteIfExists(Paths.get(testQuestionFilePath));
     }
 }

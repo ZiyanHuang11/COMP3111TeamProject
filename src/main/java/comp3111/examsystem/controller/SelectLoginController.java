@@ -7,58 +7,57 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import javafx.scene.control.Button;
 
-
+/**
+ * Controller for managing the selection of different login interfaces (Student, Teacher, Manager).
+ */
 public class SelectLoginController {
-    @FXML
-    private Button studentLoginButton;
-    @FXML
-    private Button teacherLoginButton;
-    @FXML
-    private Button managerLoginButton;
+
+    /**
+     * Opens the Student Login interface.
+     */
     @FXML
     public void studentLogin() {
         try {
-            Stage stage = (Stage) studentLoginButton.getScene().getWindow(); // 获取当前窗口
-            stage.close(); // 关闭当前窗口
-            Stage newStage = new Stage();
+            Stage stage = new Stage();
             FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("StudentLoginUI.fxml"));
             Scene scene = new Scene(fxmlLoader.load());
-            newStage.setTitle("Student Login");
-            newStage.setScene(scene);
-            newStage.show();
+            stage.setTitle("Student Login");
+            stage.setScene(scene);
+            stage.show();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * Opens the Teacher Login interface.
+     */
     @FXML
     public void teacherLogin() {
         try {
-            Stage stage = (Stage) teacherLoginButton.getScene().getWindow(); // 获取当前窗口
-            stage.close(); // 关闭当前窗口
-            Stage newStage = new Stage();
+            Stage stage = new Stage();
             FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("TeacherLoginUI.fxml"));
             Scene scene = new Scene(fxmlLoader.load());
-            newStage.setTitle("Teacher Login");
-            newStage.setScene(scene);
-            newStage.show();
+            stage.setTitle("Teacher Login");
+            stage.setScene(scene);
+            stage.show();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    /**
+     * Opens the Manager Login interface.
+     */
     public void managerLogin() {
         try {
-            Stage stage = (Stage) managerLoginButton.getScene().getWindow(); // 获取当前窗口
-            stage.close(); // 关闭当前窗口
-            Stage newStage = new Stage();
+            Stage stage = new Stage();
             FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("ManagerLoginUI.fxml"));
             Scene scene = new Scene(fxmlLoader.load());
-            newStage.setTitle("Manager Login");
-            newStage.setScene(scene);
-            newStage.show();
+            stage.setTitle("Manager Login");
+            stage.setScene(scene);
+            stage.show();
         } catch (IOException e) {
             e.printStackTrace();
         }

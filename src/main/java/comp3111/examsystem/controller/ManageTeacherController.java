@@ -1,6 +1,5 @@
 package comp3111.examsystem.controller;
 
-import comp3111.examsystem.data.DataManager;
 import comp3111.examsystem.entity.Teacher;
 import comp3111.examsystem.service.ManageTeacherService;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -10,61 +9,72 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
+import java.io.IOException;
 import java.util.List;
+
+/**
+ * Controller for the manager to manage teachers
+ */
 
 public class ManageTeacherController {
 
     @FXML
-    private TextField usernameFilter;
+    TextField usernameFilter; // Filter for teacher username
     @FXML
-    private TextField nameFilter;
+    TextField nameFilter; // Filter for teacher name
     @FXML
-    private TextField departmentFilter;
+    TextField departmentFilter; // Filter for department
     @FXML
-    private TableView<Teacher> teacherTable;
+    TableView<Teacher> teacherTable; // Table for displaying teachers
     @FXML
-    private TableColumn<Teacher, String> usernameColumn;
+    private TableColumn<Teacher, String> usernameColumn; // Column for username
     @FXML
-    private TableColumn<Teacher, String> nameColumn;
+    private TableColumn<Teacher, String> nameColumn; // Column for teacher name
     @FXML
-    private TableColumn<Teacher, String> genderColumn;
+    private TableColumn<Teacher, String> genderColumn; // Column for gender
     @FXML
-    private TableColumn<Teacher, Integer> ageColumn;
+    private TableColumn<Teacher, Integer> ageColumn; // Column for age
     @FXML
-    private TableColumn<Teacher, String> positionColumn;
+    private TableColumn<Teacher, String> positionColumn; // Column for position
     @FXML
-    private TableColumn<Teacher, String> departmentColumn;
+    private TableColumn<Teacher, String> departmentColumn; // Column for department
     @FXML
-    private TableColumn<Teacher, String> passwordColumn;
+    private TableColumn<Teacher, String> passwordColumn; // Column for password
     @FXML
-    private TextField usernameField;
+    TextField usernameField; // Field for entering username
     @FXML
-    private TextField nameField;
+    TextField nameField; // Field for entering teacher name
     @FXML
-    private ComboBox<String> genderComboBox;
+    ComboBox<String> genderComboBox; // ComboBox for selecting gender
     @FXML
-    private TextField ageField;
+    TextField ageField; // Field for entering age
     @FXML
-    private ComboBox<String> positionComboBox;
+    ComboBox<String> positionComboBox; // ComboBox for selecting position
     @FXML
-    private TextField departmentField;
+    TextField departmentField; // Field for entering department
     @FXML
-    private TextField passwordField;
+    TextField passwordField; // Field for entering password
 
-    private ManageTeacherService teacherService;
+    private ManageTeacherService manageTeacherService; // Service for managing teacher operations
 
-    public void setDataManager(DataManager dataManager) {
-        this.teacherService = new ManageTeacherService(dataManager);
-        initialize();
+    /**
+     * Constructs a ManageTeacherController and initializes the ManageTeacherService.
+     */
+    public ManageTeacherController() {
+        manageTeacherService = new ManageTeacherService();
     }
 
+    /**
+     * Initializes the controller after its root element has been processed.
+     * Sets up the table columns and populates the teacher table with data.
+     */
     @FXML
     public void initialize() {
         usernameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getUsername()));
         nameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getName()));
         genderColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getGender()));
         ageColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getAge()).asObject());
-        positionColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getTitle()));
+        positionColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPosition()));
         departmentColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getDepartment()));
         passwordColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPassword()));
         teacherTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -74,128 +84,188 @@ public class ManageTeacherController {
                 clearFields();
             }
         });
-        refreshTeacher();
+        displayTeachers(manageTeacherService.getTeacherList());
     }
 
-    @FXML
-    public void filterTeachers() {
-        String username = usernameFilter.getText().trim().toLowerCase();
-        String name = nameFilter.getText().trim().toLowerCase();
-        String department = departmentFilter.getText().trim().toLowerCase();
-
-        List<Teacher> filteredList = teacherService.filterTeachers(username, name, department);
-        displayTeachers(FXCollections.observableArrayList(filteredList));
+    /**
+     * Displays the list of teachers in the teacher table.
+     *
+     * @param teachers The list of teachers to display.
+     */
+    private void displayTeachers(ObservableList<Teacher> teachers) {
+        teacherTable.setItems(teachers);
     }
 
+    /**
+     * Resets the filter fields and refreshes the teacher table.
+     */
     @FXML
     public void resetFilters() {
         usernameFilter.clear();
         nameFilter.clear();
         departmentFilter.clear();
-        refreshTeacher();
+        displayTeachers(manageTeacherService.getTeacherList());
     }
 
+    /**
+     * Filters the teachers based on the input in the filter fields and updates the teacher table.
+     */
+    @FXML
+    public void filterTeachers() {
+        String username = usernameFilter.getText().toLowerCase();
+        String name = nameFilter.getText().toLowerCase();
+        String department = departmentFilter.getText().toLowerCase();
+
+        List<Teacher> filteredList = manageTeacherService.filterTeachers(username, name, department);
+        displayTeachers(FXCollections.observableArrayList(filteredList));
+    }
+
+    /**
+     * Adds a new teacher based on the input fields.
+     * Validates inputs and displays alerts for success or errors.
+     */
     @FXML
     public void addTeacher() {
-        String username = usernameField.getText().trim();
-        String name = nameField.getText().trim();
+        String username = usernameField.getText();
+        String name = nameField.getText();
         String gender = genderComboBox.getValue();
-        String ageText = ageField.getText().trim();
+        String ageText = ageField.getText();
         String position = positionComboBox.getValue();
-        String department = departmentField.getText().trim();
-        String password = passwordField.getText().trim();
+        String department = departmentField.getText();
+        String password = passwordField.getText();
 
-        String validationMessage = teacherService.validateInputs(username, name, gender, ageText, position, department, password);
+        String validationMessage = manageTeacherService.validateInputs(username, name, gender, ageText, position, department, password);
         if (validationMessage != null) {
             showAlert(validationMessage);
             return;
         }
 
         int age = Integer.parseInt(ageText);
-        Teacher newTeacher = new Teacher(null, username, password, name, gender, age, position, department);
+        Teacher newTeacher = new Teacher(username, password, name, gender, age, position, department);
 
-        teacherService.addTeacher(newTeacher);
-        showAlert("Teacher added successfully.");
-        clearFields();
-        refreshTeacher();
+        try {
+            manageTeacherService.addTeacher(newTeacher);
+            showAlert("Add teacher success");
+            clearFields();
+            displayTeachers(manageTeacherService.getTeacherList());
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("Error adding teacher");
+        }
     }
 
+    /**
+     * Updates the selected teacher with the input from the fields.
+     * Validates inputs and displays alerts for success or errors.
+     */
     @FXML
     public void updateTeacher() {
         Teacher selectedTeacher = teacherTable.getSelectionModel().getSelectedItem();
         if (selectedTeacher != null) {
             String originalUsername = selectedTeacher.getUsername();
-            String username = usernameField.getText().trim();
-            String name = nameField.getText().trim();
+            String newUsername = usernameField.getText();
+            String name = nameField.getText();
+            String ageText = ageField.getText();
             String gender = genderComboBox.getValue();
-            String ageText = ageField.getText().trim();
             String position = positionComboBox.getValue();
-            String department = departmentField.getText().trim();
-            String password = passwordField.getText().trim();
+            String department = departmentField.getText();
+            String password = passwordField.getText();
 
-            String validationMessage = teacherService.validateUpdateInputs(name, gender, ageText, position, department, password);
+            String validationMessage = manageTeacherService.validateUpdateInputs(name, gender, ageText, position, department, password);
             if (validationMessage != null) {
                 showAlert(validationMessage);
                 return;
             }
 
-            int age = Integer.parseInt(ageText);
-            Teacher updatedTeacher = new Teacher(selectedTeacher.getId(), username, password, name, gender, age, position, department);
-            teacherService.updateTeacher(updatedTeacher, originalUsername);
+            Teacher updatedTeacher = new Teacher(newUsername, password, name, gender, Integer.parseInt(ageText), position, department);
 
-            showAlert("Teacher updated successfully.");
-            clearFields();
-            refreshTeacher();
+            try {
+                manageTeacherService.updateTeacher(updatedTeacher, originalUsername);
+                showAlert("Update teacher success");
+                clearFields();
+                displayTeachers(manageTeacherService.getTeacherList());
+            } catch (IOException e) {
+                e.printStackTrace();
+                showAlert("Error updating teacher");
+            }
         } else {
             showAlert("Please select a teacher to update.");
         }
     }
 
+    /**
+     * Deletes the selected teacher after confirming the action with the user.
+     */
     @FXML
     public void deleteTeacher() {
         Teacher selectedTeacher = teacherTable.getSelectionModel().getSelectedItem();
         if (selectedTeacher != null) {
-            teacherService.deleteTeacher(selectedTeacher);
-            showAlert("Teacher deleted successfully.");
-            refreshTeacher();
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Confirm Deletion");
+            alert.setHeaderText("Are you sure you want to delete teacher " + selectedTeacher.getName() + "?");
+            alert.setContentText("This action cannot be undone.");
+
+            ButtonType result = alert.showAndWait().orElse(ButtonType.CANCEL);
+            if (result == ButtonType.OK) {
+                try {
+                    manageTeacherService.deleteTeacher(selectedTeacher);
+                    showAlert("Delete teacher success");
+                    displayTeachers(manageTeacherService.getTeacherList());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    showAlert("Error deleting teacher");
+                }
+            }
         } else {
             showAlert("Please select a teacher to delete.");
         }
     }
 
+    /**
+     * Refreshes the teacher table and clears the input fields.
+     */
     @FXML
     public void refreshTeacher() {
-        displayTeachers(FXCollections.observableArrayList(teacherService.getAllTeachers()));
         clearFields();
+        teacherTable.getSelectionModel().clearSelection();
+        displayTeachers(manageTeacherService.getTeacherList());
     }
 
-    private void displayTeachers(ObservableList<Teacher> teachers) {
-        teacherTable.setItems(teachers);
-    }
-
+    /**
+     * Updates the input fields with the details of the specified teacher.
+     *
+     * @param teacher The teacher whose details will be displayed in the input fields.
+     */
     private void updateFields(Teacher teacher) {
         usernameField.setText(teacher.getUsername());
         nameField.setText(teacher.getName());
         genderComboBox.setValue(teacher.getGender());
         ageField.setText(String.valueOf(teacher.getAge()));
-        positionComboBox.setValue(teacher.getTitle());
+        positionComboBox.setValue(teacher.getPosition());
         departmentField.setText(teacher.getDepartment());
         passwordField.setText(teacher.getPassword());
     }
 
+    /**
+     * Clears the input fields for teacher details.
+     */
     private void clearFields() {
         usernameField.clear();
         nameField.clear();
         ageField.clear();
         genderComboBox.getSelectionModel().clearSelection();
-        positionComboBox.getSelectionModel().clearSelection();
         departmentField.clear();
         passwordField.clear();
     }
 
+    /**
+     * Displays an alert with the specified message.
+     *
+     * @param message The message to be displayed in the alert.
+     */
     private void showAlert(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Message");
+        alert.setTitle("Hint");
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();

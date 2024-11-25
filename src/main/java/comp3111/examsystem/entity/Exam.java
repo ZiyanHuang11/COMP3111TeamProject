@@ -2,158 +2,158 @@ package comp3111.examsystem.entity;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public class Exam extends Entity {
+/**
+ * Represents an exam in the examination system.
+ */
+public class Exam {
     private final StringProperty examName;
     private final StringProperty courseID;
     private final StringProperty examTime;
     private final StringProperty publish;
-    private final List<String> questionIds;
-    private final StringProperty courseName;
-    private int duration;
+    private final ObservableList<Question> questions;
 
-    // Constructor
-    public Exam(String examName, String courseID, String examTime, String publish, List<String> questionIds, int duration) {
+    /**
+     * Constructs an Exam object with the specified details.
+     *
+     * @param examName the name of the exam
+     * @param courseID  the unique identifier of the course associated with the exam
+     * @param examTime  the time allocated for the exam
+     * @param publish    the publication status of the exam
+     */
+    public Exam(String examName, String courseID, String examTime, String publish) {
         this.examName = new SimpleStringProperty(examName);
         this.courseID = new SimpleStringProperty(courseID);
         this.examTime = new SimpleStringProperty(examTime);
         this.publish = new SimpleStringProperty(publish);
-        this.questionIds = new ArrayList<>(questionIds);
-        this.courseName = new SimpleStringProperty("");
-        this.duration = duration;
+        this.questions = FXCollections.observableArrayList();
     }
 
-    public Exam() {
-        this.examName = new SimpleStringProperty("");
-        this.courseID = new SimpleStringProperty("");
-        this.examTime = new SimpleStringProperty("");
-        this.publish = new SimpleStringProperty("");
-        this.questionIds = new ArrayList<>();
-        this.courseName = new SimpleStringProperty("");
-        this.duration = 0;
-    }
-
-    public Exam(String examName, String courseID, String examTime, String publish, List<String> questionIds) {
-        this(examName, courseID, examTime, publish, questionIds, 0);
-    }
-
-    // Method to get question IDs as a single string
-    public String getQuestionIdsAsString() {
-        return String.join("|", questionIds); // Joins IDs with "|" as the delimiter
-    }
-
-    // Retrieve associated Question objects by accepting DataManager as a parameter
-    public List<Question> getQuestions(List<Question> allQuestions) {
-        List<Question> associatedQuestions = new ArrayList<>();
-        for (String questionId : questionIds) {
-            for (Question question : allQuestions) {
-                if (question.getId().equals(questionId)) {
-                    associatedQuestions.add(question);
-                }
-            }
-        }
-        return associatedQuestions;
-    }
-
-    // Getter and Setter for duration
-    public int getDuration() {
-        return duration;
-    }
-
-    public void setDuration(int duration) {
-        this.duration = duration;
-    }
-
-    public String getCourseName() {
-        return courseName.get();
-    }
-
-    public void setCourseName(String courseName) {
-        this.courseName.set(courseName);
-    }
-
-    public StringProperty courseNameProperty() {
-        return courseName;
-    }
-
+    /**
+     * Returns the name of the exam.
+     *
+     * @return the exam name
+     */
     public String getExamName() {
         return examName.get();
     }
 
+    /**
+     * Sets the name of the exam.
+     *
+     * @param examName the new exam name
+     */
     public void setExamName(String examName) {
         this.examName.set(examName);
     }
 
+    /**
+     * Returns the property for the exam name.
+     *
+     * @return the exam name property
+     */
     public StringProperty examNameProperty() {
         return examName;
     }
 
+    /**
+     * Returns the unique identifier of the course associated with the exam.
+     *
+     * @return the course ID
+     */
     public String getCourseID() {
         return courseID.get();
     }
 
+    /**
+     * Sets the unique identifier of the course associated with the exam.
+     *
+     * @param courseID the new course ID
+     */
     public void setCourseID(String courseID) {
         this.courseID.set(courseID);
     }
 
+    /**
+     * Returns the property for the course ID.
+     *
+     * @return the course ID property
+     */
     public StringProperty courseIDProperty() {
         return courseID;
     }
 
+    /**
+     * Returns the time allocated for the exam.
+     *
+     * @return the exam time
+     */
     public String getExamTime() {
         return examTime.get();
     }
 
+    /**
+     * Sets the time allocated for the exam.
+     *
+     * @param examTime the new exam time
+     */
     public void setExamTime(String examTime) {
         this.examTime.set(examTime);
     }
 
+    /**
+     * Returns the property for the exam time.
+     *
+     * @return the exam time property
+     */
     public StringProperty examTimeProperty() {
         return examTime;
     }
 
+    /**
+     * Returns the publication status of the exam.
+     *
+     * @return the publish status
+     */
     public String getPublish() {
         return publish.get();
     }
 
+    /**
+     * Sets the publication status of the exam.
+     *
+     * @param publish the new publish status
+     */
     public void setPublish(String publish) {
         this.publish.set(publish);
     }
 
+    /**
+     * Returns the property for the publish status.
+     *
+     * @return the publish property
+     */
     public StringProperty publishProperty() {
         return publish;
     }
 
-    public List<String> getQuestionIds() {
-        return new ArrayList<>(questionIds);
+    /**
+     * Returns the list of questions associated with the exam.
+     *
+     * @return the observable list of questions
+     */
+    public ObservableList<Question> getQuestions() {
+        return questions;
     }
 
-    public void addQuestionId(String questionId) {
-        this.questionIds.add(questionId);
-    }
-
-    public boolean removeQuestionId(String questionId) {
-        return this.questionIds.remove(questionId); // 返回操作结果，便于测试校验
-    }
-
-    public void setQuestionIds(List<String> questionIds) {
-        this.questionIds.clear();
-        this.questionIds.addAll(questionIds);
-    }
-
-    @Override
-    public String toString() {
-        return "Exam{" +
-                "examName=" + examName.get() +
-                ", courseID=" + courseID.get() +
-                ", examTime=" + examTime.get() +
-                ", publish=" + publish.get() +
-                ", questionIds=" + getQuestionIdsAsString() + // Use new method
-                ", courseName=" + courseName.get() +
-                ", duration=" + duration +
-                '}';
+    /**
+     * Sets the list of questions associated with the exam.
+     *
+     * @param questions the new list of questions
+     */
+    public void setQuestions(ObservableList<Question> questions) {
+        this.questions.setAll(questions);
     }
 }

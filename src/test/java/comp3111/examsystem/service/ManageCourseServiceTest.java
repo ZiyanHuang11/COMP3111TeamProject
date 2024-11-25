@@ -1,129 +1,113 @@
 package comp3111.examsystem.service;
 
-import comp3111.examsystem.data.DataManager;
 import comp3111.examsystem.entity.Course;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.ArrayList;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ManageCourseServiceTest {
-
-    private ManageCourseService manageCourseService;
-    private DataManager mockDataManager;
+public class ManageCourseServiceTest {
+    private ManageCourseService courseService;
+    private String testFilePath;
 
     @BeforeEach
-    public void setUp() {
-        List<Course> mockCourses = new ArrayList<>();
-        mockCourses.add(new Course("COMP3111", "Software Engineering", "CSE"));
-        mockCourses.add(new Course("COMP5111", "Software Engineering II", "CSE"));
-        mockCourses.add(new Course("IT2020", "Cybersecurity", "IT"));
-        mockCourses.add(new Course("COMP4462", "Data Visualization", "CSE"));
+    public void setUp() throws IOException {
+        testFilePath = "test_courses.txt";
 
-        mockDataManager = new MockDataManager(mockCourses);
-        manageCourseService = new ManageCourseService(mockDataManager);
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(testFilePath))) {
+            writer.write("CS101,Introduction to Computer Science,CS\n");
+            writer.write("CS102,Data Structures,CS\n");
+            writer.write("MATH101,Calculus I,MATH\n");
+        }
+        courseService = new ManageCourseService(testFilePath);
     }
 
     @Test
-    public void testGetCourses() {
-        List<Course> courses = manageCourseService.getCourses();
-        assertEquals(4, courses.size(), "There should be 4 courses in the list.");
+    public void testLoadCoursesFromFile() {
+        List<Course> courses = courseService.getCourseList();
+        assertEquals(3, courses.size());
+        assertEquals("CS101", courses.get(0).getCourseID());
+        assertEquals("Introduction to Computer Science", courses.get(0).getCourseName());
+        assertEquals("CS", courses.get(0).getDepartment());
     }
 
     @Test
-    public void testAddCourse() {
-        Course newCourse = new Course("MGT201", "Operations Management", "MGT");
-        manageCourseService.addCourse(newCourse);
-
-        List<Course> courses = manageCourseService.getCourses();
-        assertEquals(5, courses.size(), "There should be 5 courses in the list.");
-        assertTrue(courses.stream().anyMatch(course -> course.getCourseID().equals("MGT201")),
-                "The course MGT201 should exist in the list.");
+    public void testAddCourse() throws IOException {
+        Course newCourse = new Course("CS103", "Algorithms", "CS");
+        courseService.addCourse(newCourse);
+        List<Course> courses = courseService.getCourseList();
+        assertEquals(4, courses.size());
+        assertEquals(newCourse, courses.get(3));
     }
 
     @Test
-    public void testUpdateCourse() {
-        Course updatedCourse = new Course("COMP3111", "Advanced Software Engineering", "CSE");
-        manageCourseService.updateCourse(updatedCourse, "COMP3111");
-
-        List<Course> courses = manageCourseService.getCourses();
-        assertEquals(4, courses.size(), "The total number of courses should remain the same.");
-        Course course = courses.stream().filter(c -> c.getCourseID().equals("COMP3111")).findFirst().orElse(null);
-        assertNotNull(course, "The updated course should still exist.");
-        assertEquals("Advanced Software Engineering", course.getCourseName(), "The course name should be updated.");
+    public void testUpdateCourse() throws IOException {
+        Course updatedCourse = new Course("CS101", "Intro to CS", "CS");
+        courseService.updateCourse(updatedCourse, "CS101");
+        List<Course> courses = courseService.getCourseList();
+        assertEquals("Intro to CS", courses.get(0).getCourseName());
     }
 
     @Test
-    public void testDeleteCourse() {
-        manageCourseService.deleteCourse("COMP5111");
+    public void testUpdateNonExistentCourse() throws IOException {
+        Course updatedCourse = new Course("CS105", "Non-existent Course", "CS");
+        assertThrows(IOException.class, () -> {
+            courseService.updateCourse(updatedCourse, "CS999");
+        });
+    }
 
-        List<Course> courses = manageCourseService.getCourses();
-        assertEquals(3, courses.size(), "There should be 3 courses in the list after deletion.");
-        assertFalse(courses.stream().anyMatch(course -> course.getCourseID().equals("COMP5111")),
-                "The course COMP5111 should no longer exist.");
+    @Test
+    public void testDeleteCourse() throws IOException {
+        courseService.deleteCourse("CS101");
+        List<Course> courses = courseService.getCourseList();
+        assertEquals(2, courses.size());
+        assertFalse(courses.stream().anyMatch(course -> course.getCourseID().equals("CS101")));
+    }
+
+    @Test
+    public void testDeleteNonExistentCourse() throws IOException {
+        assertThrows(IOException.class, () -> {
+            courseService.deleteCourse("CS999");
+        });
     }
 
     @Test
     public void testFilterCourses() {
-        List<Course> filteredCourses = manageCourseService.filterCourses("COMP", "", "CSE");
-        assertEquals(3, filteredCourses.size(), "There should be 3 courses matching the filter.");
-        assertTrue(filteredCourses.stream().allMatch(course -> course.getDepartment().equals("CSE")),
-                "All filtered courses should belong to the CSE department.");
+        List<Course> filteredCourses = courseService.filterCourses("CS", "", "");
+        assertEquals(2, filteredCourses.size());
+    }
+
+    @Test
+    public void testValidateCourseID() {
+        String validationMessage = courseService.validateCourseID("CS101");
+        assertEquals("The course ID already exists", validationMessage);
+
+        validationMessage = courseService.validateCourseID("CS104");
+        assertNull(validationMessage);
     }
 
     @Test
     public void testValidateInputs() {
-        String validationMessage = manageCourseService.validateInputs("", "Course Name", "CSE");
-        assertEquals("All fields must be filled.", validationMessage, "Validation should catch empty course ID.");
+        String validationMessage = courseService.validateInputs("", "Course", "CS");
+        assertEquals("Each field should be filled in", validationMessage);
 
-        validationMessage = manageCourseService.validateInputs("COMP3111", "Course Name", "CSE");
-        assertEquals("Course ID already exists.", validationMessage, "Validation should catch duplicate course ID.");
+        validationMessage = courseService.validateInputs("CS101", "Course", "CS");
+        assertEquals("The course ID already exists", validationMessage);
+
+        validationMessage = courseService.validateInputs("CS104", "Course", "CS");
+        assertNull(validationMessage);
     }
 
-
-    @Test
-    public void testValidateUpdateInputs() {
-        String validationMessage = manageCourseService.validateUpdateInputs("", "Course Name", "CSE");
-        assertEquals("All fields must be filled.", validationMessage, "Validation should catch empty fields.");
-
-        validationMessage = manageCourseService.validateUpdateInputs("COMP5111", "Updated Course", "CSE");
-        assertNull(validationMessage, "Validation should pass for valid inputs.");
-    }
-
-    // MockDataManager 实现
-    class MockDataManager extends DataManager {
-        private final List<Course> mockCourses;
-
-        public MockDataManager(List<Course> courses) {
-            this.mockCourses = new ArrayList<>(courses);
-        }
-
-        @Override
-        public List<Course> getCourses() {
-            return mockCourses;
-        }
-
-        @Override
-        public void addCourse(Course course) {
-            mockCourses.add(course);
-        }
-
-        @Override
-        public void updateCourse(String id, Course updatedCourse) {
-            for (int i = 0; i < mockCourses.size(); i++) {
-                if (mockCourses.get(i).getCourseID().equals(id)) {
-                    mockCourses.set(i, updatedCourse);
-                    return;
-                }
-            }
-        }
-
-        @Override
-        public void deleteCourse(String id) {
-            mockCourses.removeIf(course -> course.getCourseID().equals(id));
-        }
+    @AfterEach
+    public void tearDown() throws IOException {
+        Files.deleteIfExists(Paths.get(testFilePath));
     }
 }

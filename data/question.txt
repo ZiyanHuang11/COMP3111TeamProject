@@ -1,4 +1,0 @@
-id:1,question:What is Java?,option1:A programming language,option2:A coffee brand,option3:An island,option4:All of the above,answer:A programming language,type:Single,score:5
-id:2,question:Explain OOP concepts.,option1:Encapsulation,option2:Inheritance,option3:Polymorphism,option4:Abstraction,answer:All of the above,type:Multiple,score:10
-id:3,question:Define Agile.,option1:Iterative development,option2:Static planning,option3:No testing,option4:None of the above,answer:Iterative development,type:Single,score:5
-id:4,question:What is UML?,option1:A modeling language,option2:A programming language,option3:A testing framework,option4:None of the above,answer:A modeling language,type:Single,score:5

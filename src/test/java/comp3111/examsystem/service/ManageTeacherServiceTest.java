@@ -1,161 +1,122 @@
 package comp3111.examsystem.service;
 
-import comp3111.examsystem.data.DataManager;
 import comp3111.examsystem.entity.Teacher;
-import comp3111.examsystem.entity.Question;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.util.ArrayList;
+import javafx.collections.ObservableList;
+import org.junit.jupiter.api.*;
+import java.io.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ManageTeacherServiceTest {
 
-    private ManageTeacherService manageTeacherService;
-    private DataManager dataManager;
+    private ManageTeacherService service;
 
     @BeforeEach
     void setUp() {
-        // 使用 MockDataManager 而不是实际的 DataManager
-        dataManager = new MockDataManager();
-        manageTeacherService = new ManageTeacherService(dataManager);
+        // Initialize the service before each test
+        service = new ManageTeacherService();
+        // Clear the teacher file for testing purposes
+        clearTeacherFile();
+    }
 
-        // 初始化测试数据
-        dataManager.getTeachers().add(new Teacher("1", "teacher1", "password123", "John Doe", "Male", 35, "Professor", "CSE"));
-        dataManager.getTeachers().add(new Teacher("2", "teacher2", "password456", "Jane Smith", "Female", 40, "Lecturer", "IT"));
+    @AfterEach
+    void tearDown() {
+        // Clean up after each test
+        clearTeacherFile();
+    }
+
+    private void clearTeacherFile() {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("data/teachers.txt"))) {
+            bw.write("");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
-    void testGetAllTeachers() {
-        List<Teacher> teachers = manageTeacherService.getAllTeachers();
-        assertEquals(2, teachers.size(), "There should be 2 teachers initially.");
+    void testLoadTeachersFromFile() throws IOException {
+        // Prepare test data
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter("data/teachers.txt"))) {
+            bw.write("john_doe,password123,John Doe,Male,30,Teacher,Math\n");
+            bw.write("jane_doe,password456,Jane Doe,Female,28,Teacher,Science\n");
+        }
+
+        // Reload service to load teachers from file
+        service = new ManageTeacherService();
+        ObservableList<Teacher> teachers = service.getTeacherList();
+
+        assertEquals(2, teachers.size());
+        assertEquals("john_doe", teachers.get(0).getUsername());
+        assertEquals("jane_doe", teachers.get(1).getUsername());
     }
 
     @Test
-    void testAddTeacher() {
-        Teacher newTeacher = new Teacher("3", "teacher3", "password789", "Michael Brown", "Male", 30, "Assistant Professor", "EE");
-        manageTeacherService.addTeacher(newTeacher);
+    void testAddTeacher() throws IOException {
+        Teacher newTeacher = new Teacher("john_doe", "password123", "John Doe", "Male", 30, "Teacher", "Math");
+        service.addTeacher(newTeacher);
 
-        List<Teacher> teachers = manageTeacherService.getAllTeachers();
-        assertEquals(3, teachers.size(), "Teacher list size should increase to 3.");
-        assertTrue(teachers.contains(newTeacher), "The new teacher should be in the list.");
+        assertEquals(1, service.getTeacherList().size());
+        assertEquals("john_doe", service.getTeacherList().get(0).getUsername());
     }
 
     @Test
-    void testUpdateTeacher() {
-        Teacher updatedTeacher = new Teacher("1", "teacher1", "newPassword123", "John Doe Updated", "Male", 36, "Professor", "CSE");
-        manageTeacherService.updateTeacher(updatedTeacher, "teacher1");
+    void testAddTeacherWithExistingUsername() throws IOException {
+        Teacher newTeacher = new Teacher("john_doe", "password123", "John Doe", "Male", 30, "Teacher", "Math");
+        service.addTeacher(newTeacher);
 
-        List<Teacher> teachers = manageTeacherService.getAllTeachers();
-        assertEquals(2, teachers.size(), "Teacher list size should remain the same.");
-        assertEquals("John Doe Updated", teachers.get(0).getName(), "The teacher's name should be updated.");
-        assertEquals("newPassword123", teachers.get(0).getPassword(), "The teacher's password should be updated.");
+        Teacher anotherTeacher = new Teacher("john_doe", "password456", "Johnny Doe", "Male", 31, "Teacher", "History");
+        assertThrows(IOException.class, () -> service.addTeacher(anotherTeacher));
     }
 
     @Test
-    void testDeleteTeacher() {
-        Teacher teacherToDelete = dataManager.getTeachers().get(0); // 获取第一个教师
-        manageTeacherService.deleteTeacher(teacherToDelete);
+    void testUpdateTeacher() throws IOException {
+        Teacher newTeacher = new Teacher("john_doe", "password123", "John Doe", "Male", 30, "Teacher", "Math");
+        service.addTeacher(newTeacher);
 
-        List<Teacher> teachers = manageTeacherService.getAllTeachers();
-        assertEquals(1, teachers.size(), "Teacher list size should decrease to 1.");
-        assertFalse(teachers.contains(teacherToDelete), "The deleted teacher should not be in the list.");
+        Teacher updatedTeacher = new Teacher("john_doe", "newpassword", "John Smith", "Male", 31, "Senior Teacher", "Math");
+        service.updateTeacher(updatedTeacher, "john_doe");
+
+        assertEquals("newpassword", service.getTeacherList().get(0).getPassword());
+        assertEquals("John Smith", service.getTeacherList().get(0).getName());
     }
 
     @Test
-    void testFilterTeachers() {
-        List<Teacher> filteredTeachers = manageTeacherService.filterTeachers("teacher1", "John", "CSE");
-        assertEquals(1, filteredTeachers.size(), "Filter should return 1 teacher.");
-        assertEquals("teacher1", filteredTeachers.get(0).getUsername(), "Filtered teacher's username should be 'teacher1'.");
+    void testDeleteTeacher() throws IOException {
+        Teacher newTeacher = new Teacher("john_doe", "password123", "John Doe", "Male", 30, "Teacher", "Math");
+        service.addTeacher(newTeacher);
+        assertEquals(1, service.getTeacherList().size());
 
-        filteredTeachers = manageTeacherService.filterTeachers("teacher3", "", "");
-        assertTrue(filteredTeachers.isEmpty(), "Filter should return no teachers for non-existent username.");
+        service.deleteTeacher(newTeacher);
+        assertEquals(0, service.getTeacherList().size());
     }
 
     @Test
-    void testValidateInputs() {
-        String validationMessage = manageTeacherService.validateInputs(
-                "teacher3", "Michael Brown", "Male", "30", "Assistant Professor", "EE", "password789");
-        assertNull(validationMessage, "Valid inputs should return no validation error.");
+    void testFilterTeachers() throws IOException {
+        service.addTeacher(new Teacher("john_doe", "password123", "John Doe", "Male", 30, "Teacher", "Math"));
+        service.addTeacher(new Teacher("jane_doe", "password456", "Jane Doe", "Female", 28, "Teacher", "Science"));
 
-        validationMessage = manageTeacherService.validateInputs("", "Michael Brown", "Male", "30", "Assistant Professor", "EE", "password789");
-        assertEquals("All fields must be filled.", validationMessage, "Empty username should trigger validation error.");
+        List<Teacher> filteredTeachers = service.filterTeachers("jane", "", "");
+        assertEquals(1, filteredTeachers.size());
+        assertEquals("jane_doe", filteredTeachers.get(0).getUsername());
+    }
 
-        validationMessage = manageTeacherService.validateInputs("teacher1", "Michael Brown", "Male", "30", "Assistant Professor", "EE", "password789");
-        assertEquals("Username already exists.", validationMessage, "Duplicate username should trigger validation error.");
-
-        validationMessage = manageTeacherService.validateInputs("teacher3", "Michael Brown", "Male", "thirty", "Assistant Professor", "EE", "password789");
-        assertEquals("Age must be a number.", validationMessage, "Non-numeric age should trigger validation error.");
-
-        validationMessage = manageTeacherService.validateInputs("teacher3", "Michael Brown", "Male", "30", "Assistant Professor", "EE", "pass");
-        assertEquals("Password must be at least 8 characters, containing letters and numbers.", validationMessage, "Invalid password should trigger validation error.");
+    @Test
+    void testvalidateInputs() {
+        String result = service.validateInputs("John Doe", "aa","Male", "30", "Teacher", "Math", "123");
+        assertEquals("The password must contain both letters and numbers and be at least eight characters long",result);
+        result = service.validateInputs("", "aa","Male", "30", "Teacher", "Math", "1aaa23d23");
+        assertEquals("Each field should be filled in",result);
+        result = service.validateInputs("aaaaad", "aa","Male", "aaa", "Teacher", "Math", "123dddsse");
+        assertEquals("Age must be a valid number",result);
     }
 
     @Test
     void testValidateUpdateInputs() {
-        String validationMessage = manageTeacherService.validateUpdateInputs(
-                "Michael Brown Updated", "Male", "31", "Associate Professor", "EE", "newPassword123");
-        assertNull(validationMessage, "Valid update inputs should return no validation error.");
+        String result = service.validateUpdateInputs("John Doe", "Male", "30", "Teacher", "Math", "password123");
+        assertNull(result);
 
-        validationMessage = manageTeacherService.validateUpdateInputs("", "Male", "31", "Associate Professor", "EE", "newPassword123");
-        assertEquals("All fields must be filled.", validationMessage, "Empty name should trigger validation error.");
-
-        validationMessage = manageTeacherService.validateUpdateInputs("Michael Brown Updated", "Male", "thirty-one", "Associate Professor", "EE", "newPassword123");
-        assertEquals("Age must be a number.", validationMessage, "Non-numeric age should trigger validation error.");
-
-        validationMessage = manageTeacherService.validateUpdateInputs("Michael Brown Updated", "Male", "31", "Associate Professor", "EE", "short");
-        assertEquals("Password must be at least 8 characters, containing letters and numbers.", validationMessage, "Invalid password should trigger validation error.");
-    }
-
-    // MockDataManager 实现
-    class MockDataManager extends DataManager {
-        private List<Teacher> mockTeachers;
-        private List<Question> mockQuestions;
-
-        public MockDataManager() {
-            this.mockTeachers = new ArrayList<>();
-            this.mockQuestions = new ArrayList<>();
-        }
-
-        @Override
-        public List<Teacher> getTeachers() {
-            return mockTeachers;
-        }
-
-        @Override
-        public void addTeacher(Teacher teacher) {
-            mockTeachers.add(teacher);
-        }
-
-        @Override
-        public void deleteTeacher(String teacherId) {
-            mockTeachers.removeIf(teacher -> teacher.getId().equals(teacherId));
-        }
-
-
-        @Override
-        public void saveTeachers() {
-            // 模拟保存操作，不进行实际的文件写入
-        }
-
-        @Override
-        public Teacher getTeacherByUsername(String username) {
-            return mockTeachers.stream()
-                    .filter(t -> t.getUsername().equals(username))
-                    .findFirst()
-                    .orElse(null);
-        }
-
-        @Override
-        public List<Question> getQuestions() {
-            return mockQuestions;
-        }
-
-
-
-        // 根据需要重写其他方法，避免访问真实的数据文件
+        result = service.validateUpdateInputs("", "Male", "30", "Teacher", "Math", "password123");
+        assertEquals("Each field should be filled in", result);
     }
 }

@@ -2,151 +2,258 @@ package comp3111.examsystem.entity;
 
 import javafx.beans.property.*;
 
-public class Question extends Entity {
+/**
+ * Represents a question in the examination system.
+ */
+public class Question {
     private final StringProperty question;
-    private final StringProperty option1;
-    private final StringProperty option2;
-    private final StringProperty option3;
-    private final StringProperty option4;
+    private final StringProperty optionA;
+    private final StringProperty optionB;
+    private final StringProperty optionC;
+    private final StringProperty optionD;
     private final StringProperty answer;
     private final StringProperty type;
     private final IntegerProperty score;
 
-    // 无参构造函数（便于反射或序列化）
-    public Question() {
-        this.question = new SimpleStringProperty("");
-        this.option1 = new SimpleStringProperty("");
-        this.option2 = new SimpleStringProperty("");
-        this.option3 = new SimpleStringProperty("");
-        this.option4 = new SimpleStringProperty("");
-        this.answer = new SimpleStringProperty("");
-        this.type = new SimpleStringProperty("");
-        this.score = new SimpleIntegerProperty(0);
-    }
-
-    // 全参构造函数，包含 id
-    public Question(String id, String question, String option1, String option2, String option3, String option4,
+    /**
+     * Constructs a Question object with the specified details.
+     *
+     * @param question the text of the question
+     * @param optionA  the text of option A
+     * @param optionB  the text of option B
+     * @param optionC  the text of option C
+     * @param optionD  the text of option D
+     * @param answer   the correct answer
+     * @param type     the type of question (e.g., single choice, multiple choice)
+     * @param score    the score assigned to the question
+     */
+    public Question(String question, String optionA, String optionB, String optionC, String optionD,
                     String answer, String type, int score) {
-        this.setId(id); // 设置 id
         this.question = new SimpleStringProperty(question);
-        this.option1 = new SimpleStringProperty(option1);
-        this.option2 = new SimpleStringProperty(option2);
-        this.option3 = new SimpleStringProperty(option3);
-        this.option4 = new SimpleStringProperty(option4);
+        this.optionA = new SimpleStringProperty(optionA);
+        this.optionB = new SimpleStringProperty(optionB);
+        this.optionC = new SimpleStringProperty(optionC);
+        this.optionD = new SimpleStringProperty(optionD);
         this.answer = new SimpleStringProperty(answer);
         this.type = new SimpleStringProperty(type);
         this.score = new SimpleIntegerProperty(score);
     }
 
-    // Getter 和 Setter 方法
+    // Getter and Setter methods
+
+    /**
+     * Returns the text of the question.
+     *
+     * @return the question text
+     */
     public String getQuestion() {
         return question.get();
     }
 
+    /**
+     * Sets the text of the question.
+     *
+     * @param question the new question text
+     */
     public void setQuestion(String question) {
         this.question.set(question);
     }
 
+    /**
+     * Returns the property for the question text.
+     *
+     * @return the question property
+     */
     public StringProperty questionProperty() {
         return question;
     }
 
-    public String getOption1() {
-        return option1.get();
+    /**
+     * Returns the text of option A.
+     *
+     * @return the option A text
+     */
+    public String getOptionA() {
+        return optionA.get();
     }
 
-    public void setOption1(String option1) {
-        this.option1.set(option1);
+    /**
+     * Sets the text of option A.
+     *
+     * @param optionA the new option A text
+     */
+    public void setOptionA(String optionA) {
+        this.optionA.set(optionA);
     }
 
-    public StringProperty option1Property() {
-        return option1;
+    /**
+     * Returns the property for option A text.
+     *
+     * @return the option A property
+     */
+    public StringProperty optionAProperty() {
+        return optionA;
     }
 
-    public String getOption2() {
-        return option2.get();
+    /**
+     * Returns the text of option B.
+     *
+     * @return the option B text
+     */
+    public String getOptionB() {
+        return optionB.get();
     }
 
-    public void setOption2(String option2) {
-        this.option2.set(option2);
+    /**
+     * Sets the text of option B.
+     *
+     * @param optionB the new option B text
+     */
+    public void setOptionB(String optionB) {
+        this.optionB.set(optionB);
     }
 
-    public StringProperty option2Property() {
-        return option2;
+    /**
+     * Returns the property for option B text.
+     *
+     * @return the option B property
+     */
+    public StringProperty optionBProperty() {
+        return optionB;
     }
 
-    public String getOption3() {
-        return option3.get();
+    /**
+     * Returns the text of option C.
+     *
+     * @return the option C text
+     */
+    public String getOptionC() {
+        return optionC.get();
     }
 
-    public void setOption3(String option3) {
-        this.option3.set(option3);
+    /**
+     * Sets the text of option C.
+     *
+     * @param optionC the new option C text
+     */
+    public void setOptionC(String optionC) {
+        this.optionC.set(optionC);
     }
 
-    public StringProperty option3Property() {
-        return option3;
+    /**
+     * Returns the property for option C text.
+     *
+     * @return the option C property
+     */
+    public StringProperty optionCProperty() {
+        return optionC;
     }
 
-    public String getOption4() {
-        return option4.get();
+    /**
+     * Returns the text of option D.
+     *
+     * @return the option D text
+     */
+    public String getOptionD() {
+        return optionD.get();
     }
 
-    public void setOption4(String option4) {
-        this.option4.set(option4);
+    /**
+     * Sets the text of option D.
+     *
+     * @param optionD the new option D text
+     */
+    public void setOptionD(String optionD) {
+        this.optionD.set(optionD);
     }
 
-    public StringProperty option4Property() {
-        return option4;
+    /**
+     * Returns the property for option D text.
+     *
+     * @return the option D property
+     */
+    public StringProperty optionDProperty() {
+        return optionD;
     }
 
+    /**
+     * Returns the correct answer for the question.
+     *
+     * @return the answer text
+     */
     public String getAnswer() {
         return answer.get();
     }
 
+    /**
+     * Sets the correct answer for the question.
+     *
+     * @param answer the new answer text
+     */
     public void setAnswer(String answer) {
         this.answer.set(answer);
     }
 
+    /**
+     * Returns the property for the answer text.
+     *
+     * @return the answer property
+     */
     public StringProperty answerProperty() {
         return answer;
     }
 
+    /**
+     * Returns the type of the question.
+     *
+     * @return the question type
+     */
     public String getType() {
         return type.get();
     }
 
+    /**
+     * Sets the type of the question.
+     *
+     * @param type the new question type
+     */
     public void setType(String type) {
         this.type.set(type);
     }
 
+    /**
+     * Returns the property for the question type.
+     *
+     * @return the question type property
+     */
     public StringProperty typeProperty() {
         return type;
     }
 
+    /**
+     * Returns the score assigned to the question.
+     *
+     * @return the score
+     */
     public int getScore() {
         return score.get();
     }
 
+    /**
+     * Sets the score assigned to the question.
+     *
+     * @param score the new score
+     */
     public void setScore(int score) {
         this.score.set(score);
     }
 
+    /**
+     * Returns the property for the score.
+     *
+     * @return the score property
+     */
     public IntegerProperty scoreProperty() {
         return score;
-    }
-
-    @Override
-    public String toString() {
-        return "Question{" +
-                "id=" + getId() +
-                ", question=" + getQuestion() +
-                ", option1=" + getOption1() +
-                ", option2=" + getOption2() +
-                ", option3=" + getOption3() +
-                ", option4=" + getOption4() +
-                ", answer=" + getAnswer() +
-                ", type=" + getType() +
-                ", score=" + getScore() +
-                '}';
     }
 }
