@@ -114,7 +114,7 @@ public class DataManager {
 
     public void saveExams() {
         List<String> lines = getExams().stream()
-                .map(exam -> String.format("id:%s,examName:%s,examDate:%s,courseID:%s,questionIDs:%s,duration:%d",
+                .map(exam -> String.format("id:%s,examName:%s,examTime:%s,courseID:%s,questionIDs:%s,duration:%d",
                         exam.getId(), exam.getExamName(), exam.getExamTime(),
                         exam.getCourseID(), String.join("|", exam.getQuestionIds()), exam.getDuration()))
                 .collect(Collectors.toList());

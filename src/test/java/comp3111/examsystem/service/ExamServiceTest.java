@@ -39,7 +39,7 @@ class ExamServiceTest {
         List<String> questionIds = new ArrayList<>();
         questionIds.add("1");
         questionIds.add("2");
-        Exam exam = new Exam("Quiz 1", "COMP3111", "2023-11-20", "Yes", questionIds);
+        Exam exam = new Exam("Quiz 1", "COMP3111", "2023-11-20", "Yes", questionIds,600);
         exam.setDuration(600);
         dataManager.getExams().add(exam);
     }

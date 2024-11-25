@@ -2,6 +2,8 @@ package comp3111.examsystem.tools;
 
 import comp3111.examsystem.entity.Entity;
 
+import javafx.beans.property.StringProperty;
+import javafx.beans.property.SimpleStringProperty;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -300,24 +302,70 @@ public class Database<T> {
             for (String proPair : pros) {
                 String[] pro = proPair.split(":");
                 String fieldName = pro[0];
-                String fieldValue = pro[1];
+                String fieldValue = pro.length > 1 ? pro[1] : ""; // 防止数组越界
 
-                // 如果字段是 "id"，且实体类的字段是 String 类型，确保转换
-                Field field = entitySample.getDeclaredField(fieldName);
-                if (field.getType().equals(String.class)) {
-                    setValue(t, fieldName, fieldValue);
-                } else if (field.getType().equals(Long.class)) {
-                    setValue(t, fieldName, Long.valueOf(fieldValue));
-                } else {
-                    setValue(t, fieldName, fieldValue);
+                // 映射字段名称，确保大小写一致
+                if (fieldName.equalsIgnoreCase("questionIDs")) {
+                    fieldName = "questionIds";  // 映射为正确的字段名
+                }
+
+                try {
+                    Field field = getFieldFromHierarchy(entitySample, fieldName);
+                    field.setAccessible(true);
+                    if (field.getType() == StringProperty.class) {
+                        // 针对 StringProperty 字段特殊处理
+                        StringProperty stringProperty = (StringProperty) field.get(t);
+                        stringProperty.set(fieldValue);
+                    } else if (field.getType() == List.class) {
+                        // 针对 List 字段特殊处理
+                        List<String> list = new ArrayList<>();
+                        if (!fieldValue.isEmpty()) {
+                            for (String val : fieldValue.split("\\|")) { // 假设以 "|" 分隔
+                                list.add(val);
+                            }
+                        }
+                        field.set(t, list);
+                    } else {
+                        // 常规字段处理
+                        field.set(t, convertToFieldType(field.getType(), fieldValue));
+                    }
+                } catch (Exception e) {
+                    System.err.println("Error setting field: " + fieldName + " with value: " + fieldValue);
+                    throw e;
                 }
             }
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-                 NoSuchMethodException | NoSuchFieldException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
         return t;
     }
+
+
+    // 递归获取字段，包括父类中的字段
+    private Field getFieldFromHierarchy(Class<?> clazz, String fieldName) throws NoSuchFieldException {
+        while (clazz != null) {
+            try {
+                return clazz.getDeclaredField(fieldName);
+            } catch (NoSuchFieldException e) {
+                clazz = clazz.getSuperclass();
+            }
+        }
+        throw new NoSuchFieldException(fieldName);
+    }
+
+    // 根据字段类型转换值
+    private Object convertToFieldType(Class<?> fieldType, String value) {
+        if (fieldType == String.class) {
+            return value;
+        } else if (fieldType == int.class || fieldType == Integer.class) {
+            return Integer.parseInt(value);
+        } else if (fieldType == long.class || fieldType == Long.class) {
+            return Long.parseLong(value);
+        } else {
+            return value; // 默认返回原值
+        }
+    }
+
 
     private String entityToTxt(T t) {
         StringBuffer sbf = new StringBuffer();
