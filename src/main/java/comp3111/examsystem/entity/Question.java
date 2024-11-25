@@ -4,10 +4,10 @@ import javafx.beans.property.*;
 
 public class Question extends Entity {
     private final StringProperty question;
-    private final StringProperty optionA;
-    private final StringProperty optionB;
-    private final StringProperty optionC;
-    private final StringProperty optionD;
+    private final StringProperty option1;
+    private final StringProperty option2;
+    private final StringProperty option3;
+    private final StringProperty option4;
     private final StringProperty answer;
     private final StringProperty type;
     private final IntegerProperty score;
@@ -15,24 +15,24 @@ public class Question extends Entity {
     // 无参构造函数（便于反射或序列化）
     public Question() {
         this.question = new SimpleStringProperty("");
-        this.optionA = new SimpleStringProperty("");
-        this.optionB = new SimpleStringProperty("");
-        this.optionC = new SimpleStringProperty("");
-        this.optionD = new SimpleStringProperty("");
+        this.option1 = new SimpleStringProperty("");
+        this.option2 = new SimpleStringProperty("");
+        this.option3 = new SimpleStringProperty("");
+        this.option4 = new SimpleStringProperty("");
         this.answer = new SimpleStringProperty("");
         this.type = new SimpleStringProperty("");
         this.score = new SimpleIntegerProperty(0);
     }
 
     // 全参构造函数，包含 id
-    public Question(String id, String question, String optionA, String optionB, String optionC, String optionD,
+    public Question(String id, String question, String option1, String option2, String option3, String option4,
                     String answer, String type, int score) {
         this.setId(id); // 设置 id
         this.question = new SimpleStringProperty(question);
-        this.optionA = new SimpleStringProperty(optionA);
-        this.optionB = new SimpleStringProperty(optionB);
-        this.optionC = new SimpleStringProperty(optionC);
-        this.optionD = new SimpleStringProperty(optionD);
+        this.option1 = new SimpleStringProperty(option1);
+        this.option2 = new SimpleStringProperty(option2);
+        this.option3 = new SimpleStringProperty(option3);
+        this.option4 = new SimpleStringProperty(option4);
         this.answer = new SimpleStringProperty(answer);
         this.type = new SimpleStringProperty(type);
         this.score = new SimpleIntegerProperty(score);
@@ -51,52 +51,52 @@ public class Question extends Entity {
         return question;
     }
 
-    public String getOptionA() {
-        return optionA.get();
+    public String getOption1() {
+        return option1.get();
     }
 
-    public void setOptionA(String optionA) {
-        this.optionA.set(optionA);
+    public void setOption1(String option1) {
+        this.option1.set(option1);
     }
 
-    public StringProperty optionAProperty() {
-        return optionA;
+    public StringProperty option1Property() {
+        return option1;
     }
 
-    public String getOptionB() {
-        return optionB.get();
+    public String getOption2() {
+        return option2.get();
     }
 
-    public void setOptionB(String optionB) {
-        this.optionB.set(optionB);
+    public void setOption2(String option2) {
+        this.option2.set(option2);
     }
 
-    public StringProperty optionBProperty() {
-        return optionB;
+    public StringProperty option2Property() {
+        return option2;
     }
 
-    public String getOptionC() {
-        return optionC.get();
+    public String getOption3() {
+        return option3.get();
     }
 
-    public void setOptionC(String optionC) {
-        this.optionC.set(optionC);
+    public void setOption3(String option3) {
+        this.option3.set(option3);
     }
 
-    public StringProperty optionCProperty() {
-        return optionC;
+    public StringProperty option3Property() {
+        return option3;
     }
 
-    public String getOptionD() {
-        return optionD.get();
+    public String getOption4() {
+        return option4.get();
     }
 
-    public void setOptionD(String optionD) {
-        this.optionD.set(optionD);
+    public void setOption4(String option4) {
+        this.option4.set(option4);
     }
 
-    public StringProperty optionDProperty() {
-        return optionD;
+    public StringProperty option4Property() {
+        return option4;
     }
 
     public String getAnswer() {
@@ -140,10 +140,10 @@ public class Question extends Entity {
         return "Question{" +
                 "id=" + getId() +
                 ", question=" + getQuestion() +
-                ", optionA=" + getOptionA() +
-                ", optionB=" + getOptionB() +
-                ", optionC=" + getOptionC() +
-                ", optionD=" + getOptionD() +
+                ", option1=" + getOption1() +
+                ", option2=" + getOption2() +
+                ", option3=" + getOption3() +
+                ", option4=" + getOption4() +
                 ", answer=" + getAnswer() +
                 ", type=" + getType() +
                 ", score=" + getScore() +

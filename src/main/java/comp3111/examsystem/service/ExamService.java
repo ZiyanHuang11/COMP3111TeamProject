@@ -47,14 +47,40 @@ public class ExamService {
     }
 
     public void saveAnswer(String answer) {
-        userAnswers.put(currentQuestionIndex, answer);
+        Question currentQuestion = getCurrentQuestion();
+        String mappedAnswer = mapOptionLabelToText(currentQuestion, answer);
+        userAnswers.put(currentQuestionIndex, mappedAnswer);
+    }
+
+    private String mapOptionLabelToText(Question question, String labels) {
+        String[] labelArray = labels.split(",");
+        List<String> mappedOptions = new ArrayList<>();
+        for (String label : labelArray) {
+            switch (label.trim().toUpperCase()) {
+                case "A":
+                    mappedOptions.add(question.getOption1());
+                    break;
+                case "B":
+                    mappedOptions.add(question.getOption2());
+                    break;
+                case "C":
+                    mappedOptions.add(question.getOption3());
+                    break;
+                case "D":
+                    mappedOptions.add(question.getOption4());
+                    break;
+                default:
+                    mappedOptions.add(label.trim()); // If not a label, use as is
+                    break;
+            }
+        }
+        return String.join(",", mappedOptions);
     }
 
     public String getUserAnswer() {
         return userAnswers.getOrDefault(currentQuestionIndex, "");
     }
 
-    // 修正后的calculateResults方法
     public int[] calculateResults() {
         int correctAnswers = 0;
         int totalScore = 0;
@@ -63,16 +89,26 @@ public class ExamService {
             Question question = questions.get(i);
             String correctAnswer = question.getAnswer();
             String userAnswer = userAnswers.getOrDefault(i, "");
-            if (correctAnswer.equals(userAnswer)) {
-                correctAnswers++;
-                totalScore += question.getScore();
+
+            if ("Multiple".equalsIgnoreCase(question.getType())) {
+                // Split answers and compare as sets
+                Set<String> correctAnswerSet = new HashSet<>(Arrays.asList(correctAnswer.split(",")));
+                Set<String> userAnswerSet = new HashSet<>(Arrays.asList(userAnswer.split(",")));
+                if (correctAnswerSet.equals(userAnswerSet)) {
+                    correctAnswers++;
+                    totalScore += question.getScore();
+                }
+            } else {
+                if (correctAnswer.equals(userAnswer)) {
+                    correctAnswers++;
+                    totalScore += question.getScore();
+                }
             }
         }
 
         return new int[]{correctAnswers, totalScore};
     }
 
-    // 修正后的getPrecision方法
     public double getPrecision() {
         int[] results = calculateResults();
         int correctAnswers = results[0];

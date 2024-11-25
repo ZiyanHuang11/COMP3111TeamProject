@@ -1,5 +1,6 @@
 package comp3111.examsystem.data;
 
+import java.util.Objects;
 import comp3111.examsystem.entity.*;
 import comp3111.examsystem.tools.Database;
 import comp3111.examsystem.tools.FileUtil;
@@ -71,7 +72,8 @@ public class DataManager {
 
     public void saveStudents() {
         List<String> lines = getStudents().stream()
-                .map(student -> String.format("id:%s,username:%s,name:%s,age:%d,gender:%s,department:%s,password:%s\n",
+                .filter(Objects::nonNull)
+                .map(student -> String.format("id:%s,username:%s,name:%s,age:%d,gender:%s,department:%s,password:%s",
                         student.getId(), student.getUsername(), student.getName(),
                         student.getAge(), student.getGender(), student.getDepartment(), student.getPassword()))
                 .collect(Collectors.toList());
@@ -82,14 +84,10 @@ public class DataManager {
             return;
         }
 
-        List<String> existingLines = FileUtil.readFile("data/student.txt");
-
-        // Merge new content with existing content
-        existingLines.addAll(lines);
-
-        // Write the combined data to the file
-        FileUtil.writeFile("data/student.txt", existingLines);
+        // Write the data to the file
+        FileUtil.writeFile("data/student.txt", lines);
     }
+
 
     // --- COURSE OPERATIONS ---
     public void addCourse(Course course) {
@@ -106,7 +104,7 @@ public class DataManager {
 
     public void saveCourses() {
         List<String> lines = getCourses().stream()
-                .map(course -> String.format("id:%s,courseID:%s,courseName:%s,department:%s\n",
+                .map(course -> String.format("id:%s,courseID:%s,courseName:%s,department:%s",
                         course.getId(), course.getCourseID(), course.getCourseName(), course.getDepartment()))
                 .collect(Collectors.toList());
 
@@ -116,13 +114,8 @@ public class DataManager {
             return;
         }
 
-        List<String> existingLines = FileUtil.readFile("data/course.txt");
-
-        // Merge new content with existing content
-        existingLines.addAll(lines);
-
-        // Write the combined data to the file
-        FileUtil.writeFile("data/course.txt", existingLines);
+        // Write the data to the file
+        FileUtil.writeFile("data/course.txt", lines);
     }
 
     // --- EXAM OPERATIONS ---
@@ -140,7 +133,7 @@ public class DataManager {
 
     public void saveExams() {
         List<String> lines = getExams().stream()
-                .map(exam -> String.format("id:%s,examName:%s,examTime:%s,courseID:%s,questionIDs:%s,duration:%d\n",
+                .map(exam -> String.format("id:%s,examName:%s,examTime:%s,courseID:%s,questionIDs:%s,duration:%d",
                         exam.getId(), exam.getExamName(), exam.getExamTime(),
                         exam.getCourseID(), String.join("|", exam.getQuestionIds()), exam.getDuration()))
                 .collect(Collectors.toList());
@@ -151,13 +144,8 @@ public class DataManager {
             return;
         }
 
-        List<String> existingLines = FileUtil.readFile("data/exam.txt");
-
-        // Merge new content with existing content
-        existingLines.addAll(lines);
-
-        // Write the combined data to the file
-        FileUtil.writeFile("data/exam.txt", existingLines);
+        // Write the data to the file
+        FileUtil.writeFile("data/exam.txt", lines);
     }
 
     // --- QUESTION OPERATIONS ---
@@ -175,9 +163,9 @@ public class DataManager {
 
     public void saveQuestions() {
         List<String> lines = getQuestions().stream()
-                .map(question -> String.format("id:%s,question:%s,optionA:%s,optionB:%s,optionC:%s,optionD:%s,answer:%s,type:%s,score:%d\n",
-                        question.getId(), question.getQuestion(), question.getOptionA(),
-                        question.getOptionB(), question.getOptionC(), question.getOptionD(),
+                .map(question -> String.format("id:%s,question:%s,option1:%s,option2:%s,option3:%s,option4:%s,answer:%s,type:%s,score:%d",
+                        question.getId(), question.getQuestion(), question.getOption1(),
+                        question.getOption2(), question.getOption3(), question.getOption4(),
                         question.getAnswer(), question.getType(), question.getScore()))
                 .collect(Collectors.toList());
 
@@ -187,13 +175,8 @@ public class DataManager {
             return;
         }
 
-        List<String> existingLines = FileUtil.readFile("data/question.txt");
-
-        // Merge new content with existing content
-        existingLines.addAll(lines);
-
-        // Write the combined data to the file
-        FileUtil.writeFile("data/question.txt", existingLines);
+        // Write the data to the file
+        FileUtil.writeFile("data/question.txt", lines);
     }
 
     // --- EXAM RESULT OPERATIONS ---
@@ -211,7 +194,7 @@ public class DataManager {
 
     public void saveExamResults() {
         List<String> lines = getExamResults().stream()
-                .map(result -> String.format("id:%s,studentID:%s,examID:%s,score:%d,totalScore:%d,passStatus:%s\n",
+                .map(result -> String.format("id:%s,studentID:%s,examID:%s,score:%d,totalScore:%d,passStatus:%s",
                         result.getId(), result.getStudentID(), result.getExamID(),
                         result.getScore(), result.getTotalScore(), result.getPassStatus()))
                 .collect(Collectors.toList());
@@ -222,13 +205,8 @@ public class DataManager {
             return;
         }
 
-        List<String> existingLines = FileUtil.readFile("data/examresult.txt");
-
-        // Merge new content with existing content
-        existingLines.addAll(lines);
-
-        // Write the combined data to the file
-        FileUtil.writeFile("data/examresult.txt", existingLines);
+        // Write the data to the file
+        FileUtil.writeFile("data/examresult.txt", lines);
     }
 
     // --- TEACHER OPERATIONS ---
@@ -246,7 +224,7 @@ public class DataManager {
 
     public void saveTeachers() {
         List<String> lines = getTeachers().stream()
-                .map(teacher -> String.format("id:%s,username:%s,password:%s,name:%s,gender:%s,age:%d,title:%s,department:%s\n",
+                .map(teacher -> String.format("id:%s,username:%s,password:%s,name:%s,gender:%s,age:%d,title:%s,department:%s",
                         teacher.getId(), teacher.getUsername(), teacher.getPassword(),
                         teacher.getName(), teacher.getGender(), teacher.getAge(),
                         teacher.getTitle(), teacher.getDepartment()))
@@ -258,13 +236,8 @@ public class DataManager {
             return;
         }
 
-        List<String> existingLines = FileUtil.readFile("data/teacher.txt");
-
-        // Merge new content with existing content
-        existingLines.addAll(lines);
-
-        // Write the combined data to the file
-        FileUtil.writeFile("data/teacher.txt", existingLines);
+        // Write the data to the file
+        FileUtil.writeFile("data/teacher.txt", lines);
     }
 
     // --- MANAGER OPERATIONS ---
@@ -282,7 +255,7 @@ public class DataManager {
 
     public void saveManagers() {
         List<String> lines = getManagers().stream()
-                .map(manager -> String.format("id:%s,username:%s,password:%s\n",
+                .map(manager -> String.format("id:%s,username:%s,password:%s",
                         manager.getId(), manager.getUsername(), manager.getPassword()))
                 .collect(Collectors.toList());
 
@@ -292,15 +265,11 @@ public class DataManager {
             return;
         }
 
-        List<String> existingLines = FileUtil.readFile("data/manager.txt");
-
-        // Merge new content with existing content
-        existingLines.addAll(lines);
-
-        // Write the combined data to the file
-        FileUtil.writeFile("data/manager.txt", existingLines);
+        // Write the data to the file
+        FileUtil.writeFile("data/manager.txt", lines);
     }
-    // --- QUESTION OPERATIONS ---
+
+    // --- QUESTION FILTERING ---
     public List<Question> filterQuestions(String questionFilter, String typeFilter, String scoreFilter) {
         // Stream through the list of questions and filter based on the provided filters
         return questionDatabase.getAll().stream()
@@ -310,4 +279,17 @@ public class DataManager {
                 .collect(Collectors.toList());
     }
 
+    public Student getStudentByUsername(String username) {
+        return getStudents().stream()
+                .filter(s -> s != null && s.getUsername().equals(username))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public Teacher getTeacherByUsername(String username) {
+        return getTeachers().stream()
+                .filter(t -> t != null && t.getUsername().equals(username))
+                .findFirst()
+                .orElse(null);
+    }
 }

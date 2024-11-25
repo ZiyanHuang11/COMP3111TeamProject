@@ -19,8 +19,8 @@ public class ManageTeacherService {
     }
 
     public void addTeacher(Teacher newTeacher) {
-        dataManager.getTeachers().add(newTeacher);
-        dataManager.save();
+        dataManager.addTeacher(newTeacher);
+        dataManager.saveTeachers();
     }
 
     public void updateTeacher(Teacher updatedTeacher, String originalUsername) {
@@ -31,19 +31,20 @@ public class ManageTeacherService {
                 break;
             }
         }
-        dataManager.save();
+        dataManager.saveTeachers();
     }
 
     public void deleteTeacher(Teacher teacher) {
-        dataManager.getTeachers().remove(teacher);
-        dataManager.save();
+        dataManager.deleteTeacher(teacher.getId());
+        dataManager.saveTeachers();
     }
 
+    // Corrected filterTeachers method
     public List<Teacher> filterTeachers(String username, String name, String department) {
         return dataManager.getTeachers().stream()
-                .filter(t -> t.getUsername().toLowerCase().contains(username) &&
-                        t.getName().toLowerCase().contains(name) &&
-                        t.getDepartment().toLowerCase().contains(department))
+                .filter(t -> t.getUsername().toLowerCase().contains(username.toLowerCase()) &&
+                        t.getName().toLowerCase().contains(name.toLowerCase()) &&
+                        t.getDepartment().toLowerCase().contains(department.toLowerCase()))
                 .collect(Collectors.toList());
     }
 
@@ -56,7 +57,7 @@ public class ManageTeacherService {
         } catch (NumberFormatException e) {
             return "Age must be a number.";
         }
-        if (dataManager.getTeachers().stream().anyMatch(t -> t.getUsername().equals(username))) {
+        if (dataManager.getTeacherByUsername(username) != null) {
             return "Username already exists.";
         }
         if (!password.matches("^(?=.*[a-zA-Z])(?=.*\\d).{8,}$")) {

@@ -144,10 +144,14 @@ public class Database<T> {
         List<String> slist = FileUtil.readFileByLines(jsonFile);
         List<T> tlist = new ArrayList<>();
         for (int i = 0; i < slist.size(); i++) {
-            tlist.add(txtToEntity(slist.get(i)));
+            T entity = txtToEntity(slist.get(i));
+            if (entity != null) {
+                tlist.add(entity);
+            }
         }
         return tlist;
     }
+
 
     // Join two table
     public List<T> join(List<T> list1, List<T> list2) {
@@ -295,14 +299,25 @@ public class Database<T> {
     }
 
     private T txtToEntity(String txt) {
+        if (txt == null || txt.trim().isEmpty()) {
+            return null; // 跳过空行
+        }
         T t = null;
         try {
-            t = entitySample.getConstructor().newInstance();
+            t = entitySample.getDeclaredConstructor().newInstance();
             String[] pros = txt.split(",");
             for (String proPair : pros) {
+                if (proPair.trim().isEmpty()) {
+                    continue; // 跳过空的键值对
+                }
                 String[] pro = proPair.split(":");
-                String fieldName = pro[0];
-                String fieldValue = pro.length > 1 ? pro[1] : ""; // 防止数组越界
+                if (pro.length < 2) {
+                    // 格式不正确的键值对，跳过或记录错误
+                    System.err.println("Invalid key-value pair: " + proPair);
+                    continue;
+                }
+                String fieldName = pro[0].trim();
+                String fieldValue = pro[1].trim();
 
                 // 映射字段名称，确保大小写一致
                 if (fieldName.equalsIgnoreCase("questionIDs")) {
@@ -339,6 +354,7 @@ public class Database<T> {
         }
         return t;
     }
+
 
 
     // 递归获取字段，包括父类中的字段

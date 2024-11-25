@@ -39,6 +39,15 @@ public class StudentRegisterService {
      * @param department 所属学院
      */
     public void registerStudent(String username, String password, String name, String gender, String department) {
+        // 检查空字段
+        if (username == null || username.isEmpty() ||
+                password == null || password.isEmpty() ||
+                name == null || name.isEmpty() ||
+                gender == null || gender.isEmpty() ||
+                department == null || department.isEmpty()) {
+            throw new IllegalArgumentException("All fields are required");
+        }
+
         if (isUsernameTaken(username)) {
             throw new IllegalArgumentException("Username already exists");
         }
@@ -51,6 +60,8 @@ public class StudentRegisterService {
         newStudent.setGender(gender);
         newStudent.setDepartment(department);
 
-        dataManager.getStudents().add(newStudent); // 更新学生列表
+        dataManager.addStudent(newStudent); // 使用 DataManager 的 addStudent 方法
+        dataManager.saveStudents(); // 保存更改
     }
 }
+

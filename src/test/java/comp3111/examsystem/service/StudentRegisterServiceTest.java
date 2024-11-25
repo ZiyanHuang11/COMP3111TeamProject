@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -16,13 +17,12 @@ public class StudentRegisterServiceTest {
 
     @BeforeEach
     public void setUp() {
-        // 初始化 DataManager 和服务类
-        dataManager = new DataManager();
+        // 使用 MockDataManager
+        dataManager = new MockDataManager();
         registerService = new StudentRegisterService(dataManager);
 
-        // 清空并添加测试数据
-        dataManager.getStudents().clear();
-        dataManager.getStudents().add(new Student("1", "existing_user", "John Doe", 20, "Male", "Computer Science", "password123"));
+        // 添加测试数据
+        dataManager.addStudent(new Student("existing_user", "John Doe", 20, "Male", "Computer Science", "password123"));
     }
 
     @Test
@@ -62,5 +62,44 @@ public class StudentRegisterServiceTest {
         });
         assertEquals("All fields are required", exception.getMessage(), "Exception message should indicate missing fields");
     }
+
+    // MockDataManager 实现
+    class MockDataManager extends DataManager {
+        private List<Student> mockStudents;
+
+        public MockDataManager() {
+            this.mockStudents = new ArrayList<>();
+        }
+
+        @Override
+        public List<Student> getStudents() {
+            return mockStudents;
+        }
+
+        @Override
+        public void addStudent(Student student) {
+            mockStudents.add(student);
+        }
+
+        @Override
+        public void saveStudents() {
+            // 不执行实际的文件保存操作
+        }
+
+        @Override
+        public Student getStudentByUsername(String username) {
+            return mockStudents.stream()
+                    .filter(s -> s.getUsername().equals(username))
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        // 根据需要重写其他方法，防止测试访问真实的数据文件
+        @Override
+        public void save() {
+            // 模拟保存操作
+        }
+    }
 }
+
 

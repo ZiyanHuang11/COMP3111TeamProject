@@ -2,10 +2,13 @@ package comp3111.examsystem.service;
 
 import comp3111.examsystem.data.DataManager;
 import comp3111.examsystem.entity.Teacher;
+import comp3111.examsystem.entity.Question;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -16,12 +19,11 @@ class ManageTeacherServiceTest {
 
     @BeforeEach
     void setUp() {
-        // Mock DataManager
-        dataManager = new DataManager();
+        // 使用 MockDataManager 而不是 DataManager
+        dataManager = new MockDataManager();
         manageTeacherService = new ManageTeacherService(dataManager);
 
-        // Initialize test data
-        dataManager.getTeachers().clear();
+        // 初始化测试数据
         dataManager.getTeachers().add(new Teacher("1", "teacher1", "password123", "John Doe", "Male", 35, "Professor", "CSE"));
         dataManager.getTeachers().add(new Teacher("2", "teacher2", "password456", "Jane Smith", "Female", 40, "Lecturer", "IT"));
     }
@@ -55,7 +57,7 @@ class ManageTeacherServiceTest {
 
     @Test
     void testDeleteTeacher() {
-        Teacher teacherToDelete = dataManager.getTeachers().get(0); // Get the first teacher
+        Teacher teacherToDelete = dataManager.getTeachers().get(0); // 获取第一个教师
         manageTeacherService.deleteTeacher(teacherToDelete);
 
         List<Teacher> teachers = manageTeacherService.getAllTeachers();
@@ -72,6 +74,7 @@ class ManageTeacherServiceTest {
         filteredTeachers = manageTeacherService.filterTeachers("teacher3", "", "");
         assertTrue(filteredTeachers.isEmpty(), "Filter should return no teachers for non-existent username.");
     }
+
 
     @Test
     void testValidateInputs() {
@@ -107,5 +110,56 @@ class ManageTeacherServiceTest {
         validationMessage = manageTeacherService.validateUpdateInputs("Michael Brown Updated", "Male", "31", "Associate Professor", "EE", "short");
         assertEquals("Password must be at least 8 characters, containing letters and numbers.", validationMessage, "Invalid password should trigger validation error.");
     }
-}
 
+    // MockDataManager 实现
+    class MockDataManager extends DataManager {
+        private List<Teacher> mockTeachers;
+        private List<Question> mockQuestions;
+
+        public MockDataManager() {
+            this.mockTeachers = new ArrayList<>();
+            this.mockQuestions = new ArrayList<>();
+        }
+
+        @Override
+        public List<Teacher> getTeachers() {
+            return mockTeachers;
+        }
+
+        @Override
+        public void addTeacher(Teacher teacher) {
+            mockTeachers.add(teacher);
+        }
+
+        @Override
+        public void saveTeachers() {
+            // 模拟保存操作，不进行实际的文件写入
+        }
+
+        @Override
+        public Teacher getTeacherByUsername(String username) {
+            return mockTeachers.stream()
+                    .filter(t -> t.getUsername().equals(username))
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        @Override
+        public List<Question> getQuestions() {
+            return mockQuestions;
+        }
+
+        @Override
+        public void saveQuestions() {
+            // 模拟保存操作，不进行实际的文件写入
+        }
+
+        // 根据需要重写其他方法，避免访问真实的数据文件
+        @Override
+        public void save() {
+            // 模拟保存操作
+        }
+
+        // 如果在测试中需要其他数据，可以在此处添加
+    }
+}

@@ -13,6 +13,7 @@ public abstract class Entity {
         this.id = UUID.randomUUID().toString();
     }
 
+
     public String getId() {
         return id;
     }

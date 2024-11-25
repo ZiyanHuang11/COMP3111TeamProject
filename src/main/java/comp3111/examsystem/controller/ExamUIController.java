@@ -71,16 +71,33 @@ public class ExamUIController {
     private void loadQuestion() {
         Question question = examService.getCurrentQuestion();
         questionLabel.setText(question.getQuestion());
-        optionA.setText("A. " + question.getOptionA());
-        optionB.setText("B. " + question.getOptionB());
-        optionC.setText("C. " + question.getOptionC());
-        optionD.setText("D. " + question.getOptionD());
+        optionA.setText("A. " + question.getOption1()); // 修改方法名
+        optionB.setText("B. " + question.getOption2());
+        optionC.setText("C. " + question.getOption3());
+        optionD.setText("D. " + question.getOption4());
 
         String userAnswer = examService.getUserAnswer();
-        optionA.setSelected("A".equals(userAnswer));
-        optionB.setSelected("B".equals(userAnswer));
-        optionC.setSelected("C".equals(userAnswer));
-        optionD.setSelected("D".equals(userAnswer));
+
+        // 由于 getUserAnswer() 返回的是映射后的选项文本，我们需要将其转换回选项标签
+        String selectedOptionLabel = mapAnswerToOptionLabel(question, userAnswer);
+
+        optionA.setSelected("A".equals(selectedOptionLabel));
+        optionB.setSelected("B".equals(selectedOptionLabel));
+        optionC.setSelected("C".equals(selectedOptionLabel));
+        optionD.setSelected("D".equals(selectedOptionLabel));
+    }
+
+    private String mapAnswerToOptionLabel(Question question, String answerText) {
+        if (answerText.equals(question.getOption1())) {
+            return "A";
+        } else if (answerText.equals(question.getOption2())) {
+            return "B";
+        } else if (answerText.equals(question.getOption3())) {
+            return "C";
+        } else if (answerText.equals(question.getOption4())) {
+            return "D";
+        }
+        return "";
     }
 
     @FXML

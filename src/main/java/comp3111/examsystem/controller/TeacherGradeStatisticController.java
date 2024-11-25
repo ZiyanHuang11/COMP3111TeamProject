@@ -3,6 +3,7 @@ package comp3111.examsystem.controller;
 import comp3111.examsystem.data.DataManager;
 import comp3111.examsystem.entity.Teacher;
 import comp3111.examsystem.service.TeacherGradeStatisticService;
+import comp3111.examsystem.service.TeacherGradeStatisticService.Grade;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -18,48 +19,6 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class TeacherGradeStatisticController implements Initializable {
-
-    public static class Grade {
-        private final String studentName;
-        private final String courseNum;
-        private final String examName;
-        private final String score;
-        private final String fullScore;
-        private final String passStatus;
-
-        public Grade(String studentName, String courseNum, String examName, String score, String fullScore, String passStatus) {
-            this.studentName = studentName;
-            this.courseNum = courseNum;
-            this.examName = examName;
-            this.score = score;
-            this.fullScore = fullScore;
-            this.passStatus = passStatus;
-        }
-
-        public String getStudentName() {
-            return studentName;
-        }
-
-        public String getCourseNum() {
-            return courseNum;
-        }
-
-        public String getExamName() {
-            return examName;
-        }
-
-        public String getScore() {
-            return score;
-        }
-
-        public String getFullScore() {
-            return fullScore;
-        }
-
-        public String getPassStatus() {
-            return passStatus;
-        }
-    }
 
     @FXML
     private ChoiceBox<String> courseCombox;
@@ -106,7 +65,7 @@ public class TeacherGradeStatisticController implements Initializable {
         fullScoreColumn.setCellValueFactory(new PropertyValueFactory<>("fullScore"));
         passStatusColumn.setCellValueFactory(new PropertyValueFactory<>("passStatus"));
 
-        gradeTable.setItems(FXCollections.observableArrayList(service.getGradeList()));
+        gradeTable.setItems(service.getGradeList());
         populateChoiceBoxes();
         loadCharts(service.getGradeList());
     }
@@ -137,7 +96,7 @@ public class TeacherGradeStatisticController implements Initializable {
         courseCombox.getSelectionModel().clearSelection();
         examCombox.getSelectionModel().clearSelection();
         studentCombox.getSelectionModel().clearSelection();
-        gradeTable.setItems(FXCollections.observableArrayList(service.getGradeList()));
+        gradeTable.setItems(service.getGradeList());
         loadCharts(service.getGradeList());
     }
 

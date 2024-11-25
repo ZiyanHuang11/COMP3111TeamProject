@@ -6,6 +6,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ManageStudentService {
@@ -15,7 +16,11 @@ public class ManageStudentService {
     // 使用 DataManager 构造服务类
     public ManageStudentService(DataManager dataManager) {
         this.dataManager = dataManager;
-        this.studentList = FXCollections.observableArrayList(dataManager.getStudents());
+        this.studentList = FXCollections.observableArrayList(
+                dataManager.getStudents().stream()
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList())
+        );
     }
 
     public ObservableList<Student> getStudentList() {
@@ -31,25 +36,35 @@ public class ManageStudentService {
     public void updateStudent(Student updatedStudent, String originalUsername) {
         List<Student> students = dataManager.getStudents();
         for (int i = 0; i < students.size(); i++) {
-            if (students.get(i).getUsername().equals(originalUsername)) {
+            Student student = students.get(i);
+            if (student != null && student.getUsername().equals(originalUsername)) {
                 students.set(i, updatedStudent);
                 break;
             }
         }
-        studentList.setAll(dataManager.getStudents());
+        studentList.setAll(
+                dataManager.getStudents().stream()
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList())
+        );
         dataManager.saveStudents(); // 调用 DataManager 保存更改
     }
 
     public void deleteStudent(String username) {
         List<Student> students = dataManager.getStudents();
-        students.removeIf(student -> student.getUsername().equals(username));
-        studentList.setAll(students);
+        students.removeIf(student -> student != null && student.getUsername().equals(username));
+        studentList.setAll(
+                students.stream()
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList())
+        );
         dataManager.saveStudents(); // 调用 DataManager 保存更改
     }
 
     public List<Student> filterStudents(String username, String name, String department) {
         return studentList.stream()
-                .filter(student -> student.getUsername().toLowerCase().contains(username.toLowerCase()) &&
+                .filter(student -> student != null &&
+                        student.getUsername().toLowerCase().contains(username.toLowerCase()) &&
                         student.getName().toLowerCase().contains(name.toLowerCase()) &&
                         student.getDepartment().toLowerCase().contains(department.toLowerCase()))
                 .collect(Collectors.toList());
@@ -57,7 +72,7 @@ public class ManageStudentService {
 
     public String validateUsername(String username) {
         for (Student student : studentList) {
-            if (student.getUsername().equals(username)) {
+            if (student != null && student.getUsername().equals(username)) {
                 return "The user name already exists";
             }
         }
@@ -74,18 +89,18 @@ public class ManageStudentService {
             return "Age must be a valid number";
         }
         for (Student student : studentList) {
-            if (student.getUsername().equals(username)) {
+            if (student != null && student.getUsername().equals(username)) {
                 return "The user name already exists";
             }
         }
-        if (isValidPassword(password)) {
+        if (!isValidPassword(password)) {
             return "The password must contain both letters and numbers and be at least eight characters long";
         }
         return null;
     }
 
     public boolean isValidPassword(String password) {
-        return password.length() < 8 || !password.matches("^(?=.*[a-zA-Z])(?=.*[0-9]).+$");
+        return password.length() >= 8 && password.matches("^(?=.*[a-zA-Z])(?=.*[0-9]).+$");
     }
 
     public String validateUpdateInputs(String name, String ageText, String gender, String department, String password) {
@@ -97,7 +112,7 @@ public class ManageStudentService {
         } catch (NumberFormatException e) {
             return "Age must be a valid number";
         }
-        if (isValidPassword(password)) {
+        if (!isValidPassword(password)) {
             return "The password must contain both letters and numbers and be at least eight characters long";
         }
         return null;

@@ -51,7 +51,7 @@ public class QuestionBankManagementServiceTest {
         ObservableList<Question> questions = questionService.getQuestionList();
         Question question = questions.stream().filter(q -> q.getId().equals("1")).findFirst().orElse(null);
         assertNotNull(question);
-        assertEquals("Option1", question.getOptionA());
+        assertEquals("Option1", question.getOption1()); // 修改方法名
     }
 
     @Test
@@ -90,7 +90,6 @@ public class QuestionBankManagementServiceTest {
     }
 
     // Mock DataManager implementation
-// Mock DataManager implementation
     static class MockDataManager extends DataManager {
         private final List<Question> mockQuestions;
 
@@ -133,4 +132,5 @@ public class QuestionBankManagementServiceTest {
         }
     }
 }
+
 

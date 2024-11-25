@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -31,8 +32,8 @@ class ExamServiceTest {
         List<Question> questions = new ArrayList<>();
         questions.add(new Question("1", "What is Java?", "A programming language", "A coffee brand",
                 "An island", "All of the above", "A programming language", "Single", 5));
-        questions.add(new Question("2", "Explain OOP concepts.", "Encapsulation", "Inheritance",
-                "Polymorphism", "Abstraction", "All of the above", "Multiple", 10));
+        questions.add(new Question("2", "Which are OOP concepts?", "Encapsulation", "Inheritance",
+                "Polymorphism", "Abstraction", "Encapsulation,Inheritance,Polymorphism,Abstraction", "Multiple", 10));
 
         // Add mock questions to the mockDataManager
         mockDataManager.getQuestions().addAll(questions);
@@ -76,9 +77,9 @@ class ExamServiceTest {
         Exam exam = mockDataManager.getExams().get(0);
         examService.initializeExam(exam);
 
-        // Save the answer
+        // Save the answer using option label
         examService.saveAnswer("A");
-        assertEquals("A", examService.getUserAnswer());
+        assertEquals("A programming language", examService.getUserAnswer());
     }
 
     @Test
@@ -86,10 +87,10 @@ class ExamServiceTest {
         Exam exam = mockDataManager.getExams().get(0);
         examService.initializeExam(exam);
 
-        // Simulate answering questions
+        // Save answers using option labels
         examService.saveAnswer("A"); // Correct answer for question 1
         examService.goToNextQuestion();
-        examService.saveAnswer("All of the above"); // Correct answer for question 2
+        examService.saveAnswer("A,B,C,D"); // Correct answers for question 2 (All options)
 
         // Calculate and verify results
         int[] results = examService.calculateResults();
@@ -133,14 +134,30 @@ class ExamServiceTest {
         Exam exam = mockDataManager.getExams().get(0);
         examService.initializeExam(exam);
 
-        // Simulate answering questions
+        // Save answers using option labels
         examService.saveAnswer("A"); // Correct answer for question 1
         examService.goToNextQuestion();
-        examService.saveAnswer("All of the above"); // Correct answer for question 2
+        examService.saveAnswer("A,B,C,D"); // Correct answers for question 2 (All options)
 
         // Calculate precision (accuracy)
         double precision = examService.getPrecision();
         assertEquals(100.0, precision, 0.01); // Should be 100% since both answers are correct
+    }
+
+    @Test
+    void testPartialCorrectMultipleChoice() {
+        Exam exam = mockDataManager.getExams().get(0);
+        examService.initializeExam(exam);
+
+        // Save partial correct answers for multiple-choice question
+        examService.saveAnswer("A"); // Correct answer for question 1
+        examService.goToNextQuestion();
+        examService.saveAnswer("A,B"); // Partially correct for question 2
+
+        // Calculate and verify results
+        int[] results = examService.calculateResults();
+        assertEquals(1, results[0]); // Only 1 correct answer
+        assertEquals(5, results[1]); // Total score is only for the first question
     }
 
     // Mock DataManager class

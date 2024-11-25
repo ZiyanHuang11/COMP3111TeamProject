@@ -1,7 +1,6 @@
 package comp3111.examsystem.entity;
 
 public class Student extends Entity {
-    private String id; // 从父类 Entity 继承的 id
     private String username;
     private String name;
     private int age;
@@ -34,14 +33,7 @@ public class Student extends Entity {
     }
 
     // Getters 和 Setters
-    public String getId() {
-        return id;
-    }
-
-    @Override
-    public void setId(String id) {
-        this.id = id;
-    }
+    // ID 已经在父类 Entity 中定义，不需要再次定义
 
     public String getUsername() {
         return username;
@@ -91,10 +83,11 @@ public class Student extends Entity {
         this.password = password;
     }
 
+    // 重写 toString 方法
     @Override
     public String toString() {
         return "Student{" +
-                "id='" + id + '\'' +
+                "id='" + getId() + '\'' +
                 ", username='" + username + '\'' +
                 ", name='" + name + '\'' +
                 ", age=" + age +
