@@ -47,7 +47,7 @@ public class ExamManagementService {
             }
         }
         examList.add(newExam);
-        dataManager.getExams().add(newExam); // Update DataManager
+        dataManager.addExam(newExam); // Update DataManager
         return true;
     }
 
@@ -66,6 +66,7 @@ public class ExamManagementService {
                 exam.setExamTime(updatedExam.getExamTime());
                 exam.setCourseID(updatedExam.getCourseID());
                 exam.setPublish(updatedExam.getPublish());
+                dataManager.updateExam(exam.getId(), exam); // Persist changes
                 return true;
             }
         }
@@ -83,7 +84,7 @@ public class ExamManagementService {
         }
         if (examToRemove != null) {
             examList.remove(examToRemove);
-            dataManager.getExams().remove(examToRemove); // Update DataManager
+            dataManager.deleteExam(examToRemove.getId()); // Update DataManager
             return true;
         }
         return false; // Exam not found
@@ -91,9 +92,9 @@ public class ExamManagementService {
 
     // Add a question to an exam
     public boolean addQuestionToExam(Exam exam, Question question) {
-        List<Question> associatedQuestions = exam.getQuestions(questionList); // Pass the question list
-        if (!associatedQuestions.contains(question)) {
+        if (!exam.getQuestionIds().contains(question.getId())) {
             exam.addQuestionId(question.getId()); // Add question ID to the exam
+            dataManager.updateExam(exam.getId(), exam); // Persist changes
             return true;
         }
         return false; // Question already exists in the exam
@@ -101,7 +102,10 @@ public class ExamManagementService {
 
     // Remove a question from an exam
     public boolean removeQuestionFromExam(Exam exam, Question question) {
-        return exam.getQuestionIds().remove(question.getId()); // Remove question ID
+        if (exam.getQuestionIds().contains(question.getId())) {
+            return exam.removeQuestionId(question.getId());
+        }
+        return false; // 如果问题 ID 不在考试中，返回 false
     }
 
     // Filter exams

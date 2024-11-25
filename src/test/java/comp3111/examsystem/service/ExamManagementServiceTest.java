@@ -6,6 +6,7 @@ import comp3111.examsystem.entity.Question;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -20,22 +21,41 @@ class ExamManagementServiceTest {
     void setUp() {
         // Mock DataManager data
         dataManager = new DataManager() {
+            private final List<Exam> mockExams = new ArrayList<>(Arrays.asList(
+                    new Exam("Quiz 1", "COMP3111", "2023-11-20", "Published", new ArrayList<>(Arrays.asList("1", "2")), 600),
+                    new Exam("Quiz 2", "COMP3111", "2023-12-15", "Draft", new ArrayList<>(Arrays.asList("3", "4")), 900)
+            ));
+
+            private final List<Question> mockQuestions = new ArrayList<>(Arrays.asList(
+                    new Question("1", "What is Java?", "A programming language", "A coffee brand", "An island", "All of the above", "A programming language", "Single", 5),
+                    new Question("2", "Explain OOP concepts", "Encapsulation", "Inheritance", "Polymorphism", "Abstraction", "All of the above", "Multiple", 10),
+                    new Question("3", "Define Agile", "Iterative development", "Static planning", "No testing", "None of the above", "Iterative development", "Single", 5),
+                    new Question("4", "What is UML?", "A modeling language", "A programming language", "A testing framework", "None of the above", "A modeling language", "Single", 5)
+            ));
+
             @Override
             public List<Exam> getExams() {
-                return Arrays.asList(
-                        new Exam("Quiz 1", "COMP3111", "2023-11-20", "Published", Arrays.asList("1", "2"), 600),
-                        new Exam("Quiz 2", "COMP3111", "2023-12-15", "Draft", Arrays.asList("3", "4"), 900)
-                );
+                return mockExams;
             }
 
             @Override
             public List<Question> getQuestions() {
-                return Arrays.asList(
-                        new Question("1", "What is Java?", "A programming language", "A coffee brand", "An island", "All of the above", "A programming language", "Single", 5),
-                        new Question("2", "Explain OOP concepts", "Encapsulation", "Inheritance", "Polymorphism", "Abstraction", "All of the above", "Multiple", 10),
-                        new Question("3", "Define Agile", "Iterative development", "Static planning", "No testing", "None of the above", "Iterative development", "Single", 5),
-                        new Question("4", "What is UML?", "A modeling language", "A programming language", "A testing framework", "None of the above", "A modeling language", "Single", 5)
-                );
+                return mockQuestions;
+            }
+
+            @Override
+            public void addExam(Exam exam) {
+                mockExams.add(exam);
+            }
+
+            @Override
+            public void updateExam(String id, Exam updatedExam) {
+                mockExams.replaceAll(exam -> exam.getExamName().equals(id) ? updatedExam : exam);
+            }
+
+            @Override
+            public void deleteExam(String id) {
+                mockExams.removeIf(exam -> exam.getExamName().equals(id));
             }
         };
 
@@ -57,7 +77,7 @@ class ExamManagementServiceTest {
 
     @Test
     void testAddExam() {
-        Exam newExam = new Exam("Midterm", "COMP5111", "2023-11-30", "Published", Arrays.asList("1", "3"), 1200);
+        Exam newExam = new Exam("Midterm", "COMP5111", "2023-11-30", "Published", new ArrayList<>(Arrays.asList("1", "3")), 1200);
         boolean result = examService.addExam(newExam);
         assertTrue(result, "New exam should be added successfully.");
         assertEquals(3, examService.getExamList().size(), "Exam list should now contain 3 exams.");
@@ -65,7 +85,7 @@ class ExamManagementServiceTest {
 
     @Test
     void testAddExamDuplicate() {
-        Exam duplicateExam = new Exam("Quiz 1", "COMP3111", "2023-11-20", "Published", Arrays.asList("1", "2"), 600);
+        Exam duplicateExam = new Exam("Quiz 1", "COMP3111", "2023-11-20", "Published", new ArrayList<>(Arrays.asList("1", "2")), 600);
         boolean result = examService.addExam(duplicateExam);
         assertFalse(result, "Duplicate exam should not be added.");
         assertEquals(2, examService.getExamList().size(), "Exam list should still contain 2 exams.");
@@ -73,7 +93,7 @@ class ExamManagementServiceTest {
 
     @Test
     void testUpdateExam() {
-        Exam updatedExam = new Exam("Updated Quiz 1", "COMP3111", "2023-11-25", "Published", Arrays.asList("1", "3"), 700);
+        Exam updatedExam = new Exam("Updated Quiz 1", "COMP3111", "2023-11-25", "Published", new ArrayList<>(Arrays.asList("1", "3")), 700);
         boolean result = examService.updateExam(updatedExam, "Quiz 1");
         assertTrue(result, "Exam should be updated successfully.");
         assertEquals("Updated Quiz 1", examService.getExamList().get(0).getExamName(), "First exam name should be updated.");
@@ -99,6 +119,8 @@ class ExamManagementServiceTest {
     void testRemoveQuestionFromExam() {
         Exam exam = examService.getExamList().get(0); // Quiz 1
         Question question = examService.getQuestionList().get(0); // What is Java?
+
+        assertTrue(exam.getQuestionIds().contains(question.getId()), "Exam should initially contain the question ID.");
         boolean result = examService.removeQuestionFromExam(exam, question);
         assertTrue(result, "Question should be removed from exam.");
         assertFalse(exam.getQuestionIds().contains(question.getId()), "Exam should no longer contain the removed question ID.");

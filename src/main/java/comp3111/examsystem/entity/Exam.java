@@ -26,6 +26,16 @@ public class Exam extends Entity {
         this.duration = duration;
     }
 
+    public Exam() {
+        this.examName = new SimpleStringProperty("");
+        this.courseID = new SimpleStringProperty("");
+        this.examTime = new SimpleStringProperty("");
+        this.publish = new SimpleStringProperty("");
+        this.questionIds = new ArrayList<>();
+        this.courseName = new SimpleStringProperty("");
+        this.duration = 0;
+    }
+
     public Exam(String examName, String courseID, String examTime, String publish, List<String> questionIds) {
         this(examName, courseID, examTime, publish, questionIds, 0);
     }
@@ -125,8 +135,8 @@ public class Exam extends Entity {
         this.questionIds.add(questionId);
     }
 
-    public void removeQuestionId(String questionId) {
-        this.questionIds.remove(questionId);
+    public boolean removeQuestionId(String questionId) {
+        return this.questionIds.remove(questionId); // 返回操作结果，便于测试校验
     }
 
     public void setQuestionIds(List<String> questionIds) {

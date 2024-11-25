@@ -18,7 +18,8 @@ public class Database<T> {
     public Database(Class<T> entity) {
         entitySample = entity;
         tableName = entitySample.getSimpleName().toLowerCase();
-        jsonFile = Paths.get("src", "main", "resources", "database", tableName + ".txt").toString();
+        jsonFile = Paths.get("data", tableName + ".txt").toString();
+
         File file = new File(jsonFile);
         if (!file.exists()) {
             try {
@@ -296,16 +297,23 @@ public class Database<T> {
         try {
             t = entitySample.getConstructor().newInstance();
             String[] pros = txt.split(",");
-            for (int i = 0; i < pros.length; i++) {
-                String[] pro = pros[i].split(":");
-                if (pro[0].equals("id")) {
-                    setValue(t, pro[0], Long.valueOf(pro[1]));
+            for (String proPair : pros) {
+                String[] pro = proPair.split(":");
+                String fieldName = pro[0];
+                String fieldValue = pro[1];
+
+                // 如果字段是 "id"，且实体类的字段是 String 类型，确保转换
+                Field field = entitySample.getDeclaredField(fieldName);
+                if (field.getType().equals(String.class)) {
+                    setValue(t, fieldName, fieldValue);
+                } else if (field.getType().equals(Long.class)) {
+                    setValue(t, fieldName, Long.valueOf(fieldValue));
                 } else {
-                    setValue(t, pro[0], pro[1]);
+                    setValue(t, fieldName, fieldValue);
                 }
             }
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-                 NoSuchMethodException e) {
+                 NoSuchMethodException | NoSuchFieldException e) {
             throw new RuntimeException(e);
         }
         return t;
@@ -330,6 +338,12 @@ public class Database<T> {
                 clazz = clazz.getSuperclass();
             }
         }
+
+
+
+
+
+        
 
         return sbf.toString();
     }

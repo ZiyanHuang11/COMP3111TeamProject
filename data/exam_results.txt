@@ -1,4 +1,0 @@
-id:1,studentID:7,examID:1,score:80,totalScore:100,passStatus:Yes
-id:2,studentID:7,examID:2,score:60,totalScore:100,passStatus:No
-id:3,studentID:8,examID:1,score:90,totalScore:100,passStatus:Yes
-id:4,studentID:8,examID:2,score:70,totalScore:100,passStatus:Yes
