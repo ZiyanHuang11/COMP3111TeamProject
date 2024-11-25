@@ -53,8 +53,12 @@ public class GradeStatisticsService {
     public XYChart.Series<String, Number> generateBarChartSeries(ObservableList<ExamResult> results) {
         XYChart.Series<String, Number> series = new XYChart.Series<>();
         for (ExamResult result : results) {
-            series.getData().add(new XYChart.Data<>(result.getExamName(), result.getScore()));
+            String examName = result.getExamName();
+            if (examName != null && !examName.trim().isEmpty()) { // 跳过 null 或空值
+                series.getData().add(new XYChart.Data<>(examName, result.getScore()));
+            }
         }
+
         return series;
     }
 }

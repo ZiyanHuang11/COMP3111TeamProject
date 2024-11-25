@@ -54,7 +54,7 @@ public class ExamResult extends Entity {
     }
 
     public String getExamName() {
-        return examName;
+        return examNameProperty().get() == null ? "Unknown Exam" : examNameProperty().get();
     }
 
     public void setExamName(String examName) {

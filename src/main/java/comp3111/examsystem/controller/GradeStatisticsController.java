@@ -108,8 +108,9 @@ public class GradeStatisticsController {
     private void updateBarChart(ObservableList<ExamResult> results) {
         barChart.getData().clear();
         XYChart.Series<String, Number> series = gradeStatisticsService.generateBarChartSeries(results);
-        barChart.getData().add(series);
-    }
+        if (!series.getData().isEmpty()) { // 确保系列数据非空
+            barChart.getData().add(series);
+        }}
 
     private void showAlert(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);

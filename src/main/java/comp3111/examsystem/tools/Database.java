@@ -7,6 +7,8 @@ import javafx.beans.property.SimpleStringProperty;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -331,6 +333,10 @@ public class Database<T> {
                         // 针对 StringProperty 字段特殊处理
                         StringProperty stringProperty = (StringProperty) field.get(t);
                         stringProperty.set(fieldValue);
+                    } else if (field.getType() == IntegerProperty.class) {
+                        // 针对 IntegerProperty 字段特殊处理
+                        IntegerProperty integerProperty = (IntegerProperty) field.get(t);
+                        integerProperty.set(Integer.parseInt(fieldValue)); // 转换为整数后设置
                     } else if (field.getType() == List.class) {
                         // 针对 List 字段特殊处理
                         List<String> list = new ArrayList<>();
@@ -354,6 +360,7 @@ public class Database<T> {
         }
         return t;
     }
+
 
 
 

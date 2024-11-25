@@ -7,36 +7,58 @@
 <VBox alignment="TOP_CENTER" spacing="20.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="comp3111.examsystem.controller.StudentRegisterController">
     <children>
+        <!-- 标题 -->
         <Label text="Student Registration" style="-fx-font-size: 24;" />
+
+        <!-- 输入表单 -->
         <GridPane hgap="10" vgap="10">
             <columnConstraints>
                 <ColumnConstraints halignment="RIGHT" />
                 <ColumnConstraints halignment="LEFT" />
             </columnConstraints>
             <children>
+                <!-- 用户名输入框 -->
                 <Label text="Username:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                <TextField fx:id="usernameTxt" promptText="Enter your username" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                <TextField fx:id="usernameField" promptText="Please enter your username" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
-                <Label text="Password:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                <PasswordField fx:id="passwordTxt" promptText="Enter your password" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                <!-- 姓名输入框 -->
+                <Label text="Name:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                <TextField fx:id="nameField" promptText="Please enter your name" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-                <Label text="Confirm Password:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                <PasswordField fx:id="confirmPasswordTxt" promptText="Confirm your password" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                <!-- 性别选择框 -->
+                <Label text="Gender:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                <ComboBox fx:id="genderField" promptText="Gender" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="Male" />
+                            <String fx:value="Female" />
+                            <String fx:value="Other" />
+                        </FXCollections>
+                    </items>
+                </ComboBox>
 
-                <Label text="Name:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                <TextField fx:id="nameTxt" promptText="Enter your full name" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                <!-- 年龄输入框 -->
+                <Label text="Age:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                <TextField fx:id="ageField" promptText="Please enter your age" GridPane.columnIndex="1" GridPane.rowIndex="3" />
 
-                <Label text="Gender:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-                <ComboBox fx:id="genderBox" promptText="Select gender" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                <!-- 部门输入框 -->
+                <Label text="Department:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                <TextField fx:id="departmentField" promptText="Please enter your department" GridPane.columnIndex="1" GridPane.rowIndex="4" />
 
-                <Label text="Department:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
-                <TextField fx:id="departmentTxt" promptText="Enter your department" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                <!-- 密码输入框 -->
+                <Label text="Password:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                <PasswordField fx:id="passwordField" promptText="Please enter your password" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+
+                <!-- 确认密码输入框 -->
+                <Label text="Password Confirm:" GridPane.columnIndex="0" GridPane.rowIndex="6" />
+                <PasswordField fx:id="passwordConfirmField" promptText="Please confirm your password" GridPane.columnIndex="1" GridPane.rowIndex="6" />
             </children>
         </GridPane>
+
+        <!-- 按钮 -->
         <HBox spacing="20">
+            <Button text="Close" onAction="#cancel" />
             <Button text="Register" onAction="#register" />
-            <Button text="Cancel" onAction="#cancel" />
         </HBox>
     </children>
 </VBox>
-
