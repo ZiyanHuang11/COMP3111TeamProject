@@ -11,6 +11,7 @@ public class ExamResult extends Entity {
     private int time; // 新增字段
     private int score;
     private int totalScore;
+    private int fullScore;
 
     // 无参数构造函数
     public ExamResult() {
@@ -30,6 +31,15 @@ public class ExamResult extends Entity {
 
     // Getters and Setters
 
+    // Other fields and methods...
+
+    public int getFullScore() {
+        return fullScore;
+    }
+
+    public void setFullScore(int fullScore) {
+        this.fullScore = fullScore;
+    }
     public String getStudentID() {
         return studentID;
     }
