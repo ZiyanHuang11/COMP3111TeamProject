@@ -15,52 +15,28 @@ import static org.junit.jupiter.api.Assertions.*;
 class ExamManagementServiceTest {
 
     private ExamManagementService examService;
-    private DataManager dataManager;
+
+    // In-memory mock data
+    private List<Exam> inMemoryExams;
+    private List<Question> inMemoryQuestions;
 
     @BeforeEach
     void setUp() {
-        // Mock DataManager data
-        dataManager = new DataManager() {
-            private final List<Exam> mockExams = new ArrayList<>(Arrays.asList(
-                    new Exam("Quiz 1", "COMP3111", "2023-11-20", "Published", new ArrayList<>(Arrays.asList("1", "2")), 600),
-                    new Exam("Quiz 2", "COMP3111", "2023-12-15", "Draft", new ArrayList<>(Arrays.asList("3", "4")), 900)
-            ));
+        // Initialize in-memory data
+        inMemoryExams = new ArrayList<>(Arrays.asList(
+                new Exam("Quiz 1", "COMP3111", "2023-11-20", "Published", new ArrayList<>(Arrays.asList("1", "2")), 600),
+                new Exam("Quiz 2", "COMP3111", "2023-12-15", "Draft", new ArrayList<>(Arrays.asList("3", "4")), 900)
+        ));
 
-            private final List<Question> mockQuestions = new ArrayList<>(Arrays.asList(
-                    new Question("1", "What is Java?", "A programming language", "A coffee brand", "An island", "All of the above", "A programming language", "Single", 5),
-                    new Question("2", "Explain OOP concepts", "Encapsulation", "Inheritance", "Polymorphism", "Abstraction", "All of the above", "Multiple", 10),
-                    new Question("3", "Define Agile", "Iterative development", "Static planning", "No testing", "None of the above", "Iterative development", "Single", 5),
-                    new Question("4", "What is UML?", "A modeling language", "A programming language", "A testing framework", "None of the above", "A modeling language", "Single", 5)
-            ));
+        inMemoryQuestions = new ArrayList<>(Arrays.asList(
+                new Question("1", "What is Java?", "A programming language", "A coffee brand", "An island", "All of the above", "A programming language", "Single", 5),
+                new Question("2", "Explain OOP concepts", "Encapsulation", "Inheritance", "Polymorphism", "Abstraction", "All of the above", "Multiple", 10),
+                new Question("3", "Define Agile", "Iterative development", "Static planning", "No testing", "None of the above", "Iterative development", "Single", 5),
+                new Question("4", "What is UML?", "A modeling language", "A programming language", "A testing framework", "None of the above", "A modeling language", "Single", 5)
+        ));
 
-            @Override
-            public List<Exam> getExams() {
-                return mockExams;
-            }
-
-            @Override
-            public List<Question> getQuestions() {
-                return mockQuestions;
-            }
-
-            @Override
-            public void addExam(Exam exam) {
-                mockExams.add(exam);
-            }
-
-            @Override
-            public void updateExam(String id, Exam updatedExam) {
-                mockExams.replaceAll(exam -> exam.getExamName().equals(id) ? updatedExam : exam);
-            }
-
-            @Override
-            public void deleteExam(String id) {
-                mockExams.removeIf(exam -> exam.getExamName().equals(id));
-            }
-        };
-
-        // Initialize ExamManagementService
-        examService = new ExamManagementService(dataManager);
+        // Initialize ExamManagementService with in-memory data
+        examService = new ExamManagementService(new InMemoryDataManager());
     }
 
     @Test
@@ -136,5 +112,39 @@ class ExamManagementServiceTest {
     void testFilterQuestions() {
         List<Question> filteredQuestions = examService.filterQuestions("Java", "All", "");
         assertEquals(1, filteredQuestions.size(), "Only one question should contain 'Java'.");
+    }
+
+    // In-memory DataManager implementation
+    private class InMemoryDataManager extends DataManager {
+
+        @Override
+        public List<Exam> getExams() {
+            return inMemoryExams;
+        }
+
+        @Override
+        public List<Question> getQuestions() {
+            return inMemoryQuestions;
+        }
+
+        @Override
+        public void addExam(Exam exam) {
+            inMemoryExams.add(exam);
+        }
+
+        @Override
+        public void updateExam(String id, Exam updatedExam) {
+            for (int i = 0; i < inMemoryExams.size(); i++) {
+                if (inMemoryExams.get(i).getExamName().equals(id)) {
+                    inMemoryExams.set(i, updatedExam);
+                    return;
+                }
+            }
+        }
+
+        @Override
+        public void deleteExam(String id) {
+            inMemoryExams.removeIf(exam -> exam.getExamName().equals(id));
+        }
     }
 }

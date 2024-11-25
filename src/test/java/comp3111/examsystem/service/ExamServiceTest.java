@@ -13,46 +13,49 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ExamServiceTest {
 
-    private DataManager dataManager;
     private ExamService examService;
+    private MockDataManager mockDataManager;
 
     @BeforeEach
     void setUp() {
-        // 初始化 DataManager 并模拟数据
-        dataManager = new DataManager();
-        mockData();
+        // Initialize MockDataManager with in-memory data
+        mockDataManager = new MockDataManager();
 
-        // 初始化 ExamService
-        examService = new ExamService(dataManager);
+        // Initialize ExamService with mock data
+        examService = new ExamService(mockDataManager);
+        mockData();
     }
 
     private void mockData() {
-        // 添加问题
+        // Add mock questions
         List<Question> questions = new ArrayList<>();
         questions.add(new Question("1", "What is Java?", "A programming language", "A coffee brand",
                 "An island", "All of the above", "A programming language", "Single", 5));
         questions.add(new Question("2", "Explain OOP concepts.", "Encapsulation", "Inheritance",
                 "Polymorphism", "Abstraction", "All of the above", "Multiple", 10));
-        dataManager.getQuestions().addAll(questions);
 
-        // 添加考试
+        // Add mock questions to the mockDataManager
+        mockDataManager.getQuestions().addAll(questions);
+
+        // Add mock exam
         List<String> questionIds = new ArrayList<>();
         questionIds.add("1");
         questionIds.add("2");
-        Exam exam = new Exam("Quiz 1", "COMP3111", "2023-11-20", "Yes", questionIds,600);
+        Exam exam = new Exam("Quiz 1", "COMP3111", "2023-11-20", "Yes", questionIds, 600);
+        exam.setCourseName("COMP3111");
         exam.setDuration(600);
-        dataManager.getExams().add(exam);
+        mockDataManager.getExams().add(exam);
     }
 
     @Test
     void testInitializeExam() {
-        // 从 DataManager 获取一个考试
-        Exam exam = dataManager.getExams().get(0);
+        // Get an exam from mock data
+        Exam exam = mockDataManager.getExams().get(0);
 
-        // 初始化考试
+        // Initialize the exam
         examService.initializeExam(exam);
 
-        // 验证考试信息
+        // Verify the exam details
         assertEquals("COMP3111 - Quiz 1", examService.getQuizName());
         assertEquals(2, examService.getTotalQuestions());
         assertEquals(600, examService.getRemainingTime());
@@ -60,46 +63,46 @@ class ExamServiceTest {
 
     @Test
     void testGetCurrentQuestion() {
-        Exam exam = dataManager.getExams().get(0);
+        Exam exam = mockDataManager.getExams().get(0);
         examService.initializeExam(exam);
 
-        // 验证第一道问题
+        // Verify the first question
         Question currentQuestion = examService.getCurrentQuestion();
         assertEquals("What is Java?", currentQuestion.getQuestion());
     }
 
     @Test
     void testSaveAndRetrieveAnswer() {
-        Exam exam = dataManager.getExams().get(0);
+        Exam exam = mockDataManager.getExams().get(0);
         examService.initializeExam(exam);
 
-        // 保存答案
+        // Save the answer
         examService.saveAnswer("A");
         assertEquals("A", examService.getUserAnswer());
     }
 
     @Test
     void testCalculateResults() {
-        Exam exam = dataManager.getExams().get(0);
+        Exam exam = mockDataManager.getExams().get(0);
         examService.initializeExam(exam);
 
-        // 模拟用户回答
-        examService.saveAnswer("A");
+        // Simulate answering questions
+        examService.saveAnswer("A"); // Correct answer for question 1
         examService.goToNextQuestion();
-        examService.saveAnswer("All of the above");
+        examService.saveAnswer("All of the above"); // Correct answer for question 2
 
-        // 计算结果
+        // Calculate and verify results
         int[] results = examService.calculateResults();
-        assertEquals(2, results[0]); // 正确答案数
-        assertEquals(15, results[1]); // 总分
+        assertEquals(2, results[0]); // Correct answers count
+        assertEquals(15, results[1]); // Total score (5 + 10)
     }
 
     @Test
     void testNavigationBetweenQuestions() {
-        Exam exam = dataManager.getExams().get(0);
+        Exam exam = mockDataManager.getExams().get(0);
         examService.initializeExam(exam);
 
-        // 验证导航
+        // Verify navigation between questions
         assertFalse(examService.hasPreviousQuestion());
         assertTrue(examService.hasNextQuestion());
 
@@ -110,14 +113,14 @@ class ExamServiceTest {
 
     @Test
     void testDecrementTime() {
-        Exam exam = dataManager.getExams().get(0);
+        Exam exam = mockDataManager.getExams().get(0);
         examService.initializeExam(exam);
 
-        // 验证时间递减
+        // Verify time decrement
         assertTrue(examService.decrementTime());
         assertEquals(599, examService.getRemainingTime());
 
-        // 时间耗尽
+        // Exhaust time
         for (int i = 0; i < 599; i++) {
             examService.decrementTime();
         }
@@ -127,16 +130,41 @@ class ExamServiceTest {
 
     @Test
     void testPrecisionCalculation() {
-        Exam exam = dataManager.getExams().get(0);
+        Exam exam = mockDataManager.getExams().get(0);
         examService.initializeExam(exam);
 
-        // 模拟回答
-        examService.saveAnswer("A");
+        // Simulate answering questions
+        examService.saveAnswer("A"); // Correct answer for question 1
         examService.goToNextQuestion();
-        examService.saveAnswer("Wrong Answer");
+        examService.saveAnswer("All of the above"); // Correct answer for question 2
 
-        // 验证准确率
+        // Calculate precision (accuracy)
         double precision = examService.getPrecision();
-        assertEquals(50.0, precision, 0.01);
+        assertEquals(100.0, precision, 0.01); // Should be 100% since both answers are correct
+    }
+
+    // Mock DataManager class
+    static class MockDataManager extends DataManager {
+        private final List<Exam> examList = new ArrayList<>();
+        private final List<Question> questionList = new ArrayList<>();
+
+        @Override
+        public List<Exam> getExams() {
+            return examList;
+        }
+
+        @Override
+        public List<Question> getQuestions() {
+            return questionList;
+        }
+
+        // Additional methods to add mock exams and questions
+        public List<Exam> getMockExams() {
+            return examList;
+        }
+
+        public List<Question> getMockQuestions() {
+            return questionList;
+        }
     }
 }

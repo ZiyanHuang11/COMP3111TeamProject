@@ -76,16 +76,20 @@ public class DataManager {
                         student.getAge(), student.getGender(), student.getDepartment(), student.getPassword()))
                 .collect(Collectors.toList());
 
-        // 读取现有文件内容
-        List<String> existingLines = FileUtil.readFile("data/students.txt");
+        // Only proceed if the lines are not empty
+        if (lines.isEmpty()) {
+            System.out.println("No students to save!");
+            return;
+        }
 
-        // 将现有内容和新内容合并
+        List<String> existingLines = FileUtil.readFile("data/student.txt");
+
+        // Merge new content with existing content
         existingLines.addAll(lines);
 
-        // 写入文件，保持原内容，并追加新数据
-        FileUtil.writeFile("data/students.txt", existingLines);
+        // Write the combined data to the file
+        FileUtil.writeFile("data/student.txt", existingLines);
     }
-
 
     // --- COURSE OPERATIONS ---
     public void addCourse(Course course) {
@@ -106,16 +110,20 @@ public class DataManager {
                         course.getId(), course.getCourseID(), course.getCourseName(), course.getDepartment()))
                 .collect(Collectors.toList());
 
-        // 读取现有内容
-        List<String> existingLines = FileUtil.readFile("data/courses.txt");
+        // Only proceed if the lines are not empty
+        if (lines.isEmpty()) {
+            System.out.println("No courses to save!");
+            return;
+        }
 
-        // 合并新内容
+        List<String> existingLines = FileUtil.readFile("data/course.txt");
+
+        // Merge new content with existing content
         existingLines.addAll(lines);
 
-        // 写入文件，保持原内容，并追加新数据
-        FileUtil.writeFile("data/courses.txt", existingLines);
+        // Write the combined data to the file
+        FileUtil.writeFile("data/course.txt", existingLines);
     }
-
 
     // --- EXAM OPERATIONS ---
     public void addExam(Exam exam) {
@@ -137,16 +145,20 @@ public class DataManager {
                         exam.getCourseID(), String.join("|", exam.getQuestionIds()), exam.getDuration()))
                 .collect(Collectors.toList());
 
-        // 读取现有内容
+        // Only proceed if the lines are not empty
+        if (lines.isEmpty()) {
+            System.out.println("No exams to save!");
+            return;
+        }
+
         List<String> existingLines = FileUtil.readFile("data/exam.txt");
 
-        // 合并新内容
+        // Merge new content with existing content
         existingLines.addAll(lines);
 
-        // 写入文件，保持原内容，并追加新数据
+        // Write the combined data to the file
         FileUtil.writeFile("data/exam.txt", existingLines);
     }
-
 
     // --- QUESTION OPERATIONS ---
     public void addQuestion(Question question) {
@@ -161,14 +173,6 @@ public class DataManager {
         questionDatabase.delByKey(id);
     }
 
-    public List<Question> filterQuestions(String questionFilter, String typeFilter, String scoreFilter) {
-        return questionDatabase.getAll().stream()
-                .filter(q -> (questionFilter.isEmpty() || q.getQuestion().toLowerCase().contains(questionFilter.toLowerCase())) &&
-                        (typeFilter.equals("All") || q.getType().equals(typeFilter)) &&
-                        (scoreFilter.isEmpty() || String.valueOf(q.getScore()).equals(scoreFilter)))
-                .collect(Collectors.toList());
-    }
-
     public void saveQuestions() {
         List<String> lines = getQuestions().stream()
                 .map(question -> String.format("id:%s,question:%s,optionA:%s,optionB:%s,optionC:%s,optionD:%s,answer:%s,type:%s,score:%d\n",
@@ -177,16 +181,33 @@ public class DataManager {
                         question.getAnswer(), question.getType(), question.getScore()))
                 .collect(Collectors.toList());
 
-        // 读取现有内容
-        List<String> existingLines = FileUtil.readFile("data/questions.txt");
+        // Only proceed if the lines are not empty
+        if (lines.isEmpty()) {
+            System.out.println("No questions to save!");
+            return;
+        }
 
-        // 合并新内容
+        List<String> existingLines = FileUtil.readFile("data/question.txt");
+
+        // Merge new content with existing content
         existingLines.addAll(lines);
 
-        // 写入文件，保持原内容，并追加新数据
-        FileUtil.writeFile("data/questions.txt", existingLines);
+        // Write the combined data to the file
+        FileUtil.writeFile("data/question.txt", existingLines);
     }
 
+    // --- EXAM RESULT OPERATIONS ---
+    public void addExamResult(ExamResult result) {
+        examResultDatabase.add(result);
+    }
+
+    public void updateExamResult(String id, ExamResult updatedResult) {
+        examResultDatabase.update(updatedResult);
+    }
+
+    public void deleteExamResult(String id) {
+        examResultDatabase.delByKey(id);
+    }
 
     public void saveExamResults() {
         List<String> lines = getExamResults().stream()
@@ -195,16 +216,20 @@ public class DataManager {
                         result.getScore(), result.getTotalScore(), result.getPassStatus()))
                 .collect(Collectors.toList());
 
-        // 读取现有内容
-        List<String> existingLines = FileUtil.readFile("data/exam_results.txt");
+        // Only proceed if the lines are not empty
+        if (lines.isEmpty()) {
+            System.out.println("No exam results to save!");
+            return;
+        }
 
-        // 合并新内容
+        List<String> existingLines = FileUtil.readFile("data/examresult.txt");
+
+        // Merge new content with existing content
         existingLines.addAll(lines);
 
-        // 写入文件，保持原内容，并追加新数据
-        FileUtil.writeFile("data/exam_results.txt", existingLines);
+        // Write the combined data to the file
+        FileUtil.writeFile("data/examresult.txt", existingLines);
     }
-
 
     // --- TEACHER OPERATIONS ---
     public void addTeacher(Teacher teacher) {
@@ -227,16 +252,33 @@ public class DataManager {
                         teacher.getTitle(), teacher.getDepartment()))
                 .collect(Collectors.toList());
 
-        // 读取现有内容
-        List<String> existingLines = FileUtil.readFile("data/teachers.txt");
+        // Only proceed if the lines are not empty
+        if (lines.isEmpty()) {
+            System.out.println("No teachers to save!");
+            return;
+        }
 
-        // 合并新内容
+        List<String> existingLines = FileUtil.readFile("data/teacher.txt");
+
+        // Merge new content with existing content
         existingLines.addAll(lines);
 
-        // 写入文件，保持原内容，并追加新数据
-        FileUtil.writeFile("data/teachers.txt", existingLines);
+        // Write the combined data to the file
+        FileUtil.writeFile("data/teacher.txt", existingLines);
     }
 
+    // --- MANAGER OPERATIONS ---
+    public void addManager(Manager manager) {
+        managerDatabase.add(manager);
+    }
+
+    public void updateManager(String id, Manager updatedManager) {
+        managerDatabase.update(updatedManager);
+    }
+
+    public void deleteManager(String id) {
+        managerDatabase.delByKey(id);
+    }
 
     public void saveManagers() {
         List<String> lines = getManagers().stream()
@@ -244,14 +286,28 @@ public class DataManager {
                         manager.getId(), manager.getUsername(), manager.getPassword()))
                 .collect(Collectors.toList());
 
-        // 读取现有内容
-        List<String> existingLines = FileUtil.readFile("data/managers.txt");
+        // Only proceed if the lines are not empty
+        if (lines.isEmpty()) {
+            System.out.println("No managers to save!");
+            return;
+        }
 
-        // 合并新内容
+        List<String> existingLines = FileUtil.readFile("data/manager.txt");
+
+        // Merge new content with existing content
         existingLines.addAll(lines);
 
-        // 写入文件，保持原内容，并追加新数据
-        FileUtil.writeFile("data/managers.txt", existingLines);
+        // Write the combined data to the file
+        FileUtil.writeFile("data/manager.txt", existingLines);
+    }
+    // --- QUESTION OPERATIONS ---
+    public List<Question> filterQuestions(String questionFilter, String typeFilter, String scoreFilter) {
+        // Stream through the list of questions and filter based on the provided filters
+        return questionDatabase.getAll().stream()
+                .filter(q -> (questionFilter.isEmpty() || q.getQuestion().toLowerCase().contains(questionFilter.toLowerCase())) &&
+                        (typeFilter.equals("All") || q.getType().equals(typeFilter)) &&
+                        (scoreFilter.isEmpty() || String.valueOf(q.getScore()).equals(scoreFilter)))
+                .collect(Collectors.toList());
     }
 
 }

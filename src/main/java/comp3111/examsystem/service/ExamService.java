@@ -54,6 +54,7 @@ public class ExamService {
         return userAnswers.getOrDefault(currentQuestionIndex, "");
     }
 
+    // 修正后的calculateResults方法
     public int[] calculateResults() {
         int correctAnswers = 0;
         int totalScore = 0;
@@ -71,8 +72,12 @@ public class ExamService {
         return new int[]{correctAnswers, totalScore};
     }
 
+    // 修正后的getPrecision方法
     public double getPrecision() {
-        return questions.isEmpty() ? 0 : (calculateResults()[0] * 100.0 / questions.size());
+        int[] results = calculateResults();
+        int correctAnswers = results[0];
+        int totalQuestions = questions.size();
+        return totalQuestions == 0 ? 0.0 : (double) correctAnswers * 100 / totalQuestions;
     }
 
     public int getMaxScore() {
@@ -117,4 +122,3 @@ public class ExamService {
         }
     }
 }
-
