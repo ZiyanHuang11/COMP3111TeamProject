@@ -4,9 +4,18 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
+/**
+ * The TeacherLoginService class provides functionalities for teacher login validation.
+ * It checks the entered username and password against stored credentials in a file.
+ */
 public class TeacherLoginService {
     private String teacherFilePath;
 
+    /**
+     * Constructs a TeacherLoginService instance with the specified path to the teacher credentials file.
+     *
+     * @param teacherFilePath The path to the file containing teacher credentials.
+     */
     public TeacherLoginService(String teacherFilePath) {
         this.teacherFilePath = teacherFilePath;
     }

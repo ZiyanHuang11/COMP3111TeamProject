@@ -14,7 +14,11 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ * Controller for managing the teacher login interface in the examination system.
+ */
 public class TeacherLoginController implements Initializable {
+
     @FXML
     private TextField usernameTxt;
     @FXML
@@ -22,12 +26,25 @@ public class TeacherLoginController implements Initializable {
 
     private TeacherLoginService loginService;
 
+    /**
+     * Initializes the controller and sets up the teacher login service.
+     *
+     * @param location  the location used to resolve relative paths for the root object,
+     *                  or null if the location is not known
+     * @param resources the resources used to localize the root object,
+     *                  or null if the root object was not localized
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         String teacherFilePath = "data/teachers.txt";
         loginService = new TeacherLoginService(teacherFilePath);
     }
 
+    /**
+     * Handles the login action when the user attempts to log in.
+     *
+     * @param e the action event triggered by the login button
+     */
     @FXML
     public void login(ActionEvent e) {
         String username = usernameTxt.getText();
@@ -64,6 +81,11 @@ public class TeacherLoginController implements Initializable {
         }
     }
 
+    /**
+     * Handles the registration action for new teachers.
+     *
+     * @param e the action event triggered by the register button
+     */
     @FXML
     public void register(ActionEvent e) {
         try {

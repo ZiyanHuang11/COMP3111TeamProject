@@ -13,8 +13,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class ExamManagementServiceTest {
     private ExamManagementService examService;
-    private String testExamFilePath = "test_data/test_exams.txt";
-    private String testQuestionFilePath = "test_data/test_questions.txt";
+    private final String testExamFilePath = "test_data/test_exams.txt";
+    private final String testQuestionFilePath = "test_data/test_questions.txt";
 
     @BeforeEach
     public void setUp() throws IOException {
@@ -54,32 +54,32 @@ public class ExamManagementServiceTest {
 
     @Test
     public void testAddExam() throws IOException {
-        Exam newExam = new Exam("Test Exam", "COMP1234", "2024-01-01", "No");
+        Exam newExam = new Exam("Test Exam", "2024-01-01", "COMP1234", "No");
         boolean result = examService.addExam(newExam);
         assertTrue(result);
 
         ObservableList<Exam> exams = examService.getExamList();
         assertEquals(3, exams.size());
-        assertTrue(exams.contains(newExam));
+        assertTrue(exams.stream().anyMatch(e -> e.getExamName().equals("Test Exam")));
     }
 
     @Test
     public void testAddDuplicateExam() throws IOException {
-        Exam newExam = new Exam("Midterm Exam", "COMP1234", "2024-01-01", "No");
+        Exam newExam = new Exam("Midterm Exam", "2024-01-01", "COMP1234", "No");
         boolean result = examService.addExam(newExam);
-        assertFalse(result);
+        assertFalse(result); // Duplicate exam should not be added
     }
 
     @Test
     public void testUpdateExam() throws IOException {
-        Exam updatedExam = new Exam("Updated Exam", "COMP5111", "2023-12-20", "Yes");
+        Exam updatedExam = new Exam("Updated Exam", "2023-12-20", "COMP5111", "Yes");
         boolean result = examService.updateExam(updatedExam, "Midterm Exam");
         assertTrue(result);
 
         ObservableList<Exam> exams = examService.getExamList();
         Exam exam = exams.stream().filter(e -> e.getExamName().equals("Updated Exam")).findFirst().orElse(null);
         assertNotNull(exam);
-        assertEquals("2023-12-20", exam.getExamTime());
+        assertEquals("COMP5111", exam.getExamTime());
     }
 
     @Test

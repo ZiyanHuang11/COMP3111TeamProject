@@ -10,6 +10,10 @@ import javafx.scene.control.*;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Controller for teacher to manage the questions bank
+ */
+
 public class QuestionBankManagementController {
     // Filter fields
     @FXML
@@ -59,6 +63,9 @@ public class QuestionBankManagementController {
 
     private QuestionBankManagementService questionService;
 
+    /**
+     * Initializes the controller and sets up the necessary components.
+     */
     @FXML
     public void initialize() {
         questionService = new QuestionBankManagementService("data/questions.txt");
@@ -91,7 +98,11 @@ public class QuestionBankManagementController {
                 (observable, oldValue, newValue) -> showQuestionDetails(newValue));
     }
 
-    // Show question details
+    /**
+     * Displays the details of the selected question in the input fields.
+     *
+     * @param question the selected question to display
+     */
     private void showQuestionDetails(Question question) {
         if (question != null) {
             questionTxt.setText(question.getQuestion());
@@ -108,7 +119,9 @@ public class QuestionBankManagementController {
         }
     }
 
-    // Handle add button
+    /**
+     * Handles the action of adding a new question.
+     */
     @FXML
     private void handleAdd() {
         // Get input data
@@ -142,7 +155,9 @@ public class QuestionBankManagementController {
         }
     }
 
-    // Handle update button
+    /**
+     * Handles the action of updating the selected question.
+     */
     @FXML
     private void handleUpdate() {
         Question selectedQuestion = questionTable.getSelectionModel().getSelectedItem();
@@ -183,7 +198,9 @@ public class QuestionBankManagementController {
         }
     }
 
-    // Handle delete button
+    /**
+     * Handles the action of deleting the selected question.
+     */
     @FXML
     private void handleDelete() {
         Question selectedQuestion = questionTable.getSelectionModel().getSelectedItem();
@@ -202,12 +219,17 @@ public class QuestionBankManagementController {
         }
     }
 
+    /**
+     * Refreshes the question table.
+     */
     @FXML
     private void handleRefresh() {
         questionTable.refresh();
     }
 
-    // Handle reset button
+    /**
+     * Resets the filter fields and refreshes the question table.
+     */
     @FXML
     private void handleReset() {
         questionFilterTxt.clear();
@@ -216,7 +238,9 @@ public class QuestionBankManagementController {
         questionTable.setItems(questionService.getQuestionList());
     }
 
-    // Handle filter button
+    /**
+     * Filters the questions based on the input criteria.
+     */
     @FXML
     private void handleFilter() {
         String questionFilter = questionFilterTxt.getText().trim();
@@ -227,7 +251,9 @@ public class QuestionBankManagementController {
         questionTable.setItems(FXCollections.observableArrayList(filteredQuestions));
     }
 
-    // Clear input fields
+    /**
+     * Clears all input fields.
+     */
     private void clearInputFields() {
         questionTxt.clear();
         optionATxt.clear();
@@ -239,7 +265,13 @@ public class QuestionBankManagementController {
         scoreTxt.clear();
     }
 
-    // Show alert
+    /**
+     * Displays an alert dialog with the specified title, message, and alert type.
+     *
+     * @param title   the title of the alert dialog
+     * @param message the message to be displayed in the alert dialog
+     * @param type    the type of alert (e.g., ERROR, WARNING, INFORMATION)
+     */
     private void showAlert(String title, String message, Alert.AlertType type) {
         Alert alert = new Alert(type);
         alert.setTitle(title);

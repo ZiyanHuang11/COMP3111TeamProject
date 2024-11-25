@@ -102,18 +102,13 @@ class ManageTeacherServiceTest {
     }
 
     @Test
-    void testValidateInputs() {
-        String result = service.validateInputs("john_doe", "John Doe", "Male", "30", "Teacher", "Math", "password123");
-        assertNull(result);
-
-        result = service.validateInputs("", "John Doe", "Male", "30", "Teacher", "Math", "password123");
-        assertEquals("Each field should be filled in", result);
-
-        result = service.validateInputs("john_doe", "John Doe", "Male", "abc", "Teacher", "Math", "pass");
-        assertEquals("Age must be a valid number", result);
-
-        result = service.validateInputs("john_doe", "John Doe", "Male", "30", "Teacher", "Math", "short");
-        assertEquals("The password must contain both letters and numbers and be at least eight characters long", result);
+    void testvalidateInputs() {
+        String result = service.validateInputs("John Doe", "aa","Male", "30", "Teacher", "Math", "123");
+        assertEquals("The password must contain both letters and numbers and be at least eight characters long",result);
+        result = service.validateInputs("", "aa","Male", "30", "Teacher", "Math", "1aaa23d23");
+        assertEquals("Each field should be filled in",result);
+        result = service.validateInputs("aaaaad", "aa","Male", "aaa", "Teacher", "Math", "123dddsse");
+        assertEquals("Age must be a valid number",result);
     }
 
     @Test

@@ -11,6 +11,10 @@ import javafx.scene.control.*;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Controller for the manager to manage courses
+ */
+
 public class ManageCourseController {
     @FXML
     TextField courseIDFilter;
@@ -35,10 +39,16 @@ public class ManageCourseController {
 
     private ManageCourseService courseService;
 
+    /**
+     * Initializes the controller and sets up the necessary data and listeners.
+     */
     public ManageCourseController() {
         courseService = new ManageCourseService("data/courses.txt");
     }
 
+    /**
+     * Initializes the course table with data and sets up listeners for selection changes.
+     */
     @FXML
     public void initialize() {
         courseIDColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getCourseID()));
@@ -54,10 +64,18 @@ public class ManageCourseController {
         });
     }
 
+    /**
+     * Displays the list of courses in the course table.
+     *
+     * @param courses The list of courses to display.
+     */
     private void displayCourses(ObservableList<Course> courses) {
         courseTable.setItems(courses);
     }
 
+    /**
+     * Resets the filter fields and refreshes the course table.
+     */
     @FXML
     public void resetFilters() {
         courseIDFilter.clear();
@@ -66,6 +84,9 @@ public class ManageCourseController {
         displayCourses(courseService.getCourseList());
     }
 
+    /**
+     * Filters the courses based on the input in the filter fields and updates the course table.
+     */
     @FXML
     public void filterCourses() {
         String courseID = courseIDFilter.getText().toLowerCase();
@@ -76,6 +97,10 @@ public class ManageCourseController {
         displayCourses(FXCollections.observableArrayList(filteredList));
     }
 
+    /**
+     * Adds a new course based on the input fields.
+     * Validates inputs and displays alerts for success or errors.
+     */
     @FXML
     public void addCourse() {
         String courseID = courseIDField.getText();
@@ -99,6 +124,10 @@ public class ManageCourseController {
         }
     }
 
+    /**
+     * Updates the selected course with the input from the fields.
+     * Validates inputs and displays alerts for success or errors.
+     */
     @FXML
     public void updateCourse() {
         Course selectedCourse = courseTable.getSelectionModel().getSelectedItem();
@@ -129,6 +158,9 @@ public class ManageCourseController {
         }
     }
 
+    /**
+     * Deletes the selected course after confirming the action with the user.
+     */
     @FXML
     public void deleteCourse() {
         Course selectedCourse = courseTable.getSelectionModel().getSelectedItem();
@@ -153,6 +185,9 @@ public class ManageCourseController {
         }
     }
 
+    /**
+     * Refreshes the course table and clears the input fields.
+     */
     @FXML
     public void refreshCourse() {
         clearFields();
@@ -162,12 +197,20 @@ public class ManageCourseController {
         displayCourses(courseService.getCourseList());
     }
 
+    /**
+     * Clears the input fields for course details.
+     */
     void clearFields() {
         courseIDField.clear();
         courseNameField.clear();
         departmentField.clear();
     }
 
+    /**
+     * Displays an alert with the specified message.
+     *
+     * @param message The message to be displayed in the alert.
+     */
     public void showAlert(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Hint");
@@ -176,6 +219,11 @@ public class ManageCourseController {
         alert.showAndWait();
     }
 
+    /**
+     * Updates the input fields with the details of the selected course.
+     *
+     * @param course The course whose details will be displayed in the input fields.
+     */
     public void updateFields(Course course) {
         courseIDField.setText(course.getCourseID());
         courseNameField.setText(course.getCourseName());

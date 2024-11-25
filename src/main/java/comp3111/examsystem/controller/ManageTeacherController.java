@@ -12,51 +12,62 @@ import javafx.scene.control.*;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Controller for the manager to manage teachers
+ */
+
 public class ManageTeacherController {
 
     @FXML
-    TextField usernameFilter;
+    TextField usernameFilter; // Filter for teacher username
     @FXML
-    TextField nameFilter;
+    TextField nameFilter; // Filter for teacher name
     @FXML
-    TextField departmentFilter;
+    TextField departmentFilter; // Filter for department
     @FXML
-    TableView<Teacher> teacherTable;
+    TableView<Teacher> teacherTable; // Table for displaying teachers
     @FXML
-    private TableColumn<Teacher, String> usernameColumn;
+    private TableColumn<Teacher, String> usernameColumn; // Column for username
     @FXML
-    private TableColumn<Teacher, String> nameColumn;
+    private TableColumn<Teacher, String> nameColumn; // Column for teacher name
     @FXML
-    private TableColumn<Teacher, String> genderColumn;
+    private TableColumn<Teacher, String> genderColumn; // Column for gender
     @FXML
-    private TableColumn<Teacher, Integer> ageColumn;
+    private TableColumn<Teacher, Integer> ageColumn; // Column for age
     @FXML
-    private TableColumn<Teacher, String> positionColumn;
+    private TableColumn<Teacher, String> positionColumn; // Column for position
     @FXML
-    private TableColumn<Teacher, String> departmentColumn;
+    private TableColumn<Teacher, String> departmentColumn; // Column for department
     @FXML
-    private TableColumn<Teacher, String> passwordColumn;
+    private TableColumn<Teacher, String> passwordColumn; // Column for password
     @FXML
-    TextField usernameField;
+    TextField usernameField; // Field for entering username
     @FXML
-    TextField nameField;
+    TextField nameField; // Field for entering teacher name
     @FXML
-    ComboBox<String> genderComboBox;
+    ComboBox<String> genderComboBox; // ComboBox for selecting gender
     @FXML
-    TextField ageField;
+    TextField ageField; // Field for entering age
     @FXML
-    ComboBox<String> positionComboBox;
+    ComboBox<String> positionComboBox; // ComboBox for selecting position
     @FXML
-    TextField departmentField;
+    TextField departmentField; // Field for entering department
     @FXML
-    TextField passwordField;
+    TextField passwordField; // Field for entering password
 
-    private ManageTeacherService manageTeacherService;
+    private ManageTeacherService manageTeacherService; // Service for managing teacher operations
 
+    /**
+     * Constructs a ManageTeacherController and initializes the ManageTeacherService.
+     */
     public ManageTeacherController() {
         manageTeacherService = new ManageTeacherService();
     }
 
+    /**
+     * Initializes the controller after its root element has been processed.
+     * Sets up the table columns and populates the teacher table with data.
+     */
     @FXML
     public void initialize() {
         usernameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getUsername()));
@@ -76,10 +87,18 @@ public class ManageTeacherController {
         displayTeachers(manageTeacherService.getTeacherList());
     }
 
+    /**
+     * Displays the list of teachers in the teacher table.
+     *
+     * @param teachers The list of teachers to display.
+     */
     private void displayTeachers(ObservableList<Teacher> teachers) {
         teacherTable.setItems(teachers);
     }
 
+    /**
+     * Resets the filter fields and refreshes the teacher table.
+     */
     @FXML
     public void resetFilters() {
         usernameFilter.clear();
@@ -88,6 +107,9 @@ public class ManageTeacherController {
         displayTeachers(manageTeacherService.getTeacherList());
     }
 
+    /**
+     * Filters the teachers based on the input in the filter fields and updates the teacher table.
+     */
     @FXML
     public void filterTeachers() {
         String username = usernameFilter.getText().toLowerCase();
@@ -98,6 +120,10 @@ public class ManageTeacherController {
         displayTeachers(FXCollections.observableArrayList(filteredList));
     }
 
+    /**
+     * Adds a new teacher based on the input fields.
+     * Validates inputs and displays alerts for success or errors.
+     */
     @FXML
     public void addTeacher() {
         String username = usernameField.getText();
@@ -128,6 +154,10 @@ public class ManageTeacherController {
         }
     }
 
+    /**
+     * Updates the selected teacher with the input from the fields.
+     * Validates inputs and displays alerts for success or errors.
+     */
     @FXML
     public void updateTeacher() {
         Teacher selectedTeacher = teacherTable.getSelectionModel().getSelectedItem();
@@ -163,11 +193,13 @@ public class ManageTeacherController {
         }
     }
 
+    /**
+     * Deletes the selected teacher after confirming the action with the user.
+     */
     @FXML
     public void deleteTeacher() {
         Teacher selectedTeacher = teacherTable.getSelectionModel().getSelectedItem();
         if (selectedTeacher != null) {
-
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Confirm Deletion");
             alert.setHeaderText("Are you sure you want to delete teacher " + selectedTeacher.getName() + "?");
@@ -189,6 +221,9 @@ public class ManageTeacherController {
         }
     }
 
+    /**
+     * Refreshes the teacher table and clears the input fields.
+     */
     @FXML
     public void refreshTeacher() {
         clearFields();
@@ -196,6 +231,11 @@ public class ManageTeacherController {
         displayTeachers(manageTeacherService.getTeacherList());
     }
 
+    /**
+     * Updates the input fields with the details of the specified teacher.
+     *
+     * @param teacher The teacher whose details will be displayed in the input fields.
+     */
     private void updateFields(Teacher teacher) {
         usernameField.setText(teacher.getUsername());
         nameField.setText(teacher.getName());
@@ -206,6 +246,9 @@ public class ManageTeacherController {
         passwordField.setText(teacher.getPassword());
     }
 
+    /**
+     * Clears the input fields for teacher details.
+     */
     private void clearFields() {
         usernameField.clear();
         nameField.clear();
@@ -215,6 +258,11 @@ public class ManageTeacherController {
         passwordField.clear();
     }
 
+    /**
+     * Displays an alert with the specified message.
+     *
+     * @param message The message to be displayed in the alert.
+     */
     private void showAlert(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Hint");

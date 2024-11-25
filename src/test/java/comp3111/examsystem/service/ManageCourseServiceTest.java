@@ -40,6 +40,14 @@ public class ManageCourseServiceTest {
     }
 
     @Test
+    public void testvalidateUpdateInputs() {
+        String result = courseService.validateUpdateInputs("","aaa","aaa");
+        assertEquals("Each field should be filled in",result);
+        result = courseService.validateUpdateInputs("aaa","aaa","aaa");
+        assertNull(result);
+    }
+
+    @Test
     public void testAddCourse() throws IOException {
         Course newCourse = new Course("CS103", "Algorithms", "CS");
         courseService.addCourse(newCourse);

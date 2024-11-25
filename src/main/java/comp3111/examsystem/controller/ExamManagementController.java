@@ -11,8 +11,13 @@ import javafx.scene.control.*;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Controller for the exams
+ */
+
 public class ExamManagementController {
 
+    // FXML fields
     @FXML
     private TextField examNameFilterTxt;
     @FXML
@@ -75,9 +80,11 @@ public class ExamManagementController {
     private Button refreshButton;
 
     private ExamManagementService examService;
-
     private ObservableList<Question> selectedQuestionList;
 
+    /**
+     * Initializes the controller and sets up the necessary data and listeners.
+     */
     @FXML
     public void initialize() {
         examService = new ExamManagementService("data/exam.txt", "data/questions.txt");
@@ -133,6 +140,10 @@ public class ExamManagementController {
         });
     }
 
+    /**
+     * Handles the action of adding a new exam.
+     * Validates input fields and adds the exam to the list.
+     */
     @FXML
     private void handleAdd() {
         String examName = examNameTxt.getText().trim();
@@ -162,6 +173,10 @@ public class ExamManagementController {
         }
     }
 
+    /**
+     * Handles the action of updating the selected exam.
+     * Validates input fields and updates the exam in the list.
+     */
     @FXML
     private void handleUpdate() {
         Exam selectedExam = examTable.getSelectionModel().getSelectedItem();
@@ -199,6 +214,9 @@ public class ExamManagementController {
         }
     }
 
+    /**
+     * Handles the action of deleting the selected exam.
+     */
     @FXML
     private void handleDelete() {
         Exam selectedExam = examTable.getSelectionModel().getSelectedItem();
@@ -218,6 +236,10 @@ public class ExamManagementController {
             showAlert("No Selection", "Please select an exam to delete.", Alert.AlertType.WARNING);
         }
     }
+
+    /**
+     * Handles the action of adding a selected question to the current exam.
+     */
 
     @FXML
     private void handleAddToLeft() {
@@ -244,7 +266,10 @@ public class ExamManagementController {
             showAlert("No Selection", "Please select a question to add.", Alert.AlertType.WARNING);
         }
     }
-
+    /**
+     * Handles the action of deleting the selected question from the current exam.
+     * Displays an alert if no exam or question is selected.
+     */
     @FXML
     private void handleDeleteFromLeft() {
         Question selectedQuestion = selectedQuestionTable.getSelectionModel().getSelectedItem();
@@ -271,6 +296,10 @@ public class ExamManagementController {
         }
     }
 
+    /**
+     * Handles the action of filtering the exam list based on the provided filters.
+     * Updates the exam table with the filtered results.
+     */
     @FXML
     private void handleFilter() {
         String examName = examNameFilterTxt.getText().trim();
@@ -281,6 +310,10 @@ public class ExamManagementController {
         examTable.setItems(FXCollections.observableArrayList(filteredExams));
     }
 
+    /**
+     * Handles the action of filtering the question list based on the provided filters.
+     * Updates the question table with the filtered results.
+     */
     @FXML
     private void handleQuestionFilter() {
         String questionText = questionFilterTxt.getText().trim();
@@ -291,6 +324,9 @@ public class ExamManagementController {
         questionTable.setItems(FXCollections.observableArrayList(filteredQuestions));
     }
 
+    /**
+     * Resets the exam filter fields to their default values and refreshes the exam table.
+     */
     @FXML
     private void handleReset() {
         examNameFilterTxt.clear();
@@ -299,6 +335,9 @@ public class ExamManagementController {
         examTable.setItems(examService.getExamList());
     }
 
+    /**
+     * Resets the question filter fields to their default values and refreshes the question table.
+     */
     @FXML
     private void handleQuestionFilterReset() {
         questionFilterTxt.clear();
@@ -307,6 +346,9 @@ public class ExamManagementController {
         questionTable.setItems(examService.getQuestionList());
     }
 
+    /**
+     * Refreshes the exam, question, and selected question tables to show the latest data.
+     */
     @FXML
     private void handleRefresh() {
         examTable.refresh();
@@ -314,7 +356,13 @@ public class ExamManagementController {
         selectedQuestionTable.refresh();
     }
 
-    // Display an alert
+    /**
+     * Displays an alert with the specified title, message, and alert type.
+     *
+     * @param title   The title of the alert.
+     * @param message The message to be displayed in the alert.
+     * @param type    The type of the alert (e.g., ERROR, WARNING, INFORMATION).
+     */
     private void showAlert(String title, String message, Alert.AlertType type) {
         Alert alert = new Alert(type);
         alert.setTitle(title);

@@ -12,47 +12,59 @@ import javafx.scene.control.*;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Controller for the manager to manage students
+ */
+
 public class ManageStudentController {
 
     @FXML
-    TextField usernameFilter;
+    TextField usernameFilter; // Filter for username
     @FXML
-    TextField nameFilter;
+    TextField nameFilter; // Filter for student name
     @FXML
-    TextField departmentFilter;
+    TextField departmentFilter; // Filter for department
     @FXML
-    TableView<Student> studentTable;
+    TableView<Student> studentTable; // Table for displaying students
     @FXML
-    private TableColumn<Student, String> usernameColumn;
+    private TableColumn<Student, String> usernameColumn; // Column for username
     @FXML
-    private TableColumn<Student, String> nameColumn;
+    private TableColumn<Student, String> nameColumn; // Column for student name
     @FXML
-    private TableColumn<Student, Integer> ageColumn;
+    private TableColumn<Student, Integer> ageColumn; // Column for age
     @FXML
-    private TableColumn<Student, String> genderColumn;
+    private TableColumn<Student, String> genderColumn; // Column for gender
     @FXML
-    private TableColumn<Student, String> departmentColumn;
+    private TableColumn<Student, String> departmentColumn; // Column for department
     @FXML
-    private TableColumn<Student, String> passwordColumn;
+    private TableColumn<Student, String> passwordColumn; // Column for password
     @FXML
-    TextField usernameField;
+    TextField usernameField; // Field for entering username
     @FXML
-    TextField nameField;
+    TextField nameField; // Field for entering student name
     @FXML
-    TextField ageField;
+    TextField ageField; // Field for entering age
     @FXML
-    ComboBox<String> genderComboBox;
+    ComboBox<String> genderComboBox; // ComboBox for selecting gender
     @FXML
-    TextField departmentField;
+    TextField departmentField; // Field for entering department
     @FXML
-    TextField passwordField;
+    TextField passwordField; // Field for entering password
 
-    private ManageStudentService studentService;
+    private ManageStudentService studentService; // Service for managing student operations
 
+    /**
+     * Constructs a ManageStudentController and initializes the ManageStudentService.
+     */
     public ManageStudentController() {
         studentService = new ManageStudentService("data/students.txt", "data/students_exams.txt");
     }
 
+    /**
+     * Displays an alert with the specified message.
+     *
+     * @param message The message to be displayed in the alert.
+     */
     public void showAlert(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Hint");
@@ -61,6 +73,10 @@ public class ManageStudentController {
         alert.showAndWait();
     }
 
+    /**
+     * Initializes the controller after its root element has been processed.
+     * Sets up the table columns and populates the student table with data.
+     */
     @FXML
     public void initialize() {
         usernameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getUsername()));
@@ -79,10 +95,18 @@ public class ManageStudentController {
         });
     }
 
+    /**
+     * Displays the list of students in the student table.
+     *
+     * @param students The list of students to display.
+     */
     private void displayStudents(ObservableList<Student> students) {
         studentTable.setItems(students);
     }
 
+    /**
+     * Resets the filter fields and refreshes the student table.
+     */
     @FXML
     public void resetFilters() {
         usernameFilter.clear();
@@ -91,6 +115,9 @@ public class ManageStudentController {
         displayStudents(studentService.getStudentList());
     }
 
+    /**
+     * Filters the students based on the input in the filter fields and updates the student table.
+     */
     @FXML
     public void filterStudents() {
         String username = usernameFilter.getText().toLowerCase();
@@ -101,6 +128,10 @@ public class ManageStudentController {
         displayStudents(FXCollections.observableArrayList(filteredList));
     }
 
+    /**
+     * Adds a new student based on the input fields.
+     * Validates inputs and displays alerts for success or errors.
+     */
     @FXML
     public void addStudent() {
         String username = usernameField.getText();
@@ -132,6 +163,10 @@ public class ManageStudentController {
         }
     }
 
+    /**
+     * Updates the selected student with the input from the fields.
+     * Validates inputs and displays alerts for success or errors.
+     */
     @FXML
     public void updateStudent() {
         Student selectedStudent = studentTable.getSelectionModel().getSelectedItem();
@@ -184,6 +219,9 @@ public class ManageStudentController {
         }
     }
 
+    /**
+     * Deletes the selected student after confirming the action with the user.
+     */
     @FXML
     public void deleteStudent() {
         Student selectedStudent = studentTable.getSelectionModel().getSelectedItem();
@@ -212,12 +250,19 @@ public class ManageStudentController {
         }
     }
 
+    /**
+     * Refreshes the student table and clears the input fields.
+     */
     @FXML
     public void refreshStudent() {
         clearFields();
         studentTable.getSelectionModel().clearSelection();
         displayStudents(studentService.getStudentList());
     }
+
+    /**
+     * Clears the input fields for student details.
+     */
 
     void clearFields() {
         usernameField.clear();
@@ -228,6 +273,11 @@ public class ManageStudentController {
         passwordField.clear();
     }
 
+    /**
+     * Updates the input fields with the details of the specified student.
+     *
+     * @param student The student whose details will be displayed in the input fields.
+     */
     private void updateFields(Student student) {
         usernameField.setText(student.getUsername());
         nameField.setText(student.getName());

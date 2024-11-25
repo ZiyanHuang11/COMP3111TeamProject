@@ -13,9 +13,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * The TeacherGradeStatisticService class provides functionalities to manage and analyze teacher grade statistics.
+ * It allows loading grades from a file, updating charts with statistical data, and filtering grades based on criteria.
+ */
 public class TeacherGradeStatisticService {
     private final ObservableList<TeacherGradeStatisticController.Grade> gradeList = FXCollections.observableArrayList();
-    //
+
+    /**
+     * Loads grades from a specified file into the gradeList.
+     *
+     * @param filePath The path to the file containing grade data.
+     */
     public void loadGradesFromFile(String filePath) {
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
             String line;
@@ -33,10 +42,21 @@ public class TeacherGradeStatisticService {
         }
     }
 
+    /**
+     * Returns the list of grades.
+     *
+     * @return An ObservableList of Grade objects.
+     */
     public ObservableList<TeacherGradeStatisticController.Grade> getGradeList() {
         return gradeList;
     }
 
+    /**
+     * Updates the provided BarChart with average scores for each course based on the given grades.
+     *
+     * @param barChart The BarChart to be updated.
+     * @param grades   The list of grades used to calculate average scores.
+     */
     public void updateBarChart(BarChart<String, Number> barChart, List<TeacherGradeStatisticController.Grade> grades) {
         Map<String, Double> courseAverageScores = new HashMap<>();
         Map<String, Integer> courseScoreCounts = new HashMap<>();
@@ -58,6 +78,12 @@ public class TeacherGradeStatisticService {
         barChart.getData().add(seriesBar);
     }
 
+    /**
+     * Updates the provided PieChart with total scores for each student based on the given grades.
+     *
+     * @param pieChart The PieChart to be updated.
+     * @param grades   The list of grades used to calculate total scores.
+     */
     public void updatePieChart(PieChart pieChart, List<TeacherGradeStatisticController.Grade> grades) {
         Map<String, Integer> studentScoreCounts = new HashMap<>();
 
@@ -72,6 +98,12 @@ public class TeacherGradeStatisticService {
         }
     }
 
+    /**
+     * Updates the provided LineChart with average scores for each exam based on the given grades.
+     *
+     * @param lineChart The LineChart to be updated.
+     * @param grades    The list of grades used to calculate average scores.
+     */
     public void updateLineChart(LineChart<String, Number> lineChart, List<TeacherGradeStatisticController.Grade> grades) {
         Map<String, Double> examAverageScores = new HashMap<>();
         Map<String, Integer> examScoreCounts = new HashMap<>();
@@ -92,6 +124,15 @@ public class TeacherGradeStatisticService {
         lineChart.getData().clear();
         lineChart.getData().add(seriesLine);
     }
+
+    /**
+     * Filters the grades based on the selected course, exam, and student.
+     *
+     * @param selectedCourse The course to filter by.
+     * @param selectedExam   The exam to filter by.
+     * @param selectedStudent The student to filter by.
+     * @return A list of grades matching the filter criteria.
+     */
 
     public List<TeacherGradeStatisticController.Grade> filterGrades(String selectedCourse, String selectedExam, String selectedStudent) {
         return gradeList.stream()

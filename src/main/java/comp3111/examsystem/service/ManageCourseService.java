@@ -8,20 +8,36 @@ import java.io.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Service class for managing courses in the examination system.
+ */
 public class ManageCourseService {
     private String courseFilePath;
     private ObservableList<Course> courseList;
-    //
+
+    /**
+     * Constructs a ManageCourseService with the specified file path for courses.
+     *
+     * @param courseFilePath the file path for storing course data
+     */
     public ManageCourseService(String courseFilePath) {
         this.courseFilePath = courseFilePath;
         this.courseList = FXCollections.observableArrayList();
         loadCoursesFromFile();
     }
 
+    /**
+     * Returns the list of courses.
+     *
+     * @return an observable list of courses
+     */
     public ObservableList<Course> getCourseList() {
         return courseList;
     }
 
+    /**
+     * Loads courses from a file into the course list.
+     */
     public void loadCoursesFromFile() {
         try (BufferedReader br = new BufferedReader(new FileReader(courseFilePath))) {
             String line;
@@ -37,6 +53,12 @@ public class ManageCourseService {
         }
     }
 
+    /**
+     * Adds a new course to the course list and saves it to the file.
+     *
+     * @param newCourse the new course to be added
+     * @throws IOException if an error occurs while saving to the file
+     */
     public void addCourse(Course newCourse) throws IOException {
         courseList.add(newCourse);
         String courseInput = newCourse.getCourseID() + ',' + newCourse.getCourseName() + ',' + newCourse.getDepartment();
@@ -46,6 +68,13 @@ public class ManageCourseService {
         }
     }
 
+    /**
+     * Updates an existing course in the course list and saves the changes to the file.
+     *
+     * @param updatedCourse   the course with updated details
+     * @param originalCourseID the original ID of the course to be updated
+     * @throws IOException if an error occurs while saving to the file
+     */
     public void updateCourse(Course updatedCourse, String originalCourseID) throws IOException {
         boolean courseFound = false;
         for (int i = 0; i < courseList.size(); i++) {
@@ -61,6 +90,12 @@ public class ManageCourseService {
         saveCoursesToFile();
     }
 
+    /**
+     * Deletes a course from the course list and saves the changes to the file.
+     *
+     * @param courseID the ID of the course to be deleted
+     * @throws IOException if an error occurs while saving to the file
+     */
     public void deleteCourse(String courseID) throws IOException {
         boolean courseRemoved = courseList.removeIf(course -> course.getCourseID().equals(courseID));
         if (!courseRemoved) {
@@ -69,6 +104,11 @@ public class ManageCourseService {
         saveCoursesToFile();
     }
 
+    /**
+     * Saves the current list of courses to the course file.
+     *
+     * @throws IOException if an error occurs while writing to the file
+     */
     private void saveCoursesToFile() throws IOException {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(courseFilePath))) {
             for (Course course : courseList) {
@@ -79,6 +119,14 @@ public class ManageCourseService {
         }
     }
 
+    /**
+     * Filters courses based on the specified criteria.
+     *
+     * @param courseID    the ID of the course to filter by
+     * @param courseName  the name of the course to filter by
+     * @param department  the department to filter by
+     * @return a list of courses that match the specified criteria
+     */
     public List<Course> filterCourses(String courseID, String courseName, String department) {
         return courseList.stream()
                 .filter(course -> course.getCourseID().toLowerCase().contains(courseID.toLowerCase()) &&
@@ -87,6 +135,12 @@ public class ManageCourseService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Validates the course ID to check if it already exists in the course list.
+     *
+     * @param courseID the course ID to validate
+     * @return an error message if the course ID exists, or null if it does not
+     */
     public String validateCourseID(String courseID) {
         for (Course course : courseList) {
             if (course.getCourseID().equals(courseID)) {
@@ -96,6 +150,14 @@ public class ManageCourseService {
         return null;
     }
 
+    /**
+     * Validates input fields for adding a new course.
+     *
+     * @param courseID   the course ID to validate
+     * @param courseName the course name to validate
+     * @param department the department to validate
+     * @return an error message if any field is invalid, or null if all fields are valid
+     */
     public String validateInputs(String courseID, String courseName, String department) {
         if (courseID.isEmpty() || courseName.isEmpty() || department.isEmpty()) {
             return "Each field should be filled in";
@@ -103,6 +165,14 @@ public class ManageCourseService {
         return validateCourseID(courseID);
     }
 
+    /**
+     * Validates input fields for updating an existing course.
+     *
+     * @param courseID   the course ID to validate
+     * @param courseName the course name to validate
+     * @param department the department to validate
+     * @return an error message if any field is invalid, or null if all fields are valid
+     */
     public String validateUpdateInputs(String courseID, String courseName, String department) {
         if (courseID.isEmpty() || department.isEmpty() || courseName.isEmpty()) {
             return "Each field should be filled in";

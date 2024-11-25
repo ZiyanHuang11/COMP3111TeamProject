@@ -9,7 +9,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Controller for managing the teacher registration interface in the examination system.
+ */
 public class TeacherRegisterController {
+
     @FXML
     private TextField usernameTxt;
     @FXML
@@ -29,6 +33,9 @@ public class TeacherRegisterController {
 
     private TeacherRegisterService registerService;
 
+    /**
+     * Initializes the controller and sets up the gender and position ComboBoxes.
+     */
     @FXML
     public void initialize() {
         // Initialize gender ComboBox
@@ -44,6 +51,9 @@ public class TeacherRegisterController {
         registerService = new TeacherRegisterService(teacherFilePath);
     }
 
+    /**
+     * Handles the registration of a teacher when the register button is clicked.
+     */
     @FXML
     private void handleRegister() {
         String username = usernameTxt.getText().trim();
@@ -93,6 +103,9 @@ public class TeacherRegisterController {
         }
     }
 
+    /**
+     * Handles the action of closing the registration window.
+     */
     @FXML
     private void handleClose() {
         // Close the registration window
@@ -100,7 +113,13 @@ public class TeacherRegisterController {
         stage.close();
     }
 
-    // Show alert
+    /**
+     * Displays an alert dialog with the specified title, message, and alert type.
+     *
+     * @param title   the title of the alert dialog
+     * @param message the message to be displayed in the alert dialog
+     * @param type    the type of alert (e.g., ERROR, INFORMATION)
+     */
     private void showAlert(String title, String message, Alert.AlertType type) {
         Alert alert = new Alert(type);
         alert.setTitle(title);

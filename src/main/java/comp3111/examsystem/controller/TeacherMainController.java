@@ -11,13 +11,29 @@ import javafx.stage.Stage;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ * Controller for managing the main interface for teachers in the examination system.
+ */
 public class TeacherMainController implements Initializable {
+
     @FXML
     private VBox mainbox;
 
+    /**
+     * Initializes the controller after its root element has been processed.
+     *
+     * @param location  the location used to resolve relative paths for the root object,
+     *                  or null if the location is not known
+     * @param resources the resources used to localize the root object,
+     *                  or null if the root object was not localized
+     */
     public void initialize(URL location, ResourceBundle resources) {
+        // No specific initialization required at this moment
     }
 
+    /**
+     * Opens the Question Bank Management user interface.
+     */
     @FXML
     public void openQuestionManageUI() {
         try {
@@ -31,6 +47,9 @@ public class TeacherMainController implements Initializable {
         }
     }
 
+    /**
+     * Opens the Exam Management user interface.
+     */
     @FXML
     public void openExamManageUI() {
         try {
@@ -44,6 +63,9 @@ public class TeacherMainController implements Initializable {
         }
     }
 
+    /**
+     * Opens the Grade Statistics user interface.
+     */
     @FXML
     public void openGradeStatistic() {
         try {
@@ -57,6 +79,9 @@ public class TeacherMainController implements Initializable {
         }
     }
 
+    /**
+     * Exits the application.
+     */
     @FXML
     public void exit() {
         System.exit(0);

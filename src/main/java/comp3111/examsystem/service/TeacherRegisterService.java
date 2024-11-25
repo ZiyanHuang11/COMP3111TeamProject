@@ -4,9 +4,18 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * The TeacherRegisterService class provides functionalities for registering new teachers.
+ * It validates registration inputs, checks for existing users, and writes new teacher information to a file.
+ */
 public class TeacherRegisterService {
     private String teacherFilePath;
 
+    /**
+     * Constructs a TeacherRegisterService instance with the specified path to the teacher credentials file.
+     *
+     * @param teacherFilePath The path to the file containing teacher credentials.
+     */
     public TeacherRegisterService(String teacherFilePath) {
         this.teacherFilePath = teacherFilePath;
     }
@@ -77,7 +86,7 @@ public class TeacherRegisterService {
      * Registers a new teacher by writing their information to the file.
      *
      * @param teacherInfo A map containing the teacher's information.
-     * @throws IOException If an I/O error occurs.
+     * @throws IOException If an I/O error occurs while writing to the file.
      */
     public void registerTeacher(Map<String, String> teacherInfo) throws IOException {
         File file = new File(teacherFilePath);

@@ -20,18 +20,29 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * Controller for students to login in the exam system
+ */
+
 public class StudentLoginController implements Initializable {
     @FXML
     private TextField usernameTxt;
     @FXML
     private PasswordField passwordTxt;
-    // private存学生信息路径
+    // Path to the student information file
     private String studentFilePath;
 
+    /**
+     * Initializes the controller and checks for the existence of the student file.
+     */
     public void initialize(URL location, ResourceBundle resources) {
-
+        // No specific initialization required at this moment
     }
 
+    /**
+     * Constructor for the StudentLoginController.
+     * Sets the path to the student file and checks its existence.
+     */
     public StudentLoginController() {
         studentFilePath = "data/students.txt";
         File studentFile = new File(studentFilePath);
@@ -42,13 +53,19 @@ public class StudentLoginController implements Initializable {
         }
     }
 
+    /**
+     * Handles the login action when the user attempts to log in.
+     * Displays an alert indicating success or failure of the login attempt.
+     *
+     * @param e the action event triggered by the login button
+     */
     @FXML
     public void login(ActionEvent e) {
         String username = usernameTxt.getText();
         String password = passwordTxt.getText();
 
         if (validate(username, password)) {
-            // 登陆成功后先弹窗再显示fxml界面
+            // Show success alert and load the main UI
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Hint");
             alert.setHeaderText(null);
@@ -65,6 +82,7 @@ public class StudentLoginController implements Initializable {
             stage.show();
             ((Stage) ((Button) e.getSource()).getScene().getWindow()).close();
         } else {
+            // Show error alert for invalid login
             Alert alert = new Alert(Alert.AlertType.ERROR);
             alert.setTitle("Hint");
             alert.setHeaderText(null);
@@ -73,19 +91,24 @@ public class StudentLoginController implements Initializable {
         }
     }
 
-    // 这里封装一个函数用来从txt读用户信息
+    /**
+     * Validates the provided username and password against stored credentials in the student file.
+     *
+     * @param username the username to validate
+     * @param password the password to validate
+     * @return true if the username and password match an entry in the file, false otherwise
+     */
     private boolean validate(String username, String password) {
-        // bufferedReader，用来读文件内容
+        // BufferedReader to read file contents
         try (BufferedReader br = new BufferedReader(new FileReader(studentFilePath))) {
             String line;
             while ((line = br.readLine()) != null) {
-                // 这里遍历database
-                // 后续注册内容完成后可能要调整txt数据结构，这里暂时是用','分开，目前共有六个column，0是用户名5是密码
+                // Split the line into credentials
                 String[] credentials = line.split(",");
                 if (credentials.length == 2) {
-                    // 检查username和password是否匹配
+                    // Check if the username and password match
                     String storedUsername = credentials[0].trim();
-                    String storedPassword = credentials[5].trim();
+                    String storedPassword = credentials[1].trim(); // Adjusted index to 1 for password
                     if (storedUsername.equals(username) && storedPassword.equals(password)) {
                         return true;
                     }
@@ -94,10 +117,15 @@ public class StudentLoginController implements Initializable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return false; // 没有找到匹配的用户名和密码
+        return false; // No matching username and password found
     }
 
+    /**
+     * Handles the registration action for new students.
+     * (Currently not implemented)
+     */
     @FXML
     public void register() {
+        // Registration logic to be implemented
     }
 }

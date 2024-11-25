@@ -8,7 +8,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+/**
+ * Controller for managing the selection of different login interfaces (Student, Teacher, Manager).
+ */
 public class SelectLoginController {
+
+    /**
+     * Opens the Student Login interface.
+     */
     @FXML
     public void studentLogin() {
         try {
@@ -23,6 +30,9 @@ public class SelectLoginController {
         }
     }
 
+    /**
+     * Opens the Teacher Login interface.
+     */
     @FXML
     public void teacherLogin() {
         try {
@@ -37,6 +47,9 @@ public class SelectLoginController {
         }
     }
 
+    /**
+     * Opens the Manager Login interface.
+     */
     public void managerLogin() {
         try {
             Stage stage = new Stage();

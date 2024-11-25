@@ -17,23 +17,43 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ * Controller for the manager login action
+ */
+
 public class ManagerLoginController implements Initializable {
     @FXML
-    private TextField usernameTxt;
+    private TextField usernameTxt; // TextField for entering the username
     @FXML
-    private PasswordField passwordTxt;
+    private PasswordField passwordTxt; // PasswordField for entering the password
 
-    private ManagerLoginService managerLoginService;
+    private ManagerLoginService managerLoginService; // Service for managing login operations
 
+    /**
+     * Constructs a ManagerLoginController and initializes the ManagerLoginService.
+     */
     public ManagerLoginController() {
         managerLoginService = new ManagerLoginService("data/managers.txt");
     }
 
+    /**
+     * Initializes the controller after its root element has been processed.
+     *
+     * @param location  The location used to resolve relative paths for the root object,
+     *                  or null if the location is not known.
+     * @param resources The resources used to localize the root object,
+     *                  or null if the root object was not localized.
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-
+        // Initialization logic can be added here if needed
     }
 
+    /**
+     * Handles the login action when the user clicks the login button.
+     *
+     * @param e The ActionEvent triggered by the button click.
+     */
     @FXML
     public void login(ActionEvent e) {
         String username = usernameTxt.getText();

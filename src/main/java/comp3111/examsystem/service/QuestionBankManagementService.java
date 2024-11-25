@@ -8,20 +8,38 @@ import java.io.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * The QuestionBankManagementService class provides functionalities to manage a question bank
+ * in the exam system. It allows loading, saving, adding, updating, deleting, and filtering questions.
+ */
 public class QuestionBankManagementService {
     private String questionFilePath;
     private ObservableList<Question> questionList;
 
+    /**
+     * Constructs a QuestionBankManagementService instance with the specified file path
+     * for questions and loads questions from that file.
+     *
+     * @param questionFilePath The path to the file containing questions.
+     */
     public QuestionBankManagementService(String questionFilePath) {
         this.questionFilePath = questionFilePath;
         this.questionList = FXCollections.observableArrayList();
         loadQuestionsFromFile();
     }
 
+    /**
+     * Returns the list of questions.
+     *
+     * @return An ObservableList of Question objects.
+     */
     public ObservableList<Question> getQuestionList() {
         return questionList;
     }
 
+    /**
+     * Loads questions from the specified file into the questionList.
+     */
     public void loadQuestionsFromFile() {
         try (BufferedReader br = new BufferedReader(new FileReader(questionFilePath))) {
             String line;
@@ -57,6 +75,11 @@ public class QuestionBankManagementService {
         }
     }
 
+    /**
+     * Saves all questions in the questionList to the specified file.
+     *
+     * @throws IOException If an I/O error occurs while writing to the file.
+     */
     public void saveQuestionsToFile() throws IOException {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(questionFilePath))) {
             for (Question question : questionList) {
@@ -75,11 +98,24 @@ public class QuestionBankManagementService {
         }
     }
 
+    /**
+     * Adds a new question to the questionList and saves it to the file.
+     *
+     * @param newQuestion The Question object to be added.
+     * @throws IOException If an I/O error occurs while saving to the file.
+     */
     public void addQuestion(Question newQuestion) throws IOException {
         questionList.add(newQuestion);
         saveQuestionsToFile();
     }
 
+    /**
+     * Updates an existing question in the questionList.
+     *
+     * @param updatedQuestion The updated Question object.
+     * @param originalQuestionText The original text of the question to be updated.
+     * @throws IOException If the question is not found or an I/O error occurs.
+     */
     public void updateQuestion(Question updatedQuestion, String originalQuestionText) throws IOException {
         boolean questionFound = false;
         for (int i = 0; i < questionList.size(); i++) {
@@ -95,6 +131,12 @@ public class QuestionBankManagementService {
         saveQuestionsToFile();
     }
 
+    /**
+     * Deletes a question from the questionList.
+     *
+     * @param questionText The text of the question to be deleted.
+     * @throws IOException If the question is not found or an I/O error occurs.
+     */
     public void deleteQuestion(String questionText) throws IOException {
         boolean questionRemoved = questionList.removeIf(q -> q.getQuestion().equals(questionText));
         if (!questionRemoved) {
@@ -103,6 +145,14 @@ public class QuestionBankManagementService {
         saveQuestionsToFile();
     }
 
+    /**
+     * Filters questions based on the provided criteria.
+     *
+     * @param questionFilter The question text filter.
+     * @param typeFilter The type filter.
+     * @param scoreFilter The score filter.
+     * @return A list of questions matching the criteria.
+     */
     public List<Question> filterQuestions(String questionFilter, String typeFilter, String scoreFilter) {
         return questionList.stream()
                 .filter(q -> (questionFilter.isEmpty() || q.getQuestion().toLowerCase().contains(questionFilter.toLowerCase())) &&
@@ -110,6 +160,20 @@ public class QuestionBankManagementService {
                         (scoreFilter.isEmpty() || String.valueOf(q.getScore()).equals(scoreFilter)))
                 .collect(Collectors.toList());
     }
+
+    /**
+     * Validates the input data for adding or updating a question.
+     *
+     * @param question The question text to validate.
+     * @param optionA The first option to validate.
+     * @param optionB The second option to validate.
+     * @param optionC The third option to validate.
+     * @param optionD The fourth option to validate.
+     * @param answer The correct answer to validate.
+     * @param type The type of the question to validate.
+     * @param scoreText The score to validate.
+     * @return An error message if validation fails, otherwise null.
+     */
 
     public String validateInputs(String question, String optionA, String optionB, String optionC, String optionD, String answer, String type, String scoreText) {
         if (question.isEmpty() || optionA.isEmpty() || optionB.isEmpty() ||

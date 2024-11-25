@@ -11,9 +11,29 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+/**
+ * Controller for the manager to choose three main functions
+ */
+
 public class ManagerMainController implements Initializable {
+
+    /**
+     * Initializes the controller after its root element has been processed.
+     *
+     * @param location  The location used to resolve relative paths for the root object,
+     *                  or null if the location is not known.
+     * @param resources The resources used to localize the root object,
+     *                  or null if the root object was not localized.
+     */
+    @Override
     public void initialize(URL location, ResourceBundle resources) {
+        // Initialization logic can be added here if needed
     }
+
+    /**
+     * Opens the Student Management User Interface.
+     * Creates a new stage and loads the StudentManageUI FXML file.
+     */
     @FXML
     public void openStudentManageUI() {
         try {
@@ -28,6 +48,10 @@ public class ManagerMainController implements Initializable {
         }
     }
 
+    /**
+     * Opens the Teacher Management User Interface.
+     * Creates a new stage and loads the TeacherManageUI FXML file.
+     */
     @FXML
     public void openTeacherManageUI() {
         try {
@@ -42,6 +66,10 @@ public class ManagerMainController implements Initializable {
         }
     }
 
+    /**
+     * Opens the Course Management User Interface.
+     * Creates a new stage and loads the CourseManageUI FXML file.
+     */
     @FXML
     public void openCourseManageUI() {
         try {
@@ -56,6 +84,10 @@ public class ManagerMainController implements Initializable {
         }
     }
 
+    /**
+     * Exits the application.
+     * Closes the application by calling System.exit(0).
+     */
     @FXML
     public void exit() {
         System.exit(0);
