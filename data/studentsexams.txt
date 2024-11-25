@@ -1,0 +1,8 @@
+bonny,COMP3111,final,Software Engineering
+bonny,COMP3111,quiz1,Software Engineering
+bonny,COMP3111,middle,Software Engineering
+bonny,COMP3111,quiz3,SSoftware Engineering
+bonny,COMP5111,final,Software EngineeringII
+bonny,COMP5111,quiz1,Software EngineeringII
+bonny,COMP3511,final,Operating System
+bonny,COMP3511,quiz2,Operating System

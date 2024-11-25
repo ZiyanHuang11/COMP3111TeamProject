@@ -1,0 +1,2 @@
+user1,John Doe,20,Male,CS,password123
+user2,Jane Smith,22,Female,EE,password456

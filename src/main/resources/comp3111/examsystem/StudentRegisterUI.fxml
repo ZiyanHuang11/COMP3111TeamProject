@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="comp3111.examsystem.controller.StudentRegisterController" prefWidth="600.0" prefHeight="600.0">
+    <children>
+        <VBox alignment="CENTER" spacing="20.0" layoutX="50.0" layoutY="30.0" prefWidth="500.0">
+            <children>
+                <!-- Username Input -->
+                <HBox spacing="10.0" alignment="CENTER_LEFT" prefWidth="500.0">
+                    <children>
+                        <Label text="Username:" prefWidth="120.0" alignment="CENTER_RIGHT" />
+                        <TextField promptText="Please enter your username" fx:id="usernameField" prefWidth="350.0" />
+                    </children>
+                </HBox>
+
+                <!-- Name Input -->
+                <HBox spacing="10.0" alignment="CENTER_LEFT" prefWidth="500.0">
+                    <children>
+                        <Label text="Name:" prefWidth="120.0" alignment="CENTER_RIGHT" />
+                        <TextField promptText="Please enter your name" fx:id="nameField" prefWidth="350.0" />
+                    </children>
+                </HBox>
+
+                <!-- Gender Input -->
+                <HBox spacing="10.0" alignment="CENTER_LEFT" prefWidth="500.0">
+                    <children>
+                        <Label text="Gender:" prefWidth="120.0" alignment="CENTER_RIGHT" />
+                        <ComboBox fx:id="genderComboBox" promptText="Gender" prefWidth="350.0" />
+                    </children>
+                </HBox>
+
+                <!-- Age Input -->
+                <HBox spacing="10.0" alignment="CENTER_LEFT" prefWidth="500.0">
+                    <children>
+                        <Label text="Age:" prefWidth="120.0" alignment="CENTER_RIGHT" />
+                        <TextField promptText="Please enter your age" fx:id="ageField" prefWidth="350.0" />
+                    </children>
+                </HBox>
+
+                <!-- Department Input -->
+                <HBox spacing="10.0" alignment="CENTER_LEFT" prefWidth="500.0">
+                    <children>
+                        <Label text="Department:" prefWidth="120.0" alignment="CENTER_RIGHT" />
+                        <TextField promptText="Please enter your department" fx:id="departmentField" prefWidth="350.0" />
+                    </children>
+                </HBox>
+
+                <!-- Password Input -->
+                <HBox spacing="10.0" alignment="CENTER_LEFT" prefWidth="500.0">
+                    <children>
+                        <Label text="Password:" prefWidth="120.0" alignment="CENTER_RIGHT" />
+                        <PasswordField promptText="Please enter the password" fx:id="passwordField" prefWidth="350.0" />
+                    </children>
+                </HBox>
+
+                <!-- Password Confirm Input -->
+                <HBox spacing="10.0" alignment="CENTER_LEFT" prefWidth="500.0">
+                    <children>
+                        <Label text="PasswordConfirm:" prefWidth="120.0" alignment="CENTER_RIGHT" />
+                        <PasswordField promptText="Please confirm the password" fx:id="passwordConfirmField" prefWidth="350.0" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+
+        <!-- Buttons -->
+        <HBox alignment="CENTER" prefHeight="47.0" prefWidth="600.0" spacing="20.0" layoutX="0.0" layoutY="540.0">
+            <children>
+                <Button text="Register" mnemonicParsing="false" onAction="#handleRegister" />
+                <Button text="Close" mnemonicParsing="false" onAction="#handleClose" />
+            </children>
+        </HBox>
+    </children>
+</AnchorPane>
+
+
+
+
+

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>comp3111</groupId>
+  <artifactId>ExamSystem</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <name>ExamSystem</name>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <junit.version>5.10.0</junit.version>
+    <maven.compiler.source>21</maven.compiler.source>
+    <maven.compiler.target>21</maven.compiler.target>
+    <maven.compiler.release>21</maven.compiler.release>
+  </properties>
+
+  <dependencies>
+    <!-- JavaFX Dependencies -->
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-base</artifactId>
+      <version>21</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-graphics</artifactId>
+      <version>21</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-controls</artifactId>
+      <version>21</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-fxml</artifactId>
+      <version>21</version>
+    </dependency>
+
+    <!-- JUnit 5 Dependency -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <!-- Compiler Plugin -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.11.0</version>
+        <configuration>
+          <source>${maven.compiler.source}</source>
+          <target>${maven.compiler.target}</target>
+          <release>${maven.compiler.release}</release>
+        </configuration>
+      </plugin>
+
+      <!-- JavaFX Maven Plugin -->
+      <plugin>
+        <groupId>org.openjfx</groupId>
+        <artifactId>javafx-maven-plugin</artifactId>
+        <version>0.0.8</version>
+        <executions>
+          <execution>
+            <id>default-cli</id>
+            <configuration>
+              <mainClass>comp3111.examsystem.Main</mainClass> <!-- 确保 mainClass 配置正确 -->
+              <launcher>app</launcher>
+              <jlinkZipName>app</jlinkZipName>
+              <jlinkImageName>app</jlinkImageName>
+              <noManPages>true</noManPages>
+              <stripDebug>true</stripDebug>
+              <noHeaderFiles>true</noHeaderFiles>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Maven Javadoc Plugin -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.5.0</version>
+        <configuration>
+          <encoding>${project.build.sourceEncoding}</encoding>
+          <doclint>none</doclint>
+          <additionalJOptions>
+            <additionalJOption>-Xdoclint:none</additionalJOption>
+          </additionalJOptions>
+        </configuration>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Surefire Plugin -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>3.0.0-M7</version>
+      </plugin>
+    </plugins>
+  </build>
+</project>

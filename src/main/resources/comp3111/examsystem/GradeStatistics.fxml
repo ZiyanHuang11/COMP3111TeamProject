@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="comp3111.examsystem.controller.GradeStatisticsController">
+    <top>
+        <HBox spacing="15" alignment="CENTER">
+            <Label text="Course:" />
+            <ComboBox fx:id="courseComboBox" promptText="Select Course" />
+            <Button fx:id="resetButton" text="Reset" onAction="#handleReset" />
+            <Button fx:id="filterButton" text="Filter" onAction="#handleFilter" />
+        </HBox>
+    </top>
+
+    <center>
+        <HBox spacing="20" alignment="CENTER" style="-fx-border-width: 0; -fx-border-color: transparent;">
+            <!-- Table view for grade data -->
+            <TableView fx:id="gradeTable" prefWidth="500">
+                <columns>
+                    <TableColumn fx:id="courseColumn" text="Course" prefWidth="150"/>
+                    <TableColumn fx:id="examColumn" text="Exam" prefWidth="150"/>
+                    <TableColumn fx:id="scoreColumn" text="Score" prefWidth="100"/>
+                    <TableColumn fx:id="fullScoreColumn" text="Full Score" prefWidth="100"/>
+                    <TableColumn fx:id="timeColumn" text="Time (s)" prefWidth="100"/>
+                </columns>
+            </TableView>
+
+            <!-- Bar chart for dynamic stats -->
+            <BarChart fx:id="gradeBarChart" title="Grade Statistics" prefWidth="500">
+                <xAxis>
+                    <CategoryAxis fx:id="xAxis" label="CourseID-QuizName" />
+                </xAxis>
+                <yAxis>
+                    <NumberAxis fx:id="yAxis" label="Score" />
+                </yAxis>
+            </BarChart>
+        </HBox>
+    </center>
+
+    <bottom>
+        <HBox spacing="10" alignment="CENTER_RIGHT">
+            <Button fx:id="refreshButton" text="Refresh" onAction="#handleRefresh" />
+        </HBox>
+    </bottom>
+</BorderPane>
