@@ -153,13 +153,6 @@ public class ManageStudentServiceTest {
             mockStudents.add(student);
         }
 
-        @Override
-        public Student getStudentByUsername(String username) {
-            return mockStudents.stream()
-                    .filter(s -> s.getUsername().equals(username))
-                    .findFirst()
-                    .orElse(null);
-        }
 
         @Override
         public void saveStudents() {

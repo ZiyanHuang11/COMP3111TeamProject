@@ -6,6 +6,8 @@ import comp3111.examsystem.tools.Database;
 import comp3111.examsystem.tools.FileUtil;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.stream.Collectors;
 
 public class DataManager {
@@ -46,15 +48,42 @@ public class DataManager {
         return managerDatabase.getAll();
     }
 
-    // --- SAVE ALL DATA ---
-    public void save() {
-        saveStudents();
-        saveCourses();
-        saveExams();
-        saveQuestions();
-        saveExamResults();
-        saveTeachers();
-        saveManagers();
+    // --- COURSE DATA LOADING ---
+    public List<Map<String, String>> loadCourseData() {
+        List<String> lines = FileUtil.readFile("data/course.txt");
+
+        return lines.stream()
+                .map(line -> {
+                    Map<String, String> courseMap = new HashMap<>();
+                    String[] pairs = line.split(",");
+                    for (String pair : pairs) {
+                        String[] keyValue = pair.split(":");
+                        if (keyValue.length == 2) {
+                            courseMap.put(keyValue[0].trim(), keyValue[1].trim());
+                        }
+                    }
+                    return courseMap;
+                })
+                .collect(Collectors.toList());
+    }
+
+    // --- EXAM SUMMARY DATA LOADING ---
+    public List<Map<String, String>> loadExamSummaryData() {
+        List<String> lines = FileUtil.readFile("data/exam_summary.txt");
+
+        return lines.stream()
+                .map(line -> {
+                    Map<String, String> examMap = new HashMap<>();
+                    String[] pairs = line.split(",");
+                    for (String pair : pairs) {
+                        String[] keyValue = pair.split(":");
+                        if (keyValue.length == 2) {
+                            examMap.put(keyValue[0].trim(), keyValue[1].trim());
+                        }
+                    }
+                    return examMap;
+                })
+                .collect(Collectors.toList());
     }
 
     // --- STUDENT OPERATIONS ---
@@ -70,25 +99,6 @@ public class DataManager {
         studentDatabase.delByKey(id);
     }
 
-    public void saveStudents() {
-        List<String> lines = getStudents().stream()
-                .filter(Objects::nonNull)
-                .map(student -> String.format("id:%s,username:%s,name:%s,age:%d,gender:%s,department:%s,password:%s",
-                        student.getId(), student.getUsername(), student.getName(),
-                        student.getAge(), student.getGender(), student.getDepartment(), student.getPassword()))
-                .collect(Collectors.toList());
-
-        // Only proceed if the lines are not empty
-        if (lines.isEmpty()) {
-            System.out.println("No students to save!");
-            return;
-        }
-
-        // Write the data to the file
-        FileUtil.writeFile("data/student.txt", lines);
-    }
-
-
     // --- COURSE OPERATIONS ---
     public void addCourse(Course course) {
         courseDatabase.add(course);
@@ -100,22 +110,6 @@ public class DataManager {
 
     public void deleteCourse(String id) {
         courseDatabase.delByKey(id);
-    }
-
-    public void saveCourses() {
-        List<String> lines = getCourses().stream()
-                .map(course -> String.format("id:%s,courseID:%s,courseName:%s,department:%s",
-                        course.getId(), course.getCourseID(), course.getCourseName(), course.getDepartment()))
-                .collect(Collectors.toList());
-
-        // Only proceed if the lines are not empty
-        if (lines.isEmpty()) {
-            System.out.println("No courses to save!");
-            return;
-        }
-
-        // Write the data to the file
-        FileUtil.writeFile("data/course.txt", lines);
     }
 
     // --- EXAM OPERATIONS ---
@@ -131,23 +125,6 @@ public class DataManager {
         examDatabase.delByKey(id);
     }
 
-    public void saveExams() {
-        List<String> lines = getExams().stream()
-                .map(exam -> String.format("id:%s,examName:%s,examTime:%s,courseID:%s,questionIDs:%s,duration:%d",
-                        exam.getId(), exam.getExamName(), exam.getExamTime(),
-                        exam.getCourseID(), String.join("|", exam.getQuestionIds()), exam.getDuration()))
-                .collect(Collectors.toList());
-
-        // Only proceed if the lines are not empty
-        if (lines.isEmpty()) {
-            System.out.println("No exams to save!");
-            return;
-        }
-
-        // Write the data to the file
-        FileUtil.writeFile("data/exam.txt", lines);
-    }
-
     // --- QUESTION OPERATIONS ---
     public void addQuestion(Question question) {
         questionDatabase.add(question);
@@ -159,24 +136,6 @@ public class DataManager {
 
     public void deleteQuestion(String id) {
         questionDatabase.delByKey(id);
-    }
-
-    public void saveQuestions() {
-        List<String> lines = getQuestions().stream()
-                .map(question -> String.format("id:%s,question:%s,option1:%s,option2:%s,option3:%s,option4:%s,answer:%s,type:%s,score:%d",
-                        question.getId(), question.getQuestion(), question.getOption1(),
-                        question.getOption2(), question.getOption3(), question.getOption4(),
-                        question.getAnswer(), question.getType(), question.getScore()))
-                .collect(Collectors.toList());
-
-        // Only proceed if the lines are not empty
-        if (lines.isEmpty()) {
-            System.out.println("No questions to save!");
-            return;
-        }
-
-        // Write the data to the file
-        FileUtil.writeFile("data/question.txt", lines);
     }
 
     // --- EXAM RESULT OPERATIONS ---
@@ -194,18 +153,16 @@ public class DataManager {
 
     public void saveExamResults() {
         List<String> lines = getExamResults().stream()
-                .map(result -> String.format("id:%s,studentID:%s,examID:%s,score:%d,totalScore:%d,passStatus:%s",
+                .map(result -> String.format("id:%s,studentID:%s,examID:%s,score:%d,totalScore:%d,time:%d",
                         result.getId(), result.getStudentID(), result.getExamID(),
-                        result.getScore(), result.getTotalScore(), result.getPassStatus()))
+                        result.getScore(), result.getTotalScore(), result.getTime()))
                 .collect(Collectors.toList());
 
-        // Only proceed if the lines are not empty
         if (lines.isEmpty()) {
             System.out.println("No exam results to save!");
             return;
         }
 
-        // Write the data to the file
         FileUtil.writeFile("data/examresult.txt", lines);
     }
 
@@ -230,14 +187,18 @@ public class DataManager {
                         teacher.getTitle(), teacher.getDepartment()))
                 .collect(Collectors.toList());
 
-        // Only proceed if the lines are not empty
         if (lines.isEmpty()) {
             System.out.println("No teachers to save!");
             return;
         }
 
-        // Write the data to the file
         FileUtil.writeFile("data/teacher.txt", lines);
+    }
+    public Teacher getTeacherByUsername(String username) {
+        return getTeachers().stream()
+                .filter(t -> t != null && t.getUsername().equals(username))
+                .findFirst()
+                .orElse(null);
     }
 
     // --- MANAGER OPERATIONS ---
@@ -259,37 +220,28 @@ public class DataManager {
                         manager.getId(), manager.getUsername(), manager.getPassword()))
                 .collect(Collectors.toList());
 
-        // Only proceed if the lines are not empty
         if (lines.isEmpty()) {
             System.out.println("No managers to save!");
             return;
         }
 
-        // Write the data to the file
         FileUtil.writeFile("data/manager.txt", lines);
     }
-
-    // --- QUESTION FILTERING ---
-    public List<Question> filterQuestions(String questionFilter, String typeFilter, String scoreFilter) {
-        // Stream through the list of questions and filter based on the provided filters
-        return questionDatabase.getAll().stream()
-                .filter(q -> (questionFilter.isEmpty() || q.getQuestion().toLowerCase().contains(questionFilter.toLowerCase())) &&
-                        (typeFilter.equals("All") || q.getType().equals(typeFilter)) &&
-                        (scoreFilter.isEmpty() || String.valueOf(q.getScore()).equals(scoreFilter)))
+    public void saveStudents() {
+        List<String> lines = getStudents().stream()
+                .filter(Objects::nonNull) // 确保没有空的学生记录
+                .map(student -> String.format("id:%s,username:%s,name:%s,age:%d,gender:%s,department:%s,password:%s",
+                        student.getId(), student.getUsername(), student.getName(),
+                        student.getAge(), student.getGender(), student.getDepartment(), student.getPassword()))
                 .collect(Collectors.toList());
+
+        if (lines.isEmpty()) {
+            System.out.println("No students to save!");
+            return;
+        }
+
+        // 将学生数据写入文件
+        FileUtil.writeFile("data/student.txt", lines);
     }
 
-    public Student getStudentByUsername(String username) {
-        return getStudents().stream()
-                .filter(s -> s != null && s.getUsername().equals(username))
-                .findFirst()
-                .orElse(null);
-    }
-
-    public Teacher getTeacherByUsername(String username) {
-        return getTeachers().stream()
-                .filter(t -> t != null && t.getUsername().equals(username))
-                .findFirst()
-                .orElse(null);
-    }
 }

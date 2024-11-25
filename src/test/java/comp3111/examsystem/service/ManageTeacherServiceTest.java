@@ -154,15 +154,7 @@ class ManageTeacherServiceTest {
             return mockQuestions;
         }
 
-        @Override
-        public void saveQuestions() {
-            // 模拟保存操作，不进行实际的文件写入
-        }
 
-        @Override
-        public void save() {
-            // 模拟保存操作
-        }
 
         // 根据需要重写其他方法，避免访问真实的数据文件
     }

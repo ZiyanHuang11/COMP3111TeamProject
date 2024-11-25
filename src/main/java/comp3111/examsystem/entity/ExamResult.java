@@ -7,24 +7,25 @@ public class ExamResult extends Entity {
     private String examID;
     private String courseID;
     private String examName;
+    private String courseName; // 新增字段
+    private int time; // 新增字段
     private int score;
     private int totalScore;
-    private String passStatus;
 
     // 无参数构造函数
     public ExamResult() {
     }
 
     // 全参数构造函数
-    public ExamResult(String id, String studentID, String examID, String courseID, String examName, int score, int totalScore, String passStatus) {
-        this.setId(id); // Call the setId method from Entity
+    public ExamResult(String id, String studentID, String examName, String courseID, String courseName, int time, int score, int totalScore) {
+        this.setId(id); // 设置 ID
         this.studentID = studentID;
-        this.examID = examID;
-        this.courseID = courseID;
         this.examName = examName;
+        this.courseID = courseID;
+        this.courseName = courseName; // 默认值为传入的 courseName
+        this.time = time;
         this.score = score;
         this.totalScore = totalScore;
-        this.passStatus = passStatus;
     }
 
     // Getters and Setters
@@ -54,11 +55,27 @@ public class ExamResult extends Entity {
     }
 
     public String getExamName() {
-        return examNameProperty().get() == null ? "Unknown Exam" : examNameProperty().get();
+        return examName;
     }
 
     public void setExamName(String examName) {
         this.examName = examName;
+    }
+
+    public String getCourseName() { // 新增 Getter
+        return courseName;
+    }
+
+    public void setCourseName(String courseName) { // 新增 Setter
+        this.courseName = courseName;
+    }
+
+    public int getTime() { // 新增 Getter
+        return time;
+    }
+
+    public void setTime(int time) { // 新增 Setter
+        this.time = time;
     }
 
     public int getScore() {
@@ -77,15 +94,7 @@ public class ExamResult extends Entity {
         this.totalScore = totalScore;
     }
 
-    public String getPassStatus() {
-        return passStatus;
-    }
-
-    public void setPassStatus(String passStatus) {
-        this.passStatus = passStatus;
-    }
-
-    // JavaFX Properties (if needed)
+    // JavaFX Properties
 
     public StringProperty studentIDProperty() {
         return new SimpleStringProperty(studentID);
@@ -103,16 +112,20 @@ public class ExamResult extends Entity {
         return new SimpleStringProperty(examName);
     }
 
+    public StringProperty courseNameProperty() { // 新增 Property
+        return new SimpleStringProperty(courseName);
+    }
+
+    public IntegerProperty timeProperty() { // 新增 Property
+        return new SimpleIntegerProperty(time);
+    }
+
     public IntegerProperty scoreProperty() {
         return new SimpleIntegerProperty(score);
     }
 
     public IntegerProperty totalScoreProperty() {
         return new SimpleIntegerProperty(totalScore);
-    }
-
-    public StringProperty passStatusProperty() {
-        return new SimpleStringProperty(passStatus);
     }
 
     @Override
@@ -123,9 +136,10 @@ public class ExamResult extends Entity {
                 ", examID=" + examID +
                 ", courseID=" + courseID +
                 ", examName=" + examName +
+                ", courseName=" + courseName +
+                ", time=" + time +
                 ", score=" + score +
                 ", totalScore=" + totalScore +
-                ", passStatus=" + passStatus +
                 '}';
     }
 }

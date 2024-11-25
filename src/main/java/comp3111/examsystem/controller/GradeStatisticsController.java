@@ -18,17 +18,14 @@ public class GradeStatisticsController {
     @FXML
     private TableColumn<ExamResult, String> examNameColumn;
     @FXML
-    private TableColumn<ExamResult, Integer> totalScoreColumn;
-    @FXML
     private TableColumn<ExamResult, Integer> scoreColumn;
     @FXML
-    private TableColumn<ExamResult, String> passColumn;
+    private TableColumn<ExamResult, Integer> fullScoreColumn;
+    @FXML
+    private TableColumn<ExamResult, Integer> timeColumn;
 
     @FXML
     private Label averageScoreLabel;
-
-    @FXML
-    private Label passRateLabel;
 
     @FXML
     private ComboBox<String> courseComboBox;
@@ -46,27 +43,30 @@ public class GradeStatisticsController {
 
     @FXML
     public void initialize() {
-        // 初始化表格列
+        // Initialize table columns
         courseIDColumn.setCellValueFactory(cell -> cell.getValue().courseIDProperty());
         examNameColumn.setCellValueFactory(cell -> cell.getValue().examNameProperty());
-        totalScoreColumn.setCellValueFactory(cell -> cell.getValue().totalScoreProperty().asObject());
         scoreColumn.setCellValueFactory(cell -> cell.getValue().scoreProperty().asObject());
-        passColumn.setCellValueFactory(cell -> cell.getValue().passStatusProperty());
+        fullScoreColumn.setCellValueFactory(cell -> cell.getValue().totalScoreProperty().asObject());
+        timeColumn.setCellValueFactory(cell -> cell.getValue().timeProperty().asObject());
 
-        // 加载数据
-        examResults = gradeStatisticsService.loadExamResults();
+        // Load exam results and populate the table
+        examResults = gradeStatisticsService.loadExamSummaryResults();
         gradeTable.setItems(examResults);
 
-        // 初始化课程选择框
+        // Populate the ComboBox with course options
         initializeCourseComboBox();
 
-        // 更新统计信息和柱状图
-        updateStatistics(examResults);
+        // Update bar chart
         updateBarChart(examResults);
+
+        // Update statistics
+        updateStatistics(examResults);
     }
 
     private void initializeCourseComboBox() {
-        courseComboBox.setItems(gradeStatisticsService.getCourseList(examResults));
+        ObservableList<String> courseList = gradeStatisticsService.getCourseList(examResults);
+        courseComboBox.setItems(courseList);
     }
 
     @FXML
@@ -77,40 +77,38 @@ public class GradeStatisticsController {
             return;
         }
 
-        ObservableList<ExamResult> filteredResults = gradeStatisticsService.filterResultsByCourse(examResults, selectedCourse);
+        ObservableList<ExamResult> filteredResults = gradeStatisticsService.filterResultsByCourseName(examResults, selectedCourse);
         gradeTable.setItems(filteredResults);
-        updateStatistics(filteredResults);
         updateBarChart(filteredResults);
+        updateStatistics(filteredResults);
     }
 
     @FXML
     private void resetFilter() {
         gradeTable.setItems(examResults);
-        updateStatistics(examResults);
         updateBarChart(examResults);
+        updateStatistics(examResults);
         courseComboBox.setValue(null);
     }
 
     @FXML
     private void refreshData() {
-        examResults = gradeStatisticsService.loadExamResults();
+        examResults = gradeStatisticsService.loadExamSummaryResults();
         gradeTable.setItems(examResults);
         initializeCourseComboBox();
-        updateStatistics(examResults);
         updateBarChart(examResults);
+        updateStatistics(examResults);
     }
 
     private void updateStatistics(ObservableList<ExamResult> results) {
         averageScoreLabel.setText(String.format("Average Score: %.2f", gradeStatisticsService.calculateAverageScore(results)));
-        passRateLabel.setText(String.format("Pass Rate: %.2f%%", gradeStatisticsService.calculatePassRate(results)));
     }
 
     private void updateBarChart(ObservableList<ExamResult> results) {
         barChart.getData().clear();
         XYChart.Series<String, Number> series = gradeStatisticsService.generateBarChartSeries(results);
-        if (!series.getData().isEmpty()) { // 确保系列数据非空
-            barChart.getData().add(series);
-        }}
+        barChart.getData().add(series);
+    }
 
     private void showAlert(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);
