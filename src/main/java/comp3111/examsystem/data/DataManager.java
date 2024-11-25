@@ -71,7 +71,7 @@ public class DataManager {
 
     public void saveStudents() {
         List<String> lines = getStudents().stream()
-                .map(student -> String.format("id:%s,username:%s,name:%s,age:%d,gender:%s,department:%s,password:%s",
+                .map(student -> String.format("id:%s,username:%s,name:%s,age:%d,gender:%s,department:%s,password:%s\n",
                         student.getId(), student.getUsername(), student.getName(),
                         student.getAge(), student.getGender(), student.getDepartment(), student.getPassword()))
                 .collect(Collectors.toList());
@@ -102,7 +102,7 @@ public class DataManager {
 
     public void saveCourses() {
         List<String> lines = getCourses().stream()
-                .map(course -> String.format("id:%s,courseID:%s,courseName:%s,department:%s",
+                .map(course -> String.format("id:%s,courseID:%s,courseName:%s,department:%s\n",
                         course.getId(), course.getCourseID(), course.getCourseName(), course.getDepartment()))
                 .collect(Collectors.toList());
 
@@ -132,7 +132,7 @@ public class DataManager {
 
     public void saveExams() {
         List<String> lines = getExams().stream()
-                .map(exam -> String.format("id:%s,examName:%s,examTime:%s,courseID:%s,questionIDs:%s,duration:%d",
+                .map(exam -> String.format("id:%s,examName:%s,examTime:%s,courseID:%s,questionIDs:%s,duration:%d\n",
                         exam.getId(), exam.getExamName(), exam.getExamTime(),
                         exam.getCourseID(), String.join("|", exam.getQuestionIds()), exam.getDuration()))
                 .collect(Collectors.toList());
@@ -171,7 +171,7 @@ public class DataManager {
 
     public void saveQuestions() {
         List<String> lines = getQuestions().stream()
-                .map(question -> String.format("id:%s,question:%s,optionA:%s,optionB:%s,optionC:%s,optionD:%s,answer:%s,type:%s,score:%d",
+                .map(question -> String.format("id:%s,question:%s,optionA:%s,optionB:%s,optionC:%s,optionD:%s,answer:%s,type:%s,score:%d\n",
                         question.getId(), question.getQuestion(), question.getOptionA(),
                         question.getOptionB(), question.getOptionC(), question.getOptionD(),
                         question.getAnswer(), question.getType(), question.getScore()))
@@ -190,7 +190,7 @@ public class DataManager {
 
     public void saveExamResults() {
         List<String> lines = getExamResults().stream()
-                .map(result -> String.format("id:%s,studentID:%s,examID:%s,score:%d,totalScore:%d,passStatus:%s",
+                .map(result -> String.format("id:%s,studentID:%s,examID:%s,score:%d,totalScore:%d,passStatus:%s\n",
                         result.getId(), result.getStudentID(), result.getExamID(),
                         result.getScore(), result.getTotalScore(), result.getPassStatus()))
                 .collect(Collectors.toList());
@@ -221,7 +221,7 @@ public class DataManager {
 
     public void saveTeachers() {
         List<String> lines = getTeachers().stream()
-                .map(teacher -> String.format("id:%s,username:%s,password:%s,name:%s,gender:%s,age:%d,title:%s,department:%s",
+                .map(teacher -> String.format("id:%s,username:%s,password:%s,name:%s,gender:%s,age:%d,title:%s,department:%s\n",
                         teacher.getId(), teacher.getUsername(), teacher.getPassword(),
                         teacher.getName(), teacher.getGender(), teacher.getAge(),
                         teacher.getTitle(), teacher.getDepartment()))
@@ -240,7 +240,7 @@ public class DataManager {
 
     public void saveManagers() {
         List<String> lines = getManagers().stream()
-                .map(manager -> String.format("id:%s,username:%s,password:%s",
+                .map(manager -> String.format("id:%s,username:%s,password:%s\n",
                         manager.getId(), manager.getUsername(), manager.getPassword()))
                 .collect(Collectors.toList());
 
