@@ -51,21 +51,20 @@ public class StudentLoginController {
 
         if (student != null) {
             // 登录成功弹窗
-            showAlert(Alert.AlertType.INFORMATION, "Login Successful", "Welcome, " + student.getName() + "!");
+            showAlert(Alert.AlertType.INFORMATION, "Hint", "Login successful");
 
             try {
-                // 跳转到主界面
-                FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("StudentMainUI.fxml"));
+                System.out.println("Loading FXML from: " + Main.class.getResource("/comp3111/examsystem/StudentMainUI.fxml"));
+                FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("/comp3111/examsystem/StudentMainUI.fxml"));
                 Stage stage = new Stage();
                 stage.setTitle("Hi " + student.getName() + ", Welcome to HKUST Examination System");
                 stage.setScene(new Scene(fxmlLoader.load()));
                 stage.show();
 
-                // 关闭当前窗口
                 ((Stage) ((Button) e.getSource()).getScene().getWindow()).close();
             } catch (IOException ex) {
                 ex.printStackTrace();
-                showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while loading the next screen.");
+                showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while loading the next screen: " + ex.getMessage());
             }
         } else {
             // 登录失败
