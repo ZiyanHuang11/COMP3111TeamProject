@@ -6,6 +6,9 @@
 
 <VBox alignment="TOP_CENTER" spacing="20.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="comp3111.examsystem.controller.StudentRegisterController">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20" />
+    </padding>
     <children>
         <!-- 标题 -->
         <Label text="Student Registration" style="-fx-font-size: 24;" />
@@ -19,39 +22,31 @@
             <children>
                 <!-- 用户名输入框 -->
                 <Label text="Username:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                <TextField fx:id="usernameField" promptText="Please enter your username" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                <TextField fx:id="usernameTxt" promptText="Please enter your username" GridPane.columnIndex="1" GridPane.rowIndex="0" />
 
                 <!-- 姓名输入框 -->
                 <Label text="Name:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                <TextField fx:id="nameField" promptText="Please enter your name" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                <TextField fx:id="nameTxt" promptText="Please enter your name" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
                 <!-- 性别选择框 -->
                 <Label text="Gender:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                <ComboBox fx:id="genderField" promptText="Gender" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                    <items>
-                        <FXCollections fx:factory="observableArrayList">
-                            <String fx:value="Male" />
-                            <String fx:value="Female" />
-                            <String fx:value="Other" />
-                        </FXCollections>
-                    </items>
-                </ComboBox>
+                <ComboBox fx:id="genderBox" promptText="Gender" GridPane.columnIndex="1" GridPane.rowIndex="2" />
 
                 <!-- 年龄输入框 -->
                 <Label text="Age:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                <TextField fx:id="ageField" promptText="Please enter your age" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                <TextField fx:id="ageTxt" promptText="Please enter your age" GridPane.columnIndex="1" GridPane.rowIndex="3" />
 
                 <!-- 部门输入框 -->
                 <Label text="Department:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-                <TextField fx:id="departmentField" promptText="Please enter your department" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                <TextField fx:id="departmentTxt" promptText="Please enter your department" GridPane.columnIndex="1" GridPane.rowIndex="4" />
 
                 <!-- 密码输入框 -->
                 <Label text="Password:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
-                <PasswordField fx:id="passwordField" promptText="Please enter your password" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                <PasswordField fx:id="passwordTxt" promptText="Please enter your password" GridPane.columnIndex="1" GridPane.rowIndex="5" />
 
                 <!-- 确认密码输入框 -->
                 <Label text="Password Confirm:" GridPane.columnIndex="0" GridPane.rowIndex="6" />
-                <PasswordField fx:id="passwordConfirmField" promptText="Please confirm your password" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                <PasswordField fx:id="confirmPasswordTxt" promptText="Please confirm your password" GridPane.columnIndex="1" GridPane.rowIndex="6" />
             </children>
         </GridPane>
 
