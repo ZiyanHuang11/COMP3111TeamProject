@@ -2,10 +2,12 @@ package comp3111.examsystem.service;
 
 import comp3111.examsystem.data.DataManager;
 import comp3111.examsystem.entity.Question;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -20,7 +22,7 @@ public class QuestionBankManagementServiceTest {
         Question question1 = new Question("1", "What is Java?", "A", "B", "C", "D", "A", "Single", 5);
         Question question2 = new Question("2", "Explain OOP concepts.", "Encapsulation", "Inheritance", "Polymorphism", "Abstraction", "All of the above", "Multiple", 10);
 
-        // Initialize the service with in-memory data
+        // Initialize the service with mock data
         questionService = new QuestionBankManagementService(new MockDataManager(List.of(question1, question2)));
     }
 
@@ -44,7 +46,7 @@ public class QuestionBankManagementServiceTest {
     @Test
     public void testUpdateQuestion() {
         Question updatedQuestion = new Question("1", "What is Java?", "Option1", "Option2", "Option3", "Option4", "Option1", "Single", 5);
-        questionService.updateQuestion("1", updatedQuestion);
+        questionService.updateQuestion(updatedQuestion);
 
         ObservableList<Question> questions = questionService.getQuestionList();
         Question question = questions.stream().filter(q -> q.getId().equals("1")).findFirst().orElse(null);
@@ -92,12 +94,12 @@ public class QuestionBankManagementServiceTest {
         private final List<Question> mockQuestions;
 
         MockDataManager(List<Question> questions) {
-            this.mockQuestions = questions;
+            this.mockQuestions = new ArrayList<>(questions);
         }
 
         @Override
         public List<Question> getQuestions() {
-            return mockQuestions;
+            return new ArrayList<>(mockQuestions);
         }
 
         @Override
@@ -130,3 +132,4 @@ public class QuestionBankManagementServiceTest {
         }
     }
 }
+

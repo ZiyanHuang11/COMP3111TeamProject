@@ -6,18 +6,30 @@ public class Teacher extends Entity {
     private String name;
     private String gender;
     private int age;
-    private String position; // Position field
+    private String title; // Renamed position to title for consistency
     private String department;
 
-    // Constructor including position
-    public Teacher(String id, String username, String password, String name, String gender, int age, String position, String department) {
-        setId(id);
+    // No-arg constructor for reflection or default instantiation
+    public Teacher() {
+        // Initialize fields with default values
+        this.username = "";
+        this.password = "";
+        this.name = "";
+        this.gender = "";
+        this.age = 0;
+        this.title = "";
+        this.department = "";
+    }
+
+    // Full constructor with title field
+    public Teacher(String id, String username, String password, String name, String gender, int age, String title, String department) {
+        setId(id); // Set the ID using the parent Entity class
         this.username = username;
         this.password = password;
         this.name = name;
         this.gender = gender;
         this.age = age;
-        this.position = position; // Initialize position
+        this.title = title; // Initialize title
         this.department = department;
     }
 
@@ -62,12 +74,12 @@ public class Teacher extends Entity {
         this.age = age;
     }
 
-    public String getPosition() { // Getter for position
-        return position;
+    public String getTitle() { // Getter for title
+        return title;
     }
 
-    public void setPosition(String position) { // Setter for position
-        this.position = position;
+    public void setTitle(String title) { // Setter for title
+        this.title = title;
     }
 
     public String getDepartment() {
@@ -87,9 +99,8 @@ public class Teacher extends Entity {
                 ", name='" + name + '\'' +
                 ", gender='" + gender + '\'' +
                 ", age=" + age +
-                ", position='" + position + '\'' +
+                ", title='" + title + '\'' +
                 ", department='" + department + '\'' +
                 '}';
     }
 }
-

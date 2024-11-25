@@ -1,31 +1,33 @@
 package comp3111.examsystem.service;
 
+import comp3111.examsystem.data.DataManager;
+import comp3111.examsystem.entity.Teacher;
 import org.junit.jupiter.api.*;
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.Map;
+
+import java.io.IOException;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TeacherRegisterServiceTest {
     private TeacherRegisterService registerService;
-    private String testTeacherFilePath = "test_data/test_teachers.txt";
+    private DataManager dataManager;
 
     @BeforeEach
     public void setUp() throws IOException {
-        // Create test data directory if it doesn't exist
-        Files.createDirectories(Paths.get("test_data"));
-
-        // Write test teacher data to file
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(testTeacherFilePath))) {
-            writer.write("teacher1,password1,Name1,Male,30,Professor,CS\n");
-            writer.write("teacher2,password2,Name2,Female,35,Lecturer,Math\n");
+        // Initialize DataManager and clear existing teachers
+        dataManager = new DataManager();
+        List<Teacher> existingTeachers = dataManager.getTeachers();
+        for (Teacher teacher : existingTeachers) {
+            dataManager.deleteTeacher(teacher.getId());
         }
 
-        // Initialize the service with the test file path
-        registerService = new TeacherRegisterService(testTeacherFilePath);
+        // Add initial test data
+        dataManager.addTeacher(new Teacher("1", "teacher1", "password1", "Name1", "Male", 30, "Professor", "CS"));
+        dataManager.addTeacher(new Teacher("2", "teacher2", "password2", "Name2", "Female", 35, "Lecturer", "Math"));
+
+        // Initialize the service with DataManager
+        registerService = new TeacherRegisterService(dataManager);
     }
 
     @Test
@@ -63,37 +65,32 @@ public class TeacherRegisterServiceTest {
     }
 
     @Test
-    public void testRegisterTeacher() throws IOException {
-        Map<String, String> teacherInfo = new HashMap<>();
-        teacherInfo.put("username", "teacher3");
-        teacherInfo.put("password", "pass123");
-        teacherInfo.put("name", "Name3");
-        teacherInfo.put("gender", "Male");
-        teacherInfo.put("age", "40");
-        teacherInfo.put("position", "Professor");
-        teacherInfo.put("department", "Physics");
+    public void testRegisterTeacher() {
+        // Create a new teacher
+        Teacher teacher = new Teacher(null, "teacher3", "pass123", "Name3", "Male", 40, "Professor", "Physics");
 
-        registerService.registerTeacher(teacherInfo);
+        // Register the teacher
+        registerService.registerTeacher(teacher);
 
-        // Verify that the teacher was added to the file
+        // Verify that the teacher was added to DataManager
         assertTrue(registerService.isUserExists("teacher3"));
 
-        // Read the file and verify the content
-        try (BufferedReader br = new BufferedReader(new FileReader(testTeacherFilePath))) {
-            String line;
-            boolean found = false;
-            while ((line = br.readLine()) != null) {
-                if (line.startsWith("teacher3,")) {
-                    found = true;
-                    break;
-                }
-            }
-            assertTrue(found, "Teacher3 should be in the file.");
-        }
+        // Verify the teacher's properties
+        Teacher addedTeacher = dataManager.getTeachers().stream()
+                .filter(t -> t.getUsername().equals("teacher3"))
+                .findFirst()
+                .orElse(null);
+        assertNotNull(addedTeacher);
+        assertEquals("Name3", addedTeacher.getName());
+        assertEquals("Physics", addedTeacher.getDepartment());
     }
 
     @AfterEach
-    public void tearDown() throws IOException {
-        Files.deleteIfExists(Paths.get(testTeacherFilePath));
+    public void tearDown() {
+        // Clear all test data from DataManager
+        List<Teacher> teachers = dataManager.getTeachers();
+        for (Teacher teacher : teachers) {
+            dataManager.deleteTeacher(teacher.getId());
+        }
     }
 }

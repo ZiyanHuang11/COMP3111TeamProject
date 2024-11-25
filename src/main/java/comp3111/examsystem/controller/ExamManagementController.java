@@ -3,6 +3,7 @@ package comp3111.examsystem.controller;
 import comp3111.examsystem.data.DataManager;
 import comp3111.examsystem.entity.Exam;
 import comp3111.examsystem.entity.Question;
+import comp3111.examsystem.entity.Teacher;
 import comp3111.examsystem.service.ExamManagementService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -41,27 +42,31 @@ public class ExamManagementController {
     private TableColumn<Question, Integer> scoreColumn;
 
     private ExamManagementService examService;
+    private final Teacher loggedInTeacher;
+
+    // Constructor accepting DataManager and Teacher
+    public ExamManagementController(DataManager dataManager, Teacher loggedInTeacher) {
+        this.loggedInTeacher = loggedInTeacher;
+        this.examService = new ExamManagementService(dataManager);
+    }
 
     @FXML
     public void initialize() {
-        DataManager dataManager = new DataManager();
-        examService = new ExamManagementService(dataManager);
-
-        // 初始化考试表
+        // Initialize exam table
         examTable.setItems(examService.getExamList());
         examNameColumn.setCellValueFactory(cellData -> cellData.getValue().examNameProperty());
         courseIDColumn.setCellValueFactory(cellData -> cellData.getValue().courseIDProperty());
         examTimeColumn.setCellValueFactory(cellData -> cellData.getValue().examTimeProperty());
         publishColumn.setCellValueFactory(cellData -> cellData.getValue().publishProperty());
 
-        // 初始化问题表
+        // Initialize question table
         questionTable.setItems(examService.getQuestionList());
         questionColumn.setCellValueFactory(cellData -> cellData.getValue().questionProperty());
         typeColumn.setCellValueFactory(cellData -> cellData.getValue().typeProperty());
         scoreColumn.setCellValueFactory(cellData -> cellData.getValue().scoreProperty().asObject());
 
-        // 初始化过滤选项
-        courseIDFilterComboBox.setItems(FXCollections.observableArrayList("All", "COMP3111", "COMP5111"));
+        // Initialize filter options
+        courseIDFilterComboBox.setItems(FXCollections.observableArrayList(examService.getCourseIDs()));
         publishFilterComboBox.setItems(FXCollections.observableArrayList("All", "Yes", "No"));
         courseIDFilterComboBox.setValue("All");
         publishFilterComboBox.setValue("All");

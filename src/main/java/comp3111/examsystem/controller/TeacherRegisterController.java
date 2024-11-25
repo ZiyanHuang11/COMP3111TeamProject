@@ -1,13 +1,13 @@
 package comp3111.examsystem.controller;
 
+import comp3111.examsystem.data.DataManager;
+import comp3111.examsystem.entity.Teacher;
 import comp3111.examsystem.service.TeacherRegisterService;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Optional;
 
 public class TeacherRegisterController {
     @FXML
@@ -39,9 +39,9 @@ public class TeacherRegisterController {
         positionComboBox.getItems().addAll("Professor", "Lecturer", "Assistant Professor", "Researcher");
         positionComboBox.setValue("Position");
 
-        // Initialize the service
-        String teacherFilePath = "data/teachers.txt";
-        registerService = new TeacherRegisterService(teacherFilePath);
+        // Initialize the service with DataManager
+        DataManager dataManager = new DataManager();
+        registerService = new TeacherRegisterService(dataManager);
     }
 
     @FXML
@@ -63,33 +63,24 @@ public class TeacherRegisterController {
             return;
         }
 
-        // Check if user exists
+        // Check if the username already exists
         if (registerService.isUserExists(username)) {
             showAlert("Registration Failed", "Username already exists", Alert.AlertType.ERROR);
             return;
         }
 
         // Prepare teacher information
-        Map<String, String> teacherInfo = new HashMap<>();
-        teacherInfo.put("username", username);
-        teacherInfo.put("name", name);
-        teacherInfo.put("gender", gender);
-        teacherInfo.put("age", ageText);
-        teacherInfo.put("position", position);
-        teacherInfo.put("department", department);
-        teacherInfo.put("password", password);
+        Optional<Teacher> teacherOptional = registerService.prepareTeacher(username, name, gender, ageText, position, department, password);
 
-        // Register the teacher
-        try {
-            registerService.registerTeacher(teacherInfo);
+        if (teacherOptional.isPresent()) {
+            registerService.registerTeacher(teacherOptional.get());
             showAlert("Registration Successful", "You have successfully registered", Alert.AlertType.INFORMATION);
 
             // Close the registration window
             Stage stage = (Stage) usernameTxt.getScene().getWindow();
             stage.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-            showAlert("Registration Failed", "Error occurred while saving user data", Alert.AlertType.ERROR);
+        } else {
+            showAlert("Registration Failed", "Error preparing teacher data.", Alert.AlertType.ERROR);
         }
     }
 
@@ -100,7 +91,6 @@ public class TeacherRegisterController {
         stage.close();
     }
 
-    // Show alert
     private void showAlert(String title, String message, Alert.AlertType type) {
         Alert alert = new Alert(type);
         alert.setTitle(title);

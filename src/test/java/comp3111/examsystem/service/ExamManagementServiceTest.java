@@ -18,13 +18,13 @@ class ExamManagementServiceTest {
 
     @BeforeEach
     void setUp() {
-        // 模拟 DataManager 数据
+        // Mock DataManager data
         dataManager = new DataManager() {
             @Override
             public List<Exam> getExams() {
                 return Arrays.asList(
-                        new Exam("1", "Quiz 1", "2023-11-20", "COMP3111", Arrays.asList("1", "2"), 600),
-                        new Exam("2", "Quiz 2", "2023-12-15", "COMP3111", Arrays.asList("3", "4"), 900)
+                        new Exam("Quiz 1", "COMP3111", "2023-11-20", "Published", Arrays.asList("1", "2"), 600),
+                        new Exam("Quiz 2", "COMP3111", "2023-12-15", "Draft", Arrays.asList("3", "4"), 900)
                 );
             }
 
@@ -39,7 +39,7 @@ class ExamManagementServiceTest {
             }
         };
 
-        // 初始化 ExamManagementService
+        // Initialize ExamManagementService
         examService = new ExamManagementService(dataManager);
     }
 
@@ -56,52 +56,52 @@ class ExamManagementServiceTest {
     }
 
     @Test
-    void testAddExam() throws Exception {
-        Exam newExam = new Exam("3", "Midterm", "2023-11-30", "COMP5111", Arrays.asList("1", "3"), 1200);
+    void testAddExam() {
+        Exam newExam = new Exam("Midterm", "COMP5111", "2023-11-30", "Published", Arrays.asList("1", "3"), 1200);
         boolean result = examService.addExam(newExam);
         assertTrue(result, "New exam should be added successfully.");
         assertEquals(3, examService.getExamList().size(), "Exam list should now contain 3 exams.");
     }
 
     @Test
-    void testAddExamDuplicate() throws Exception {
-        Exam duplicateExam = new Exam("1", "Quiz 1", "2023-11-20", "COMP3111", Arrays.asList("1", "2"), 600);
+    void testAddExamDuplicate() {
+        Exam duplicateExam = new Exam("Quiz 1", "COMP3111", "2023-11-20", "Published", Arrays.asList("1", "2"), 600);
         boolean result = examService.addExam(duplicateExam);
         assertFalse(result, "Duplicate exam should not be added.");
         assertEquals(2, examService.getExamList().size(), "Exam list should still contain 2 exams.");
     }
 
     @Test
-    void testUpdateExam() throws Exception {
-        Exam updatedExam = new Exam("1", "Updated Quiz 1", "2023-11-25", "COMP3111", Arrays.asList("1", "3"), 700);
+    void testUpdateExam() {
+        Exam updatedExam = new Exam("Updated Quiz 1", "COMP3111", "2023-11-25", "Published", Arrays.asList("1", "3"), 700);
         boolean result = examService.updateExam(updatedExam, "Quiz 1");
         assertTrue(result, "Exam should be updated successfully.");
         assertEquals("Updated Quiz 1", examService.getExamList().get(0).getExamName(), "First exam name should be updated.");
     }
 
     @Test
-    void testDeleteExam() throws Exception {
+    void testDeleteExam() {
         boolean result = examService.deleteExam("Quiz 1");
         assertTrue(result, "Exam should be deleted successfully.");
         assertEquals(1, examService.getExamList().size(), "Exam list should now contain 1 exam.");
     }
 
     @Test
-    void testAddQuestionToExam() throws Exception {
+    void testAddQuestionToExam() {
         Exam exam = examService.getExamList().get(0); // Quiz 1
         Question question = examService.getQuestionList().get(2); // Define Agile
         boolean result = examService.addQuestionToExam(exam, question);
         assertTrue(result, "Question should be added to exam.");
-        assertEquals(3, exam.getQuestions().size(), "Exam should now contain 3 questions.");
+        assertTrue(exam.getQuestionIds().contains(question.getId()), "Exam should now contain the added question ID.");
     }
 
     @Test
-    void testRemoveQuestionFromExam() throws Exception {
+    void testRemoveQuestionFromExam() {
         Exam exam = examService.getExamList().get(0); // Quiz 1
         Question question = examService.getQuestionList().get(0); // What is Java?
         boolean result = examService.removeQuestionFromExam(exam, question);
         assertTrue(result, "Question should be removed from exam.");
-        assertEquals(1, exam.getQuestions().size(), "Exam should now contain 1 question.");
+        assertFalse(exam.getQuestionIds().contains(question.getId()), "Exam should no longer contain the removed question ID.");
     }
 
     @Test

@@ -1,5 +1,4 @@
 package comp3111.examsystem.entity;
-import comp3111.examsystem.data.DataManager;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
@@ -12,53 +11,36 @@ public class Exam extends Entity {
     private final StringProperty courseID;
     private final StringProperty examTime;
     private final StringProperty publish;
-    private final List<String> questionIds; // 保存问题 ID 的列表
-    private final StringProperty courseName; // 新增的 courseName 属性
+    private final List<String> questionIds;
+    private final StringProperty courseName;
     private int duration;
 
-    // 默认构造函数
+    // Constructor
     public Exam(String examName, String courseID, String examTime, String publish, List<String> questionIds, int duration) {
         this.examName = new SimpleStringProperty(examName);
         this.courseID = new SimpleStringProperty(courseID);
         this.examTime = new SimpleStringProperty(examTime);
         this.publish = new SimpleStringProperty(publish);
-        this.questionIds = new ArrayList<>(questionIds); // 初始化问题 ID 列表
-        this.duration = duration; // 设置考试时长
-        this.courseName = new SimpleStringProperty(""); // 初始化 courseName
+        this.questionIds = new ArrayList<>(questionIds);
+        this.courseName = new SimpleStringProperty("");
+        this.duration = duration;
     }
 
-
-    // 新增带问题 ID 列表的构造函数
     public Exam(String examName, String courseID, String examTime, String publish, List<String> questionIds) {
-        this.examName = new SimpleStringProperty(examName);
-        this.courseID = new SimpleStringProperty(courseID);
-        this.examTime = new SimpleStringProperty(examTime);
-        this.publish = new SimpleStringProperty(publish);
-        this.questionIds = new ArrayList<>(questionIds); // 复制问题 ID 列表
-        this.courseName = new SimpleStringProperty(""); // 初始化 courseName
+        this(examName, courseID, examTime, publish, questionIds, 0);
     }
 
-    /**
-     * 提供无参 `getQuestions` 方法，通过静态方法从全局 `DataManager` 获取所有问题。
-     * 确保 DataManager 已经被初始化，并且包含所有问题的列表。
-     *
-     * @return 与考试相关的问题对象列表
-     */
-    public List<Question> getQuestions() {
-        return getQuestions(DataManager.getInstance().getQuestions());
+    // Method to get question IDs as a single string
+    public String getQuestionIdsAsString() {
+        return String.join("|", questionIds); // Joins IDs with "|" as the delimiter
     }
 
-    /**
-     * 根据问题 ID 获取完整的问题对象列表
-     *
-     * @param allQuestions 所有可用的问题列表
-     * @return 与考试相关的问题对象列表
-     */
+    // Retrieve associated Question objects by accepting DataManager as a parameter
     public List<Question> getQuestions(List<Question> allQuestions) {
         List<Question> associatedQuestions = new ArrayList<>();
         for (String questionId : questionIds) {
             for (Question question : allQuestions) {
-                if (question.getId().equals(questionId)) { // 根据 ID 匹配问题
+                if (question.getId().equals(questionId)) {
                     associatedQuestions.add(question);
                 }
             }
@@ -66,8 +48,7 @@ public class Exam extends Entity {
         return associatedQuestions;
     }
 
-    // Getter 和 Setter 方法
-
+    // Getter and Setter for duration
     public int getDuration() {
         return duration;
     }
@@ -137,7 +118,7 @@ public class Exam extends Entity {
     }
 
     public List<String> getQuestionIds() {
-        return questionIds;
+        return new ArrayList<>(questionIds);
     }
 
     public void addQuestionId(String questionId) {
@@ -160,7 +141,7 @@ public class Exam extends Entity {
                 ", courseID=" + courseID.get() +
                 ", examTime=" + examTime.get() +
                 ", publish=" + publish.get() +
-                ", questionIds=" + questionIds +
+                ", questionIds=" + getQuestionIdsAsString() + // Use new method
                 ", courseName=" + courseName.get() +
                 ", duration=" + duration +
                 '}';

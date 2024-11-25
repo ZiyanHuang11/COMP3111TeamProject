@@ -6,6 +6,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class QuestionBankManagementService {
     private final DataManager dataManager;
@@ -21,26 +22,40 @@ public class QuestionBankManagementService {
     }
 
     public void addQuestion(Question question) {
-        dataManager.addQuestion(question);
+        dataManager.getQuestions().add(question);
         questionList.add(question);
     }
 
-    public void updateQuestion(String questionId, Question updatedQuestion) {
-        dataManager.updateQuestion(questionId, updatedQuestion);
-        refreshQuestionList();
+    public void updateQuestion(Question updatedQuestion) {
+        Question existingQuestion = questionList.stream()
+                .filter(q -> q.getId().equals(updatedQuestion.getId()))
+                .findFirst()
+                .orElse(null);
+
+        if (existingQuestion != null) {
+            questionList.remove(existingQuestion);
+            questionList.add(updatedQuestion);
+        }
     }
 
     public void deleteQuestion(String questionId) {
-        dataManager.deleteQuestion(questionId);
-        refreshQuestionList();
+        Question questionToDelete = questionList.stream()
+                .filter(q -> q.getId().equals(questionId))
+                .findFirst()
+                .orElse(null);
+
+        if (questionToDelete != null) {
+            questionList.remove(questionToDelete);
+            dataManager.getQuestions().remove(questionToDelete);
+        }
     }
 
     public List<Question> filterQuestions(String questionFilter, String typeFilter, String scoreFilter) {
-        return dataManager.filterQuestions(questionFilter, typeFilter, scoreFilter);
-    }
-
-    private void refreshQuestionList() {
-        questionList.setAll(dataManager.getQuestions());
+        return questionList.stream()
+                .filter(q -> (questionFilter.isEmpty() || q.getQuestion().toLowerCase().contains(questionFilter.toLowerCase()))
+                        && (typeFilter.equals("All") || q.getType().equals(typeFilter))
+                        && (scoreFilter.isEmpty() || Integer.toString(q.getScore()).equals(scoreFilter)))
+                .collect(Collectors.toList());
     }
 
     public String validateInputs(String question, String optionA, String optionB, String optionC, String optionD, String answer, String type, String scoreText) {

@@ -17,7 +17,7 @@ public class ExamManagementService {
     public ExamManagementService(DataManager dataManager) {
         this.dataManager = dataManager;
 
-        // 从 DataManager 中加载考试和问题列表
+        // Load exams and questions from DataManager
         this.examList = FXCollections.observableArrayList(dataManager.getExams());
         this.questionList = FXCollections.observableArrayList(dataManager.getQuestions());
     }
@@ -30,29 +30,38 @@ public class ExamManagementService {
         return questionList;
     }
 
-    // 添加考试
+    // Get unique course IDs from the exam list
+    public List<String> getCourseIDs() {
+        return examList.stream()
+                .map(Exam::getCourseID)
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
+    }
+
+    // Add a new exam
     public boolean addExam(Exam newExam) {
         for (Exam exam : examList) {
             if (exam.getExamName().equalsIgnoreCase(newExam.getExamName())) {
-                return false; // 已存在同名考试
+                return false; // Exam with the same name already exists
             }
         }
         examList.add(newExam);
-        dataManager.getExams().add(newExam); // 更新到 DataManager
+        dataManager.getExams().add(newExam); // Update DataManager
         return true;
     }
 
-    // 更新考试
+    // Update an existing exam
     public boolean updateExam(Exam updatedExam, String originalExamName) {
         for (Exam exam : examList) {
             if (exam.getExamName().equalsIgnoreCase(originalExamName)) {
-                // 检查是否存在重复的考试名称（排除当前考试）
+                // Check for duplicate exam names (excluding the current exam)
                 for (Exam otherExam : examList) {
                     if (otherExam != exam && otherExam.getExamName().equalsIgnoreCase(updatedExam.getExamName())) {
-                        return false; // 存在重复名称
+                        return false; // Duplicate name exists
                     }
                 }
-                // 更新考试信息
+                // Update exam information
                 exam.setExamName(updatedExam.getExamName());
                 exam.setExamTime(updatedExam.getExamTime());
                 exam.setCourseID(updatedExam.getCourseID());
@@ -60,10 +69,10 @@ public class ExamManagementService {
                 return true;
             }
         }
-        return false; // 未找到指定考试
+        return false; // Exam not found
     }
 
-    // 删除考试
+    // Delete an exam
     public boolean deleteExam(String examName) {
         Exam examToRemove = null;
         for (Exam exam : examList) {
@@ -74,30 +83,28 @@ public class ExamManagementService {
         }
         if (examToRemove != null) {
             examList.remove(examToRemove);
-            dataManager.getExams().remove(examToRemove); // 更新到 DataManager
+            dataManager.getExams().remove(examToRemove); // Update DataManager
             return true;
         }
-        return false; // 未找到考试
+        return false; // Exam not found
     }
 
-    // 添加问题到考试
+    // Add a question to an exam
     public boolean addQuestionToExam(Exam exam, Question question) {
-        if (!exam.getQuestions().contains(question)) {
-            exam.getQuestions().add(question);
+        List<Question> associatedQuestions = exam.getQuestions(questionList); // Pass the question list
+        if (!associatedQuestions.contains(question)) {
+            exam.addQuestionId(question.getId()); // Add question ID to the exam
             return true;
         }
-        return false; // 问题已存在于考试中
+        return false; // Question already exists in the exam
     }
 
-    // 从考试中移除问题
+    // Remove a question from an exam
     public boolean removeQuestionFromExam(Exam exam, Question question) {
-        if (exam.getQuestions().remove(question)) {
-            return true;
-        }
-        return false; // 问题未找到
+        return exam.getQuestionIds().remove(question.getId()); // Remove question ID
     }
 
-    // 过滤考试
+    // Filter exams
     public List<Exam> filterExams(String examName, String courseID, String publishStatus) {
         return examList.stream()
                 .filter(exam -> (examName.isEmpty() || exam.getExamName().toLowerCase().contains(examName.toLowerCase())) &&
@@ -106,7 +113,7 @@ public class ExamManagementService {
                 .collect(Collectors.toList());
     }
 
-    // 过滤问题
+    // Filter questions
     public List<Question> filterQuestions(String questionText, String type, String scoreText) {
         return questionList.stream()
                 .filter(q -> (questionText.isEmpty() || q.getQuestion().toLowerCase().contains(questionText.toLowerCase())) &&

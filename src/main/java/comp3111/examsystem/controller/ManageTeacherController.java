@@ -64,7 +64,7 @@ public class ManageTeacherController {
         nameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getName()));
         genderColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getGender()));
         ageColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getAge()).asObject());
-        positionColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPosition()));
+        positionColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getTitle()));
         departmentColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getDepartment()));
         passwordColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPassword()));
         teacherTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
@@ -178,7 +178,7 @@ public class ManageTeacherController {
         nameField.setText(teacher.getName());
         genderComboBox.setValue(teacher.getGender());
         ageField.setText(String.valueOf(teacher.getAge()));
-        positionComboBox.setValue(teacher.getPosition());
+        positionComboBox.setValue(teacher.getTitle());
         departmentField.setText(teacher.getDepartment());
         passwordField.setText(teacher.getPassword());
     }

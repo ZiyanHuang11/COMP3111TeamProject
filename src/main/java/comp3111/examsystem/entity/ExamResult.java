@@ -6,36 +6,37 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 public class ExamResult extends Entity {
-    private final StringProperty studentID;
-    private final StringProperty examID;
-    private final StringProperty courseID;   // 新增 courseID 属性
-    private final StringProperty examName;   // 新增 examName 属性
+    private final StringProperty studentID; // Changed field name to studentID
+    private final StringProperty examID;    // Changed field name to examID
+    private final StringProperty courseID;  // Changed field name to courseID
+    private final StringProperty examName;
     private final IntegerProperty score;
     private final IntegerProperty totalScore;
     private final StringProperty passStatus;
 
-    // 构造函数
+    // Constructor
     public ExamResult(String id, String studentID, String examID, String courseID, String examName, int score, int totalScore, String passStatus) {
-        this.setId(id);
-        this.studentID = new SimpleStringProperty(studentID);
-        this.examID = new SimpleStringProperty(examID);
-        this.courseID = new SimpleStringProperty(courseID); // 初始化 courseID
-        this.examName = new SimpleStringProperty(examName); // 初始化 examName
+        this.setId(id); // Call the setId method from Entity
+        this.studentID = new SimpleStringProperty(studentID); // Updated field name
+        this.examID = new SimpleStringProperty(examID);       // Updated field name
+        this.courseID = new SimpleStringProperty(courseID);   // Updated field name
+        this.examName = new SimpleStringProperty(examName);
         this.score = new SimpleIntegerProperty(score);
         this.totalScore = new SimpleIntegerProperty(totalScore);
         this.passStatus = new SimpleStringProperty(passStatus);
     }
 
-    // Getters 和 Setters（JavaFX 风格，返回 Property）
+    // Getters and Setters
+
     public StringProperty studentIDProperty() {
         return studentID;
     }
 
-    public String getStudentID() {
+    public String getStudentID() { // Renamed method
         return studentID.get();
     }
 
-    public void setStudentID(String studentID) {
+    public void setStudentID(String studentID) { // Renamed method
         this.studentID.set(studentID);
     }
 
@@ -43,35 +44,35 @@ public class ExamResult extends Entity {
         return examID;
     }
 
-    public String getExamID() {
+    public String getExamID() { // Renamed method
         return examID.get();
     }
 
-    public void setExamID(String examID) {
+    public void setExamID(String examID) { // Renamed method
         this.examID.set(examID);
     }
 
-    public StringProperty courseIDProperty() { // 新增 courseIDProperty 方法
+    public StringProperty courseIDProperty() {
         return courseID;
     }
 
-    public String getCourseID() { // 新增 getCourseID 方法
+    public String getCourseID() { // Renamed method
         return courseID.get();
     }
 
-    public void setCourseID(String courseID) { // 新增 setCourseID 方法
+    public void setCourseID(String courseID) { // Renamed method
         this.courseID.set(courseID);
     }
 
-    public StringProperty examNameProperty() { // 新增 examNameProperty 方法
+    public StringProperty examNameProperty() {
         return examName;
     }
 
-    public String getExamName() { // 新增 getExamName 方法
+    public String getExamName() {
         return examName.get();
     }
 
-    public void setExamName(String examName) { // 新增 setExamName 方法
+    public void setExamName(String examName) {
         this.examName.set(examName);
     }
 

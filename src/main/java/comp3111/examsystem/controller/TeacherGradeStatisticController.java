@@ -1,5 +1,7 @@
 package comp3111.examsystem.controller;
 
+import comp3111.examsystem.data.DataManager;
+import comp3111.examsystem.entity.Teacher;
 import comp3111.examsystem.service.TeacherGradeStatisticService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -16,21 +18,22 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class TeacherGradeStatisticController implements Initializable {
-    public static class Grade {
-        private String studentName;
-        private String courseNum;
-        private String examName;
-        private String score;
-        private String fullScore;
-        private String timeSpend;
 
-        public Grade(String studentName, String courseNum, String examName, String score, String fullScore, String timeSpend) {
+    public static class Grade {
+        private final String studentName;
+        private final String courseNum;
+        private final String examName;
+        private final String score;
+        private final String fullScore;
+        private final String passStatus;
+
+        public Grade(String studentName, String courseNum, String examName, String score, String fullScore, String passStatus) {
             this.studentName = studentName;
             this.courseNum = courseNum;
             this.examName = examName;
             this.score = score;
             this.fullScore = fullScore;
-            this.timeSpend = timeSpend;
+            this.passStatus = passStatus;
         }
 
         public String getStudentName() {
@@ -53,8 +56,8 @@ public class TeacherGradeStatisticController implements Initializable {
             return fullScore;
         }
 
-        public String getTimeSpend() {
-            return timeSpend;
+        public String getPassStatus() {
+            return passStatus;
         }
     }
 
@@ -77,67 +80,56 @@ public class TeacherGradeStatisticController implements Initializable {
     @FXML
     private TableColumn<Grade, String> fullScoreColumn;
     @FXML
-    private TableColumn<Grade, String> timeSpendColumn;
+    private TableColumn<Grade, String> passStatusColumn;
     @FXML
-    BarChart<String, Number> barChart;
+    private BarChart<String, Number> barChart;
     @FXML
-    PieChart pieChart;
+    private PieChart pieChart;
     @FXML
-    LineChart<String, Number> lineChart;
+    private LineChart<String, Number> lineChart;
 
-    private final TeacherGradeStatisticService service = new TeacherGradeStatisticService();
+    private final TeacherGradeStatisticService service;
+    private final Teacher loggedInTeacher;
+
+    public TeacherGradeStatisticController(DataManager dataManager, Teacher loggedInTeacher) {
+        this.service = new TeacherGradeStatisticService(dataManager);
+        this.loggedInTeacher = loggedInTeacher;
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        barChart.setLegendVisible(false);
-        pieChart.setLegendVisible(false);
-        pieChart.setTitle("Student Scores");
-        lineChart.setLegendVisible(false);
-
+        // Initialize table columns
         studentColumn.setCellValueFactory(new PropertyValueFactory<>("studentName"));
         courseColumn.setCellValueFactory(new PropertyValueFactory<>("courseNum"));
         examColumn.setCellValueFactory(new PropertyValueFactory<>("examName"));
         scoreColumn.setCellValueFactory(new PropertyValueFactory<>("score"));
         fullScoreColumn.setCellValueFactory(new PropertyValueFactory<>("fullScore"));
-        timeSpendColumn.setCellValueFactory(new PropertyValueFactory<>("timeSpend"));
+        passStatusColumn.setCellValueFactory(new PropertyValueFactory<>("passStatus"));
 
-        service.loadGradesFromFile("data/students_exams.txt");
-        gradeTable.setItems(service.getGradeList());
+        gradeTable.setItems(FXCollections.observableArrayList(service.getGradeList()));
         populateChoiceBoxes();
-        loadChart();
+        loadCharts(service.getGradeList());
     }
 
     private void populateChoiceBoxes() {
-        ObservableList<String> courses = FXCollections.observableArrayList();
-        ObservableList<String> exams = FXCollections.observableArrayList();
-        ObservableList<String> students = FXCollections.observableArrayList();
-
-        for (Grade grade : service.getGradeList()) {
-            if (!courses.contains(grade.getCourseNum())) {
-                courses.add(grade.getCourseNum());
-            }
-            if (!exams.contains(grade.getExamName())) {
-                exams.add(grade.getExamName());
-            }
-            if (!students.contains(grade.getStudentName())) {
-                students.add(grade.getStudentName());
-            }
-        }
+        ObservableList<String> courses = FXCollections.observableArrayList(service.getCourses());
+        ObservableList<String> exams = FXCollections.observableArrayList(service.getExams());
+        ObservableList<String> students = FXCollections.observableArrayList(service.getStudents());
 
         courseCombox.setItems(courses);
         examCombox.setItems(exams);
         studentCombox.setItems(students);
     }
 
-    private void loadChart() {
-        service.updateBarChart(barChart, service.getGradeList());
-        service.updatePieChart(pieChart, service.getGradeList());
-        service.updateLineChart(lineChart, service.getGradeList());
+    private void loadCharts(List<Grade> grades) {
+        service.updateBarChart(barChart, grades);
+        service.updatePieChart(pieChart, grades);
+        service.updateLineChart(lineChart, grades);
     }
 
     @FXML
     public void refresh() {
-        loadChart();
+        loadCharts(service.getGradeList());
     }
 
     @FXML
@@ -145,8 +137,8 @@ public class TeacherGradeStatisticController implements Initializable {
         courseCombox.getSelectionModel().clearSelection();
         examCombox.getSelectionModel().clearSelection();
         studentCombox.getSelectionModel().clearSelection();
-        gradeTable.setItems(service.getGradeList());
-        loadChart();
+        gradeTable.setItems(FXCollections.observableArrayList(service.getGradeList()));
+        loadCharts(service.getGradeList());
     }
 
     @FXML
@@ -157,9 +149,6 @@ public class TeacherGradeStatisticController implements Initializable {
 
         List<Grade> filteredGrades = service.filterGrades(selectedCourse, selectedExam, selectedStudent);
         gradeTable.setItems(FXCollections.observableArrayList(filteredGrades));
-
-        service.updateBarChart(barChart, filteredGrades);
-        service.updatePieChart(pieChart, filteredGrades);
-        service.updateLineChart(lineChart, filteredGrades);
+        loadCharts(filteredGrades);
     }
 }

@@ -1,6 +1,7 @@
 package comp3111.examsystem.controller;
 
 import comp3111.examsystem.Main;
+import comp3111.examsystem.data.DataManager;
 import comp3111.examsystem.service.TeacherLoginService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -24,8 +25,9 @@ public class TeacherLoginController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        String teacherFilePath = "data/teachers.txt";
-        loginService = new TeacherLoginService(teacherFilePath);
+        // 使用 DataManager 初始化 TeacherLoginService
+        DataManager dataManager = new DataManager();
+        loginService = new TeacherLoginService(dataManager);
     }
 
     @FXML
@@ -33,33 +35,38 @@ public class TeacherLoginController implements Initializable {
         String username = usernameTxt.getText();
         String password = passwordTxt.getText();
 
-        if (loginService.validate(username, password)) {
-            // Login successful, show success alert and proceed
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Hint");
-            alert.setHeaderText(null);
-            alert.setContentText("Login successful");
-            alert.showAndWait();
+        try {
+            if (loginService.validate(username, password)) {
+                // 登录成功，显示成功提示并跳转主界面
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Hint");
+                alert.setHeaderText(null);
+                alert.setContentText("Login successful");
+                alert.showAndWait();
 
-            // Load the main UI for teachers
-            FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("TeacherMainUI.fxml"));
-            Stage stage = new Stage();
-            stage.setTitle("Hi " + username + ", Welcome to HKUST Examination System");
-            try {
+                // 加载教师主界面
+                FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("TeacherMainUI.fxml"));
+                Stage stage = new Stage();
+                stage.setTitle("Hi " + username + ", Welcome to HKUST Examination System");
                 stage.setScene(new Scene(fxmlLoader.load()));
-            } catch (IOException e1) {
-                e1.printStackTrace();
-            }
-            stage.show();
+                stage.show();
 
-            // Close the login window
-            ((Stage) ((Button) e.getSource()).getScene().getWindow()).close();
-        } else {
-            // Invalid credentials, show error alert
+                // 关闭登录窗口
+                ((Stage) ((Button) e.getSource()).getScene().getWindow()).close();
+            } else {
+                // 登录失败，显示错误提示
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Hint");
+                alert.setHeaderText(null);
+                alert.setContentText("Invalid username or password");
+                alert.showAndWait();
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
             Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Hint");
+            alert.setTitle("Error");
             alert.setHeaderText(null);
-            alert.setContentText("Invalid username or password");
+            alert.setContentText("An error occurred while processing your login.");
             alert.showAndWait();
         }
     }
@@ -73,7 +80,7 @@ public class TeacherLoginController implements Initializable {
             stage.setScene(new Scene(fxmlLoader.load()));
             stage.show();
 
-            // Close the login window
+            // 关闭登录窗口
             ((Stage) ((Button) e.getSource()).getScene().getWindow()).close();
         } catch (IOException ex) {
             ex.printStackTrace();

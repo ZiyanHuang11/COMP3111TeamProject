@@ -16,20 +16,22 @@ public class StudentMainServiceTest {
 
     @BeforeEach
     public void setUp() {
-        // 创建模拟的 DataManager
+        // Create a mock DataManager
         mockDataManager = new DataManager() {
             @Override
             public List<Exam> getExams() {
                 List<Exam> mockExams = new ArrayList<>();
-                Exam exam1 = new Exam("Midterm", "CS101", "2024-11-22", "Published");
+
+                // Using an existing constructor of Exam
+                Exam exam1 = new Exam("Midterm", "CS101", "2024-11-22", "Published", new ArrayList<>());
                 exam1.setCourseName("Introduction to Computer Science");
                 mockExams.add(exam1);
 
-                Exam exam2 = new Exam("Final", "CS101", "2024-12-10", "Draft");
+                Exam exam2 = new Exam("Final", "CS101", "2024-12-10", "Draft", new ArrayList<>());
                 exam2.setCourseName("Introduction to Computer Science");
                 mockExams.add(exam2);
 
-                Exam exam3 = new Exam("Midterm", "MA101", "2024-11-23", "Published");
+                Exam exam3 = new Exam("Midterm", "MA101", "2024-11-23", "Published", new ArrayList<>());
                 exam3.setCourseName("Calculus I");
                 mockExams.add(exam3);
 
@@ -37,7 +39,7 @@ public class StudentMainServiceTest {
             }
         };
 
-        // 使用模拟的 DataManager 初始化 Service
+        // Initialize StudentMainService with the mock DataManager
         studentMainService = new StudentMainService(mockDataManager);
     }
 
@@ -71,3 +73,4 @@ public class StudentMainServiceTest {
         assertNull(nonexistentExam, "Exam should be null for an invalid display text");
     }
 }
+

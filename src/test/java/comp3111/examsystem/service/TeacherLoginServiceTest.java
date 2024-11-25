@@ -1,56 +1,60 @@
 package comp3111.examsystem.service;
 
+import comp3111.examsystem.data.DataManager;
+import comp3111.examsystem.entity.Teacher;
 import org.junit.jupiter.api.*;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class TeacherLoginServiceTest {
+
     private TeacherLoginService loginService;
-    private String testTeacherFilePath = "test_data/test_teachers.txt";
+    private DataManager mockDataManager;
 
     @BeforeEach
-    public void setUp() throws IOException {
-        // Create test data directory if it doesn't exist
-        Files.createDirectories(Paths.get("test_data"));
+    public void setUp() {
+        // 创建模拟的 DataManager
+        mockDataManager = new DataManager() {
+            @Override
+            public List<Teacher> getTeachers() {
+                // 返回模拟的教师数据
+                List<Teacher> teachers = new ArrayList<>();
+                teachers.add(new Teacher("1", "teacher1", "password1", "John", "Male", 30, "Professor", "CSE"));
+                teachers.add(new Teacher("2", "teacher2", "password2", "Jane", "Female", 35, "Lecturer", "IT"));
+                return teachers;
+            }
+        };
 
-        // Write test teacher credentials to file
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(testTeacherFilePath))) {
-            writer.write("teacher1,password1\n");
-            writer.write("teacher2,password2\n");
-        }
-
-        // Initialize the service with the test file path
-        loginService = new TeacherLoginService(testTeacherFilePath);
+        // 使用模拟的 DataManager 初始化服务
+        loginService = new TeacherLoginService(mockDataManager);
     }
 
     @Test
     public void testValidateValidCredentials() {
-        assertTrue(loginService.validate("teacher1", "password1"));
-        assertTrue(loginService.validate("teacher2", "password2"));
+        // 验证正确的用户名和密码
+        assertTrue(loginService.validate("teacher1", "password1"), "Valid credentials should pass validation");
+        assertTrue(loginService.validate("teacher2", "password2"), "Valid credentials should pass validation");
     }
 
     @Test
     public void testValidateInvalidCredentials() {
-        assertFalse(loginService.validate("teacher1", "wrongpassword"));
-        assertFalse(loginService.validate("invaliduser", "password1"));
+        // 验证用户名或密码错误
+        assertFalse(loginService.validate("teacher1", "wrongpassword"), "Invalid password should fail validation");
+        assertFalse(loginService.validate("invaliduser", "password1"), "Invalid username should fail validation");
     }
 
     @Test
     public void testValidateEmptyCredentials() {
-        assertFalse(loginService.validate("", ""));
+        // 验证空用户名和密码
+        assertFalse(loginService.validate("", ""), "Empty credentials should fail validation");
     }
 
     @Test
     public void testValidateNullCredentials() {
-        assertFalse(loginService.validate(null, null));
-    }
-
-    @AfterEach
-    public void tearDown() throws IOException {
-        Files.deleteIfExists(Paths.get(testTeacherFilePath));
+        // 验证 null 用户名和密码
+        assertFalse(loginService.validate(null, null), "Null credentials should fail validation");
     }
 }

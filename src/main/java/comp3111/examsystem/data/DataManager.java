@@ -167,12 +167,12 @@ public class DataManager {
         FileUtil.writeFile("data/exam_results.txt", lines);
     }
 
-    private void saveTeachers() {
+    public void saveTeachers() {
         List<String> lines = getTeachers().stream()
                 .map(teacher -> String.format("id:%s,username:%s,password:%s,name:%s,gender:%s,age:%d,title:%s,department:%s",
                         teacher.getId(), teacher.getUsername(), teacher.getPassword(),
                         teacher.getName(), teacher.getGender(), teacher.getAge(),
-                        teacher.getPosition(), teacher.getDepartment()))
+                        teacher.getTitle(), teacher.getDepartment()))
                 .collect(Collectors.toList());
         FileUtil.writeFile("data/teachers.txt", lines);
     }
@@ -184,4 +184,6 @@ public class DataManager {
                 .collect(Collectors.toList());
         FileUtil.writeFile("data/managers.txt", lines);
     }
+
+
 }
