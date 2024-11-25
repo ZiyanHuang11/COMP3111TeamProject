@@ -1,5 +1,6 @@
 package comp3111.examsystem.controller;
 
+import comp3111.examsystem.data.DataManager;
 import comp3111.examsystem.entity.Teacher;
 import comp3111.examsystem.service.ManageTeacherService;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -9,19 +10,18 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
-import java.io.IOException;
 import java.util.List;
 
 public class ManageTeacherController {
 
     @FXML
-    TextField usernameFilter;
+    private TextField usernameFilter;
     @FXML
-    TextField nameFilter;
+    private TextField nameFilter;
     @FXML
-    TextField departmentFilter;
+    private TextField departmentFilter;
     @FXML
-    TableView<Teacher> teacherTable;
+    private TableView<Teacher> teacherTable;
     @FXML
     private TableColumn<Teacher, String> usernameColumn;
     @FXML
@@ -37,24 +37,25 @@ public class ManageTeacherController {
     @FXML
     private TableColumn<Teacher, String> passwordColumn;
     @FXML
-    TextField usernameField;
+    private TextField usernameField;
     @FXML
-    TextField nameField;
+    private TextField nameField;
     @FXML
-    ComboBox<String> genderComboBox;
+    private ComboBox<String> genderComboBox;
     @FXML
-    TextField ageField;
+    private TextField ageField;
     @FXML
-    ComboBox<String> positionComboBox;
+    private ComboBox<String> positionComboBox;
     @FXML
-    TextField departmentField;
+    private TextField departmentField;
     @FXML
-    TextField passwordField;
+    private TextField passwordField;
 
-    private ManageTeacherService manageTeacherService;
+    private ManageTeacherService teacherService;
 
-    public ManageTeacherController() {
-        manageTeacherService = new ManageTeacherService();
+    public void setDataManager(DataManager dataManager) {
+        this.teacherService = new ManageTeacherService(dataManager);
+        initialize();
     }
 
     @FXML
@@ -73,11 +74,17 @@ public class ManageTeacherController {
                 clearFields();
             }
         });
-        displayTeachers(manageTeacherService.getTeacherList());
+        refreshTeacher();
     }
 
-    private void displayTeachers(ObservableList<Teacher> teachers) {
-        teacherTable.setItems(teachers);
+    @FXML
+    public void filterTeachers() {
+        String username = usernameFilter.getText().trim().toLowerCase();
+        String name = nameFilter.getText().trim().toLowerCase();
+        String department = departmentFilter.getText().trim().toLowerCase();
+
+        List<Teacher> filteredList = teacherService.filterTeachers(username, name, department);
+        displayTeachers(FXCollections.observableArrayList(filteredList));
     }
 
     @FXML
@@ -85,47 +92,32 @@ public class ManageTeacherController {
         usernameFilter.clear();
         nameFilter.clear();
         departmentFilter.clear();
-        displayTeachers(manageTeacherService.getTeacherList());
-    }
-
-    @FXML
-    public void filterTeachers() {
-        String username = usernameFilter.getText().toLowerCase();
-        String name = nameFilter.getText().toLowerCase();
-        String department = departmentFilter.getText().toLowerCase();
-
-        List<Teacher> filteredList = manageTeacherService.filterTeachers(username, name, department);
-        displayTeachers(FXCollections.observableArrayList(filteredList));
+        refreshTeacher();
     }
 
     @FXML
     public void addTeacher() {
-        String username = usernameField.getText();
-        String name = nameField.getText();
+        String username = usernameField.getText().trim();
+        String name = nameField.getText().trim();
         String gender = genderComboBox.getValue();
-        String ageText = ageField.getText();
+        String ageText = ageField.getText().trim();
         String position = positionComboBox.getValue();
-        String department = departmentField.getText();
-        String password = passwordField.getText();
+        String department = departmentField.getText().trim();
+        String password = passwordField.getText().trim();
 
-        String validationMessage = manageTeacherService.validateInputs(username, name, gender, ageText, position, department, password);
+        String validationMessage = teacherService.validateInputs(username, name, gender, ageText, position, department, password);
         if (validationMessage != null) {
             showAlert(validationMessage);
             return;
         }
 
         int age = Integer.parseInt(ageText);
-        Teacher newTeacher = new Teacher(username, password, name, gender, age, position, department);
+        Teacher newTeacher = new Teacher(null, username, password, name, gender, age, position, department);
 
-        try {
-            manageTeacherService.addTeacher(newTeacher);
-            showAlert("Add teacher success");
-            clearFields();
-            displayTeachers(manageTeacherService.getTeacherList());
-        } catch (IOException e) {
-            e.printStackTrace();
-            showAlert("Error adding teacher");
-        }
+        teacherService.addTeacher(newTeacher);
+        showAlert("Teacher added successfully.");
+        clearFields();
+        refreshTeacher();
     }
 
     @FXML
@@ -133,31 +125,27 @@ public class ManageTeacherController {
         Teacher selectedTeacher = teacherTable.getSelectionModel().getSelectedItem();
         if (selectedTeacher != null) {
             String originalUsername = selectedTeacher.getUsername();
-            String newUsername = usernameField.getText();
-            String name = nameField.getText();
-            String ageText = ageField.getText();
+            String username = usernameField.getText().trim();
+            String name = nameField.getText().trim();
             String gender = genderComboBox.getValue();
+            String ageText = ageField.getText().trim();
             String position = positionComboBox.getValue();
-            String department = departmentField.getText();
-            String password = passwordField.getText();
+            String department = departmentField.getText().trim();
+            String password = passwordField.getText().trim();
 
-            String validationMessage = manageTeacherService.validateUpdateInputs(name, gender, ageText, position, department, password);
+            String validationMessage = teacherService.validateUpdateInputs(name, gender, ageText, position, department, password);
             if (validationMessage != null) {
                 showAlert(validationMessage);
                 return;
             }
 
-            Teacher updatedTeacher = new Teacher(newUsername, password, name, gender, Integer.parseInt(ageText), position, department);
+            int age = Integer.parseInt(ageText);
+            Teacher updatedTeacher = new Teacher(selectedTeacher.getId(), username, password, name, gender, age, position, department);
+            teacherService.updateTeacher(updatedTeacher, originalUsername);
 
-            try {
-                manageTeacherService.updateTeacher(updatedTeacher, originalUsername);
-                showAlert("Update teacher success");
-                clearFields();
-                displayTeachers(manageTeacherService.getTeacherList());
-            } catch (IOException e) {
-                e.printStackTrace();
-                showAlert("Error updating teacher");
-            }
+            showAlert("Teacher updated successfully.");
+            clearFields();
+            refreshTeacher();
         } else {
             showAlert("Please select a teacher to update.");
         }
@@ -167,23 +155,9 @@ public class ManageTeacherController {
     public void deleteTeacher() {
         Teacher selectedTeacher = teacherTable.getSelectionModel().getSelectedItem();
         if (selectedTeacher != null) {
-
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Confirm Deletion");
-            alert.setHeaderText("Are you sure you want to delete teacher " + selectedTeacher.getName() + "?");
-            alert.setContentText("This action cannot be undone.");
-
-            ButtonType result = alert.showAndWait().orElse(ButtonType.CANCEL);
-            if (result == ButtonType.OK) {
-                try {
-                    manageTeacherService.deleteTeacher(selectedTeacher);
-                    showAlert("Delete teacher success");
-                    displayTeachers(manageTeacherService.getTeacherList());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    showAlert("Error deleting teacher");
-                }
-            }
+            teacherService.deleteTeacher(selectedTeacher);
+            showAlert("Teacher deleted successfully.");
+            refreshTeacher();
         } else {
             showAlert("Please select a teacher to delete.");
         }
@@ -191,9 +165,12 @@ public class ManageTeacherController {
 
     @FXML
     public void refreshTeacher() {
+        displayTeachers(FXCollections.observableArrayList(teacherService.getAllTeachers()));
         clearFields();
-        teacherTable.getSelectionModel().clearSelection();
-        displayTeachers(manageTeacherService.getTeacherList());
+    }
+
+    private void displayTeachers(ObservableList<Teacher> teachers) {
+        teacherTable.setItems(teachers);
     }
 
     private void updateFields(Teacher teacher) {
@@ -211,13 +188,14 @@ public class ManageTeacherController {
         nameField.clear();
         ageField.clear();
         genderComboBox.getSelectionModel().clearSelection();
+        positionComboBox.getSelectionModel().clearSelection();
         departmentField.clear();
         passwordField.clear();
     }
 
     private void showAlert(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Hint");
+        alert.setTitle("Message");
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();

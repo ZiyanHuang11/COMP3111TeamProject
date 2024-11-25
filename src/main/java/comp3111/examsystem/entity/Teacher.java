@@ -1,39 +1,27 @@
 package comp3111.examsystem.entity;
 
 public class Teacher extends Entity {
-    private String id;
     private String username;
     private String password;
     private String name;
     private String gender;
     private int age;
-    private String title;
+    private String position; // Position field
     private String department;
 
-    public Teacher() {
-        // 无参构造函数
-    }
-
-    public Teacher(String id, String username, String password, String name, String gender, int age, String title, String department) {
-        this.id = id;
+    // Constructor including position
+    public Teacher(String id, String username, String password, String name, String gender, int age, String position, String department) {
+        setId(id);
         this.username = username;
         this.password = password;
         this.name = name;
         this.gender = gender;
         this.age = age;
-        this.title = title;
+        this.position = position; // Initialize position
         this.department = department;
     }
 
     // Getters and Setters
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public String getUsername() {
         return username;
     }
@@ -74,12 +62,12 @@ public class Teacher extends Entity {
         this.age = age;
     }
 
-    public String getTitle() {
-        return title;
+    public String getPosition() { // Getter for position
+        return position;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setPosition(String position) { // Setter for position
+        this.position = position;
     }
 
     public String getDepartment() {
@@ -89,4 +77,19 @@ public class Teacher extends Entity {
     public void setDepartment(String department) {
         this.department = department;
     }
+
+    @Override
+    public String toString() {
+        return "Teacher{" +
+                "id='" + getId() + '\'' +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", name='" + name + '\'' +
+                ", gender='" + gender + '\'' +
+                ", age=" + age +
+                ", position='" + position + '\'' +
+                ", department='" + department + '\'' +
+                '}';
+    }
 }
+

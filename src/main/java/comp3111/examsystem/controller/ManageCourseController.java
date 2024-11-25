@@ -43,12 +43,16 @@ public class ManageCourseController {
     @FXML
     private TextField departmentField;
 
-    private final ManageCourseService courseService;
+    private ManageCourseService courseService;
 
-    // 使用单例 DataManager 初始化服务
-    public ManageCourseController() {
-        DataManager dataManager = DataManager.getInstance();
-        courseService = new ManageCourseService(dataManager);
+    // Constructor injection
+    public ManageCourseController(DataManager dataManager) {
+        this.courseService = new ManageCourseService(dataManager);
+    }
+
+    public void setDataManager(DataManager dataManager) {
+        this.courseService = new ManageCourseService(dataManager);
+        initialize();
     }
 
     @FXML

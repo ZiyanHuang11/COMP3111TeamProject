@@ -1,8 +1,6 @@
 package comp3111.examsystem.service;
 
 import comp3111.examsystem.data.DataManager;
-
-import comp3111.examsystem.data.DataManager;
 import comp3111.examsystem.entity.Manager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,7 +24,8 @@ class ManagerLoginServiceTest {
         }
 
         public void addMockManager(String id, String username, String password) {
-            mockManagers.add(new Manager(id, username, password));
+            Manager manager = new Manager(id, username, password); // 确保匹配 Manager 的构造函数
+            mockManagers.add(manager);
         }
     }
 

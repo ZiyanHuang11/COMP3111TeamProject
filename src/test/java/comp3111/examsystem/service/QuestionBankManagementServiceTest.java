@@ -1,33 +1,27 @@
 package comp3111.examsystem.service;
 
+import comp3111.examsystem.data.DataManager;
 import comp3111.examsystem.entity.Question;
 import javafx.collections.ObservableList;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class QuestionBankManagementServiceTest {
+
     private QuestionBankManagementService questionService;
-    private String testQuestionFilePath = "test_data/test_questions.txt";
 
     @BeforeEach
-    public void setUp() throws IOException {
-        // Create test data directory if it doesn't exist
-        Files.createDirectories(Paths.get("test_data"));
+    public void setUp() {
+        // Mock initial data for questions
+        Question question1 = new Question("1", "What is Java?", "A", "B", "C", "D", "A", "Single", 5);
+        Question question2 = new Question("2", "Explain OOP concepts.", "Encapsulation", "Inheritance", "Polymorphism", "Abstraction", "All of the above", "Multiple", 10);
 
-        // Write test questions to file
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(testQuestionFilePath))) {
-            writer.write("What is Java?,A,B,C,D,A,Single,5\n");
-            writer.write("Explain OOP concepts.,Encapsulation,Inheritance,Polymorphism,Abstraction,All of the above,Multiple,10\n");
-        }
-
-        // Initialize the service with test file paths
-        questionService = new QuestionBankManagementService(testQuestionFilePath);
+        // Initialize the service with in-memory data
+        questionService = new QuestionBankManagementService(new MockDataManager(List.of(question1, question2)));
     }
 
     @Test
@@ -38,8 +32,8 @@ public class QuestionBankManagementServiceTest {
     }
 
     @Test
-    public void testAddQuestion() throws IOException {
-        Question newQuestion = new Question("New Question", "A", "B", "C", "D", "A", "Single", 5);
+    public void testAddQuestion() {
+        Question newQuestion = new Question("3", "What is Python?", "A", "B", "C", "D", "B", "Single", 5);
         questionService.addQuestion(newQuestion);
 
         ObservableList<Question> questions = questionService.getQuestionList();
@@ -48,22 +42,22 @@ public class QuestionBankManagementServiceTest {
     }
 
     @Test
-    public void testUpdateQuestion() throws IOException {
-        Question updatedQuestion = new Question("What is Java?", "Option1", "Option2", "Option3", "Option4", "Option1", "Single", 5);
-        questionService.updateQuestion(updatedQuestion, "What is Java?");
+    public void testUpdateQuestion() {
+        Question updatedQuestion = new Question("1", "What is Java?", "Option1", "Option2", "Option3", "Option4", "Option1", "Single", 5);
+        questionService.updateQuestion("1", updatedQuestion);
 
         ObservableList<Question> questions = questionService.getQuestionList();
-        Question question = questions.stream().filter(q -> q.getQuestion().equals("What is Java?")).findFirst().orElse(null);
+        Question question = questions.stream().filter(q -> q.getId().equals("1")).findFirst().orElse(null);
         assertNotNull(question);
         assertEquals("Option1", question.getOptionA());
     }
 
     @Test
-    public void testDeleteQuestion() throws IOException {
-        questionService.deleteQuestion("What is Java?");
+    public void testDeleteQuestion() {
+        questionService.deleteQuestion("1");
         ObservableList<Question> questions = questionService.getQuestionList();
         assertEquals(1, questions.size());
-        assertFalse(questions.stream().anyMatch(q -> q.getQuestion().equals("What is Java?")));
+        assertFalse(questions.stream().anyMatch(q -> q.getId().equals("1")));
     }
 
     @Test
@@ -93,8 +87,46 @@ public class QuestionBankManagementServiceTest {
         assertNull(validationMessage);
     }
 
-    @AfterEach
-    public void tearDown() throws IOException {
-        Files.deleteIfExists(Paths.get(testQuestionFilePath));
+    // Mock DataManager implementation
+    static class MockDataManager extends DataManager {
+        private final List<Question> mockQuestions;
+
+        MockDataManager(List<Question> questions) {
+            this.mockQuestions = questions;
+        }
+
+        @Override
+        public List<Question> getQuestions() {
+            return mockQuestions;
+        }
+
+        @Override
+        public void addQuestion(Question question) {
+            mockQuestions.add(question);
+        }
+
+        @Override
+        public void updateQuestion(String id, Question updatedQuestion) {
+            for (int i = 0; i < mockQuestions.size(); i++) {
+                if (mockQuestions.get(i).getId().equals(id)) {
+                    mockQuestions.set(i, updatedQuestion);
+                    return;
+                }
+            }
+        }
+
+        @Override
+        public void deleteQuestion(String id) {
+            mockQuestions.removeIf(q -> q.getId().equals(id));
+        }
+
+        @Override
+        public List<Question> filterQuestions(String questionFilter, String typeFilter, String scoreFilter) {
+            return mockQuestions.stream()
+                    .filter(q -> (questionFilter.isEmpty() || q.getQuestion().toLowerCase().contains(questionFilter.toLowerCase())) &&
+                            (typeFilter.equals("All") || q.getType().equals(typeFilter)) &&
+                            (scoreFilter.isEmpty() || String.valueOf(q.getScore()).equals(scoreFilter)))
+                    .toList();
+        }
     }
 }

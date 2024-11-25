@@ -51,6 +51,11 @@ public class ManageStudentController {
 
     private ManageStudentService studentService;
 
+    public void setDataManager(DataManager dataManager) {
+        this.studentService = new ManageStudentService(dataManager);
+        initialize();
+    }
+
     public ManageStudentController() {
         studentService = new ManageStudentService(new DataManager());
     }
