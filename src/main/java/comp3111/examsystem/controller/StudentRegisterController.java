@@ -1,46 +1,62 @@
 package comp3111.examsystem.controller;
 
 import comp3111.examsystem.data.DataManager;
-import comp3111.examsystem.entity.Student;
 import comp3111.examsystem.service.StudentRegisterService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.stage.Stage;
+
+import java.io.IOException;
 
 public class StudentRegisterController {
 
     @FXML
-    private TextField usernameField;
+    private TextField usernameTxt;
     @FXML
-    private TextField nameField;
+    private TextField nameTxt;
     @FXML
-    private TextField genderField;
+    private ComboBox<String> genderBox;
     @FXML
-    private TextField departmentField;
+    private TextField departmentTxt;
     @FXML
-    private PasswordField passwordField;
+    private PasswordField passwordTxt;
+    @FXML
+    private PasswordField confirmPasswordTxt;
 
-    private final StudentRegisterService registerService;
+    private StudentRegisterService registerService;
 
-    // 构造函数
-    public StudentRegisterController() {
-        DataManager dataManager = new DataManager(); // 初始化 DataManager
-        this.registerService = new StudentRegisterService(dataManager); // 将 DataManager 传递给服务类
+    @FXML
+    public void initialize() {
+        // 初始化性别选项
+        genderBox.getItems().addAll("Male", "Female", "Other");
+        // 初始化 DataManager 和服务类
+        DataManager dataManager = new DataManager(); // 如果 DataManager 是单例，可以修改为 DataManager.getInstance()
+        this.registerService = new StudentRegisterService(dataManager);
     }
 
     @FXML
-    private void handleRegister(ActionEvent event) {
-        String username = usernameField.getText().trim();
-        String name = nameField.getText().trim();
-        String gender = genderField.getText().trim();
-        String department = departmentField.getText().trim();
-        String password = passwordField.getText().trim();
+    private void register(ActionEvent event) {
+        String username = usernameTxt.getText().trim();
+        String name = nameTxt.getText().trim();
+        String gender = genderBox.getValue();
+        String department = departmentTxt.getText().trim();
+        String password = passwordTxt.getText().trim();
+        String confirmPassword = confirmPasswordTxt.getText().trim();
 
         // 检查输入是否为空
-        if (username.isEmpty() || name.isEmpty() || gender.isEmpty() || department.isEmpty() || password.isEmpty()) {
+        if (username.isEmpty() || name.isEmpty() || gender == null || gender.isEmpty()
+                || department.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
             showAlert(Alert.AlertType.ERROR, "Input Error", "All fields are required.");
+            return;
+        }
+
+        // 检查密码是否匹配
+        if (!password.equals(confirmPassword)) {
+            showAlert(Alert.AlertType.ERROR, "Password Mismatch", "Passwords do not match. Please try again.");
             return;
         }
 
@@ -64,12 +80,32 @@ public class StudentRegisterController {
         }
     }
 
+    @FXML
+    private void cancel(ActionEvent event) {
+        try {
+            // 加载学生登录界面的 FXML 文件
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/comp3111/examsystem/StudentLoginUI.fxml"));
+            Parent loginRoot = loader.load();
+
+            // 获取当前窗口并设置新的场景
+            Stage currentStage = (Stage) usernameTxt.getScene().getWindow();
+            currentStage.setScene(new Scene(loginRoot));
+            currentStage.setTitle("Student Login");
+        } catch (IOException e) {
+            // 捕获并显示错误信息
+            showAlert(Alert.AlertType.ERROR, "Error", "Unable to load login screen: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+
     private void clearFields() {
-        usernameField.clear();
-        nameField.clear();
-        genderField.clear();
-        departmentField.clear();
-        passwordField.clear();
+        usernameTxt.clear();
+        nameTxt.clear();
+        genderBox.setValue(null);
+        departmentTxt.clear();
+        passwordTxt.clear();
+        confirmPasswordTxt.clear();
     }
 
     private void showAlert(Alert.AlertType type, String title, String message) {

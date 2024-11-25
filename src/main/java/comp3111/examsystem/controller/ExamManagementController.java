@@ -2,14 +2,20 @@ package comp3111.examsystem.controller;
 
 import comp3111.examsystem.data.DataManager;
 import comp3111.examsystem.entity.Exam;
-import comp3111.examsystem.entity.Question;
+import comp3111.examsystem.data.DataManager;
 import comp3111.examsystem.entity.Teacher;
+import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.layout.VBox;
+import comp3111.examsystem.entity.Question;
 import comp3111.examsystem.service.ExamManagementService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ExamManagementController {
@@ -20,6 +26,13 @@ public class ExamManagementController {
     private ComboBox<String> courseIDFilterComboBox;
     @FXML
     private ComboBox<String> publishFilterComboBox;
+
+    @FXML
+    private TextField questionFilterTxt;
+    @FXML
+    private ComboBox<String> typeFilterComboBox;
+    @FXML
+    private TextField scoreFilterTxt;
 
     @FXML
     private TableView<Exam> examTable;
@@ -41,35 +54,223 @@ public class ExamManagementController {
     @FXML
     private TableColumn<Question, Integer> scoreColumn;
 
-    private ExamManagementService examService;
-    private final Teacher loggedInTeacher;
+    @FXML
+    private TableView<Question> selectedQuestionTable;
+    @FXML
+    private TableColumn<Question, String> selectedQuestionColumn;
+    @FXML
+    private TableColumn<Question, String> selectedTypeColumn;
+    @FXML
+    private TableColumn<Question, Integer> selectedScoreColumn;
 
-    // Constructor accepting DataManager and Teacher
-    public ExamManagementController(DataManager dataManager, Teacher loggedInTeacher) {
-        this.loggedInTeacher = loggedInTeacher;
-        this.examService = new ExamManagementService(dataManager);
-    }
+    @FXML
+    private TextField examNameTxt;
+    @FXML
+    private TextField examTimeTxt;
+    @FXML
+    private ComboBox<String> courseIDComboBox;
+    @FXML
+    private ComboBox<String> publishComboBox;
+
+    @FXML
+    private Button addButton;
+    @FXML
+    private Button updateButton;
+    @FXML
+    private Button deleteButton;
+    @FXML
+    private Button refreshButton;
+
+    private ExamManagementService examService;
+    private final DataManager dataManager;
+    private final Teacher loggedInTeacher;
+    @FXML
+    private VBox mainbox;
+
+    private ObservableList<Question> selectedQuestionList;
 
     @FXML
     public void initialize() {
-        // Initialize exam table
+        DataManager dataManager = new DataManager(); // 初始化 DataManager
+        examService = new ExamManagementService(dataManager); // 使用 DataManager 初始化 ExamManagementService
+
+        // 初始化考试表
         examTable.setItems(examService.getExamList());
         examNameColumn.setCellValueFactory(cellData -> cellData.getValue().examNameProperty());
         courseIDColumn.setCellValueFactory(cellData -> cellData.getValue().courseIDProperty());
         examTimeColumn.setCellValueFactory(cellData -> cellData.getValue().examTimeProperty());
         publishColumn.setCellValueFactory(cellData -> cellData.getValue().publishProperty());
 
-        // Initialize question table
+        // 初始化问题表
         questionTable.setItems(examService.getQuestionList());
         questionColumn.setCellValueFactory(cellData -> cellData.getValue().questionProperty());
         typeColumn.setCellValueFactory(cellData -> cellData.getValue().typeProperty());
         scoreColumn.setCellValueFactory(cellData -> cellData.getValue().scoreProperty().asObject());
 
-        // Initialize filter options
-        courseIDFilterComboBox.setItems(FXCollections.observableArrayList(examService.getCourseIDs()));
+        // 初始化已选择的问题表
+        selectedQuestionList = FXCollections.observableArrayList();
+        selectedQuestionTable.setItems(selectedQuestionList);
+        selectedQuestionColumn.setCellValueFactory(cellData -> cellData.getValue().questionProperty());
+        selectedTypeColumn.setCellValueFactory(cellData -> cellData.getValue().typeProperty());
+        selectedScoreColumn.setCellValueFactory(cellData -> cellData.getValue().scoreProperty().asObject());
+
+        // 设置ComboBox的默认值
+        courseIDFilterComboBox.setItems(FXCollections.observableArrayList("All", "COMP3111", "COMP5111"));
         publishFilterComboBox.setItems(FXCollections.observableArrayList("All", "Yes", "No"));
+        typeFilterComboBox.setItems(FXCollections.observableArrayList("All", "Single", "Multiple"));
+        courseIDComboBox.setItems(FXCollections.observableArrayList("COMP3111", "COMP5111"));
+        publishComboBox.setItems(FXCollections.observableArrayList("Yes", "No"));
+
         courseIDFilterComboBox.setValue("All");
         publishFilterComboBox.setValue("All");
+        typeFilterComboBox.setValue("All");
+        courseIDComboBox.setValue("COMP3111");
+        publishComboBox.setValue("No");
+
+        // 监听考试选择的变化
+        examTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                selectedQuestionList.setAll(newValue.getQuestions(examService.getQuestionList())); // 获取考试相关的问题
+                examNameTxt.setText(newValue.getExamName());
+                examTimeTxt.setText(newValue.getExamTime());
+                courseIDComboBox.setValue(newValue.getCourseID());
+                publishComboBox.setValue(newValue.getPublish());
+            } else {
+                selectedQuestionList.clear();
+                examNameTxt.clear();
+                examTimeTxt.clear();
+                courseIDComboBox.setValue(null);
+                publishComboBox.setValue(null);
+            }
+        });
+    }
+
+    // 修改构造函数，接受 DataManager 和 Teacher
+    public ExamManagementController(DataManager dataManager, Teacher loggedInTeacher) {
+        this.dataManager = dataManager;
+        this.loggedInTeacher = loggedInTeacher;
+    }
+
+    @FXML
+    private void handleAdd() {
+        String examName = examNameTxt.getText().trim();
+        String examTime = examTimeTxt.getText().trim();
+        String courseID = courseIDComboBox.getValue();
+        String publish = publishComboBox.getValue();
+
+        if (examName.isEmpty() || examTime.isEmpty() || courseID == null || publish == null) {
+            showAlert("Incomplete Data", "Please fill in all fields.", Alert.AlertType.ERROR);
+            return;
+        }
+
+        // 使用 Exam 类的正确构造函数
+        List<String> questionIds = new ArrayList<>(); // 初始时没有问题
+        Exam newExam = new Exam(examName, courseID, examTime, publish, questionIds, 0); // 传入所有参数
+
+        boolean success = examService.addExam(newExam);
+        if (!success) {
+            showAlert("Duplicate Exam", "An exam with this name already exists.", Alert.AlertType.ERROR);
+        } else {
+            examNameTxt.clear();
+            examTimeTxt.clear();
+            courseIDComboBox.setValue(null);
+            publishComboBox.setValue("No");
+        }
+    }
+
+    @FXML
+    private void handleUpdate() {
+        Exam selectedExam = examTable.getSelectionModel().getSelectedItem();
+        if (selectedExam == null) {
+            showAlert("No Selection", "Please select an exam to update.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        String examName = examNameTxt.getText().trim();
+        String examTime = examTimeTxt.getText().trim();
+        String courseID = courseIDComboBox.getValue();
+        String publish = publishComboBox.getValue();
+
+        if (examName.isEmpty() || examTime.isEmpty() || courseID == null || publish == null) {
+            showAlert("Incomplete Data", "Please fill in all fields.", Alert.AlertType.ERROR);
+            return;
+        }
+
+        // 使用 Exam 类的正确构造函数
+        List<String> questionIds = new ArrayList<>(); // 获取更新后的问题列表
+        Exam updatedExam = new Exam(examName, courseID, examTime, publish, questionIds, 0);
+
+        boolean success = examService.updateExam(updatedExam, selectedExam.getExamName());
+        if (!success) {
+            showAlert("Duplicate Exam", "An exam with this name already exists.", Alert.AlertType.ERROR);
+        } else {
+            examTable.refresh();
+            examNameTxt.clear();
+            examTimeTxt.clear();
+            courseIDComboBox.setValue(null);
+            publishComboBox.setValue("No");
+            examTable.getSelectionModel().clearSelection();
+        }
+    }
+
+    @FXML
+    private void handleDelete() {
+        Exam selectedExam = examTable.getSelectionModel().getSelectedItem();
+        if (selectedExam != null) {
+            boolean success = examService.deleteExam(selectedExam.getExamName());
+            if (success) {
+                selectedQuestionList.clear();
+                showAlert("Deleted", "Selected exam has been deleted.", Alert.AlertType.INFORMATION);
+            } else {
+                showAlert("Error", "Failed to delete exam.", Alert.AlertType.ERROR);
+            }
+        } else {
+            showAlert("No Selection", "Please select an exam to delete.", Alert.AlertType.WARNING);
+        }
+    }
+
+    @FXML
+    private void handleAddToLeft() {
+        Question selectedQuestion = questionTable.getSelectionModel().getSelectedItem();
+        Exam selectedExam = examTable.getSelectionModel().getSelectedItem();
+
+        if (selectedExam == null) {
+            showAlert("No Exam Selected", "Please select an exam to add questions to.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        if (selectedQuestion != null) {
+            boolean success = examService.addQuestionToExam(selectedExam, selectedQuestion);
+            if (success) {
+                selectedQuestionList.add(selectedQuestion);
+            } else {
+                showAlert("Duplicate Question", "Question already exists in the exam.", Alert.AlertType.WARNING);
+            }
+        } else {
+            showAlert("No Selection", "Please select a question to add.", Alert.AlertType.WARNING);
+        }
+    }
+
+    @FXML
+    private void handleDeleteFromLeft() {
+        Question selectedQuestion = selectedQuestionTable.getSelectionModel().getSelectedItem();
+        Exam selectedExam = examTable.getSelectionModel().getSelectedItem();
+
+        if (selectedExam == null) {
+            showAlert("No Exam Selected", "Please select an exam to delete questions from.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        if (selectedQuestion != null) {
+            boolean success = examService.removeQuestionFromExam(selectedExam, selectedQuestion);
+            if (success) {
+                selectedQuestionList.remove(selectedQuestion);
+            } else {
+                showAlert("Error", "Failed to remove question from exam.", Alert.AlertType.ERROR);
+            }
+        } else {
+            showAlert("No Selection", "Please select a question to delete.", Alert.AlertType.WARNING);
+        }
     }
 
     @FXML
@@ -83,10 +284,44 @@ public class ExamManagementController {
     }
 
     @FXML
+    private void handleQuestionFilter() {
+        String questionText = questionFilterTxt.getText().trim();
+        String type = typeFilterComboBox.getValue();
+        String scoreText = scoreFilterTxt.getText().trim();
+
+        List<Question> filteredQuestions = examService.filterQuestions(questionText, type, scoreText);
+        questionTable.setItems(FXCollections.observableArrayList(filteredQuestions));
+    }
+
+    @FXML
     private void handleReset() {
         examNameFilterTxt.clear();
         courseIDFilterComboBox.setValue("All");
         publishFilterComboBox.setValue("All");
         examTable.setItems(examService.getExamList());
+    }
+
+    @FXML
+    private void handleQuestionFilterReset() {
+        questionFilterTxt.clear();
+        typeFilterComboBox.setValue("All");
+        scoreFilterTxt.clear();
+        questionTable.setItems(examService.getQuestionList());
+    }
+
+    @FXML
+    private void handleRefresh() {
+        examTable.refresh();
+        questionTable.refresh();
+        selectedQuestionTable.refresh();
+    }
+
+    // Display an alert
+    private void showAlert(String title, String message, Alert.AlertType type) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }

@@ -30,7 +30,7 @@ public class ExamUIController {
     @FXML
     private RadioButton optionD;
 
-    private ToggleGroup optionsGroup;
+    public ToggleGroup optionsGroup;
     private ExamService examService;
     private Timeline timer;
 

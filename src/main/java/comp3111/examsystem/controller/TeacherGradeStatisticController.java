@@ -3,7 +3,6 @@ package comp3111.examsystem.controller;
 import comp3111.examsystem.data.DataManager;
 import comp3111.examsystem.entity.Teacher;
 import comp3111.examsystem.service.TeacherGradeStatisticService;
-import comp3111.examsystem.service.TeacherGradeStatisticService.Grade;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -11,11 +10,16 @@ import javafx.fxml.Initializable;
 import javafx.scene.chart.*;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TableColumn;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.MapValueFactory;
+import javafx.util.Callback;
+import javafx.beans.value.ObservableValue;
+import javafx.scene.control.TableColumn.CellDataFeatures;
 
 import java.net.URL;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 public class TeacherGradeStatisticController implements Initializable {
@@ -27,19 +31,19 @@ public class TeacherGradeStatisticController implements Initializable {
     @FXML
     private ChoiceBox<String> studentCombox;
     @FXML
-    private TableView<Grade> gradeTable;
+    private TableView<Map<String, String>> gradeTable;
     @FXML
-    private TableColumn<Grade, String> studentColumn;
+    private TableColumn<Map<String, String>, String> studentColumn;
     @FXML
-    private TableColumn<Grade, String> courseColumn;
+    private TableColumn<Map<String, String>, String> courseColumn;
     @FXML
-    private TableColumn<Grade, String> examColumn;
+    private TableColumn<Map<String, String>, String> examColumn;
     @FXML
-    private TableColumn<Grade, String> scoreColumn;
+    private TableColumn<Map<String, String>, String> scoreColumn;
     @FXML
-    private TableColumn<Grade, String> fullScoreColumn;
+    private TableColumn<Map<String, String>, String> fullScoreColumn;
     @FXML
-    private TableColumn<Grade, String> passStatusColumn;
+    private TableColumn<Map<String, String>, String> passStatusColumn;
     @FXML
     private BarChart<String, Number> barChart;
     @FXML
@@ -57,13 +61,13 @@ public class TeacherGradeStatisticController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        // Initialize table columns
-        studentColumn.setCellValueFactory(new PropertyValueFactory<>("studentName"));
-        courseColumn.setCellValueFactory(new PropertyValueFactory<>("courseNum"));
-        examColumn.setCellValueFactory(new PropertyValueFactory<>("examName"));
-        scoreColumn.setCellValueFactory(new PropertyValueFactory<>("score"));
-        fullScoreColumn.setCellValueFactory(new PropertyValueFactory<>("fullScore"));
-        passStatusColumn.setCellValueFactory(new PropertyValueFactory<>("passStatus"));
+        // Initialize table columns with custom cell value factories
+        studentColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().get("studentName")));
+        courseColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().get("courseNum")));
+        examColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().get("examName")));
+        scoreColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().get("score")));
+        fullScoreColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().get("fullScore")));
+        passStatusColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().get("passStatus")));
 
         gradeTable.setItems(service.getGradeList());
         populateChoiceBoxes();
@@ -80,7 +84,7 @@ public class TeacherGradeStatisticController implements Initializable {
         studentCombox.setItems(students);
     }
 
-    private void loadCharts(List<Grade> grades) {
+    private void loadCharts(List<Map<String, String>> grades) {
         service.updateBarChart(barChart, grades);
         service.updatePieChart(pieChart, grades);
         service.updateLineChart(lineChart, grades);
@@ -106,7 +110,7 @@ public class TeacherGradeStatisticController implements Initializable {
         String selectedExam = examCombox.getValue();
         String selectedStudent = studentCombox.getValue();
 
-        List<Grade> filteredGrades = service.filterGrades(selectedCourse, selectedExam, selectedStudent);
+        List<Map<String, String>> filteredGrades = service.filterGrades(selectedCourse, selectedExam, selectedStudent);
         gradeTable.setItems(FXCollections.observableArrayList(filteredGrades));
         loadCharts(filteredGrades);
     }

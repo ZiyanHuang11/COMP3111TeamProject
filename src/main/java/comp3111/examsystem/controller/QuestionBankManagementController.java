@@ -8,6 +8,8 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
+import java.util.List;
+
 public class QuestionBankManagementController {
     @FXML
     private TextField questionFilterTxt;
@@ -181,7 +183,30 @@ public class QuestionBankManagementController {
         }
     }
 
+    @FXML
+    private void handleRefresh() {
+        questionTable.refresh();
+    }
 
+    // Handle reset button
+    @FXML
+    private void handleReset() {
+        questionFilterTxt.clear();
+        typeFilterComboBox.setValue("All");
+        scoreFilterTxt.clear();
+        questionTable.setItems(questionService.getQuestionList());
+    }
+
+    // Handle filter button
+    @FXML
+    private void handleFilter() {
+        String questionFilter = questionFilterTxt.getText().trim();
+        String typeFilter = typeFilterComboBox.getValue();
+        String scoreFilter = scoreFilterTxt.getText().trim();
+
+        List<Question> filteredQuestions = questionService.filterQuestions(questionFilter, typeFilter, scoreFilter);
+        questionTable.setItems(FXCollections.observableArrayList(filteredQuestions));
+    }
 
     private void clearInputFields() {
         questionTxt.clear();
@@ -201,4 +226,3 @@ public class QuestionBankManagementController {
         alert.showAndWait();
     }
 }
-

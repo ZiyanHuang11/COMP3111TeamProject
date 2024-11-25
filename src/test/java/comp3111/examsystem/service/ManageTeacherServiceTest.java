@@ -19,7 +19,7 @@ class ManageTeacherServiceTest {
 
     @BeforeEach
     void setUp() {
-        // 使用 MockDataManager 而不是 DataManager
+        // 使用 MockDataManager 而不是实际的 DataManager
         dataManager = new MockDataManager();
         manageTeacherService = new ManageTeacherService(dataManager);
 
@@ -74,7 +74,6 @@ class ManageTeacherServiceTest {
         filteredTeachers = manageTeacherService.filterTeachers("teacher3", "", "");
         assertTrue(filteredTeachers.isEmpty(), "Filter should return no teachers for non-existent username.");
     }
-
 
     @Test
     void testValidateInputs() {
@@ -132,6 +131,12 @@ class ManageTeacherServiceTest {
         }
 
         @Override
+        public void deleteTeacher(String teacherId) {
+            mockTeachers.removeIf(teacher -> teacher.getId().equals(teacherId));
+        }
+
+
+        @Override
         public void saveTeachers() {
             // 模拟保存操作，不进行实际的文件写入
         }
@@ -154,12 +159,11 @@ class ManageTeacherServiceTest {
             // 模拟保存操作，不进行实际的文件写入
         }
 
-        // 根据需要重写其他方法，避免访问真实的数据文件
         @Override
         public void save() {
             // 模拟保存操作
         }
 
-        // 如果在测试中需要其他数据，可以在此处添加
+        // 根据需要重写其他方法，避免访问真实的数据文件
     }
 }

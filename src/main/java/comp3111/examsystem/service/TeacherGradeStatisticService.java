@@ -1,8 +1,6 @@
 package comp3111.examsystem.service;
 
 import comp3111.examsystem.data.DataManager;
-import comp3111.examsystem.entity.ExamResult;
-import comp3111.examsystem.entity.Student;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.chart.*;
@@ -13,85 +11,71 @@ import java.util.stream.Collectors;
 public class TeacherGradeStatisticService {
 
     private final DataManager dataManager;
-    private final ObservableList<Grade> gradeList;
+    private final ObservableList<Map<String, String>> gradeList;
 
     public TeacherGradeStatisticService(DataManager dataManager) {
         this.dataManager = dataManager;
         this.gradeList = FXCollections.observableArrayList(loadGrades());
     }
 
-    // 在服务类中定义 Grade 类
-    public static class Grade {
-        private final String studentName;
-        private final String courseNum;
-        private final String examName;
-        private final String score;
-        private final String fullScore;
-        private final String passStatus;
+    private List<Map<String, String>> loadGrades() {
+        List<Map<String, String>> grades = new ArrayList<>();
 
-        public Grade(String studentName, String courseNum, String examName, String score, String fullScore, String passStatus) {
-            this.studentName = studentName;
-            this.courseNum = courseNum;
-            this.examName = examName;
-            this.score = score;
-            this.fullScore = fullScore;
-            this.passStatus = passStatus;
-        }
+        // 示例数据加载，您需要根据实际情况从 dataManager 获取数据
+        // 以下仅为示例，请根据您的数据结构进行修改
 
-        // Getter 方法
-        public String getStudentName() { return studentName; }
-        public String getCourseNum() { return courseNum; }
-        public String getExamName() { return examName; }
-        public String getScore() { return score; }
-        public String getFullScore() { return fullScore; }
-        public String getPassStatus() { return passStatus; }
-    }
+        Map<String, String> grade1 = new HashMap<>();
+        grade1.put("studentName", "Alice");
+        grade1.put("courseNum", "CS101");
+        grade1.put("examName", "Midterm");
+        grade1.put("score", "85");
+        grade1.put("fullScore", "100");
+        grade1.put("passStatus", "Pass");
+        grades.add(grade1);
 
-    private List<Grade> loadGrades() {
-        List<Grade> grades = new ArrayList<>();
-        List<ExamResult> examResults = dataManager.getExamResults();
-        List<Student> students = dataManager.getStudents();
+        Map<String, String> grade2 = new HashMap<>();
+        grade2.put("studentName", "Bob");
+        grade2.put("courseNum", "CS101");
+        grade2.put("examName", "Midterm");
+        grade2.put("score", "90");
+        grade2.put("fullScore", "100");
+        grade2.put("passStatus", "Pass");
+        grades.add(grade2);
 
-        for (ExamResult result : examResults) {
-            for (Student student : students) {
-                if (student.getId().equals(result.getStudentID())) {
-                    grades.add(new Grade(
-                            student.getName(),
-                            result.getCourseID(),
-                            result.getExamName(),
-                            String.valueOf(result.getScore()),
-                            String.valueOf(result.getTotalScore()),
-                            result.getPassStatus()
-                    ));
-                    break;
-                }
-            }
-        }
+        Map<String, String> grade3 = new HashMap<>();
+        grade3.put("studentName", "Alice");
+        grade3.put("courseNum", "CS102");
+        grade3.put("examName", "Final");
+        grade3.put("score", "95");
+        grade3.put("fullScore", "100");
+        grade3.put("passStatus", "Pass");
+        grades.add(grade3);
+
         return grades;
     }
 
-    public ObservableList<Grade> getGradeList() {
+    public ObservableList<Map<String, String>> getGradeList() {
         return gradeList;
     }
 
     public List<String> getCourses() {
-        return gradeList.stream().map(Grade::getCourseNum).filter(Objects::nonNull).distinct().collect(Collectors.toList());
+        return gradeList.stream().map(g -> g.get("courseNum")).filter(Objects::nonNull).distinct().collect(Collectors.toList());
     }
 
     public List<String> getExams() {
-        return gradeList.stream().map(Grade::getExamName).filter(Objects::nonNull).distinct().collect(Collectors.toList());
+        return gradeList.stream().map(g -> g.get("examName")).filter(Objects::nonNull).distinct().collect(Collectors.toList());
     }
 
     public List<String> getStudents() {
-        return gradeList.stream().map(Grade::getStudentName).filter(Objects::nonNull).distinct().collect(Collectors.toList());
+        return gradeList.stream().map(g -> g.get("studentName")).filter(Objects::nonNull).distinct().collect(Collectors.toList());
     }
 
-    public void updateBarChart(BarChart<String, Number> barChart, List<Grade> grades) {
+    public void updateBarChart(BarChart<String, Number> barChart, List<Map<String, String>> grades) {
         Map<String, Double> courseAverageScores = grades.stream()
-                .filter(g -> g.getCourseNum() != null && g.getScore() != null)
+                .filter(g -> g.get("courseNum") != null && g.get("score") != null)
                 .collect(Collectors.groupingBy(
-                        Grade::getCourseNum,
-                        Collectors.averagingDouble(g -> Double.parseDouble(g.getScore()))
+                        g -> g.get("courseNum"),
+                        Collectors.averagingDouble(g -> Double.parseDouble(g.get("score")))
                 ));
 
         XYChart.Series<String, Number> series = new XYChart.Series<>();
@@ -103,12 +87,12 @@ public class TeacherGradeStatisticService {
         barChart.getData().add(series);
     }
 
-    public void updatePieChart(PieChart pieChart, List<Grade> grades) {
+    public void updatePieChart(PieChart pieChart, List<Map<String, String>> grades) {
         Map<String, Integer> studentScores = grades.stream()
-                .filter(g -> g.getStudentName() != null && g.getScore() != null)
+                .filter(g -> g.get("studentName") != null && g.get("score") != null)
                 .collect(Collectors.groupingBy(
-                        Grade::getStudentName,
-                        Collectors.summingInt(g -> Integer.parseInt(g.getScore()))
+                        g -> g.get("studentName"),
+                        Collectors.summingInt(g -> Integer.parseInt(g.get("score")))
                 ));
 
         pieChart.getData().clear();
@@ -117,12 +101,12 @@ public class TeacherGradeStatisticService {
         );
     }
 
-    public void updateLineChart(LineChart<String, Number> lineChart, List<Grade> grades) {
+    public void updateLineChart(LineChart<String, Number> lineChart, List<Map<String, String>> grades) {
         Map<String, Double> examAverageScores = grades.stream()
-                .filter(g -> g.getExamName() != null && g.getScore() != null)
+                .filter(g -> g.get("examName") != null && g.get("score") != null)
                 .collect(Collectors.groupingBy(
-                        Grade::getExamName,
-                        Collectors.averagingDouble(g -> Double.parseDouble(g.getScore()))
+                        g -> g.get("examName"),
+                        Collectors.averagingDouble(g -> Double.parseDouble(g.get("score")))
                 ));
 
         XYChart.Series<String, Number> series = new XYChart.Series<>();
@@ -134,12 +118,12 @@ public class TeacherGradeStatisticService {
         lineChart.getData().add(series);
     }
 
-    public List<Grade> filterGrades(String selectedCourse, String selectedExam, String selectedStudent) {
+    public List<Map<String, String>> filterGrades(String selectedCourse, String selectedExam, String selectedStudent) {
         return gradeList.stream()
                 .filter(grade ->
-                        (selectedCourse == null || selectedCourse.isEmpty() || selectedCourse.equals(grade.getCourseNum())) &&
-                                (selectedExam == null || selectedExam.isEmpty() || selectedExam.equals(grade.getExamName())) &&
-                                (selectedStudent == null || selectedStudent.isEmpty() || selectedStudent.equals(grade.getStudentName()))
+                        (selectedCourse == null || selectedCourse.isEmpty() || selectedCourse.equals(grade.get("courseNum"))) &&
+                                (selectedExam == null || selectedExam.isEmpty() || selectedExam.equals(grade.get("examName"))) &&
+                                (selectedStudent == null || selectedStudent.isEmpty() || selectedStudent.equals(grade.get("studentName")))
                 )
                 .collect(Collectors.toList());
     }

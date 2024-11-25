@@ -58,7 +58,7 @@
             <children>
                 <Button mnemonicParsing="false" onAction="#deleteCourse" text="Delete" />
 
-                <Button mnemonicParsing="false" onAction="#refreshCourse" text="Refresh" />
+                <Button mnemonicParsing="false" onAction="#refreshCourseList" text="Refresh" />
 
                 <Region prefWidth="20"/>
 

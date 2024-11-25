@@ -149,7 +149,7 @@ public class ManageCourseController {
         }
     }
 
-    private void refreshCourseList() {
+    public void refreshCourseList() {
         displayCourses(FXCollections.observableArrayList(courseService.getCourses()));
     }
 
