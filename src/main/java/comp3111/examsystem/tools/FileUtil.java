@@ -72,7 +72,15 @@ public class FileUtil {
             e.printStackTrace();
         }
     }
-
+    // 读取文件
+    public static List<String> readFile(String filePath) {
+        try {
+            return Files.readAllLines(Paths.get(filePath));
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
     /**
      * Deletes a file at the specified path.
      *

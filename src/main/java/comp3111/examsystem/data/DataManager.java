@@ -75,8 +75,17 @@ public class DataManager {
                         student.getId(), student.getUsername(), student.getName(),
                         student.getAge(), student.getGender(), student.getDepartment(), student.getPassword()))
                 .collect(Collectors.toList());
-        FileUtil.writeFile("data/students.txt", lines);
+
+        // 读取现有文件内容
+        List<String> existingLines = FileUtil.readFile("data/students.txt");
+
+        // 将现有内容和新内容合并
+        existingLines.addAll(lines);
+
+        // 写入文件，保持原内容，并追加新数据
+        FileUtil.writeFile("data/students.txt", existingLines);
     }
+
 
     // --- COURSE OPERATIONS ---
     public void addCourse(Course course) {
@@ -96,8 +105,17 @@ public class DataManager {
                 .map(course -> String.format("id:%s,courseID:%s,courseName:%s,department:%s",
                         course.getId(), course.getCourseID(), course.getCourseName(), course.getDepartment()))
                 .collect(Collectors.toList());
-        FileUtil.writeFile("data/courses.txt", lines);
+
+        // 读取现有内容
+        List<String> existingLines = FileUtil.readFile("data/courses.txt");
+
+        // 合并新内容
+        existingLines.addAll(lines);
+
+        // 写入文件，保持原内容，并追加新数据
+        FileUtil.writeFile("data/courses.txt", existingLines);
     }
+
 
     // --- EXAM OPERATIONS ---
     public void addExam(Exam exam) {
@@ -118,8 +136,17 @@ public class DataManager {
                         exam.getId(), exam.getExamName(), exam.getExamTime(),
                         exam.getCourseID(), String.join("|", exam.getQuestionIds()), exam.getDuration()))
                 .collect(Collectors.toList());
-        FileUtil.writeFile("data/exams.txt", lines);
+
+        // 读取现有内容
+        List<String> existingLines = FileUtil.readFile("data/exam.txt");
+
+        // 合并新内容
+        existingLines.addAll(lines);
+
+        // 写入文件，保持原内容，并追加新数据
+        FileUtil.writeFile("data/exam.txt", existingLines);
     }
+
 
     // --- QUESTION OPERATIONS ---
     public void addQuestion(Question question) {
@@ -149,18 +176,35 @@ public class DataManager {
                         question.getOptionB(), question.getOptionC(), question.getOptionD(),
                         question.getAnswer(), question.getType(), question.getScore()))
                 .collect(Collectors.toList());
-        FileUtil.writeFile("data/questions.txt", lines);
+
+        // 读取现有内容
+        List<String> existingLines = FileUtil.readFile("data/questions.txt");
+
+        // 合并新内容
+        existingLines.addAll(lines);
+
+        // 写入文件，保持原内容，并追加新数据
+        FileUtil.writeFile("data/questions.txt", existingLines);
     }
 
-    // --- EXAM RESULT OPERATIONS ---
+
     public void saveExamResults() {
         List<String> lines = getExamResults().stream()
                 .map(result -> String.format("id:%s,studentID:%s,examID:%s,score:%d,totalScore:%d,passStatus:%s",
                         result.getId(), result.getStudentID(), result.getExamID(),
                         result.getScore(), result.getTotalScore(), result.getPassStatus()))
                 .collect(Collectors.toList());
-        FileUtil.writeFile("data/exam_results.txt", lines);
+
+        // 读取现有内容
+        List<String> existingLines = FileUtil.readFile("data/exam_results.txt");
+
+        // 合并新内容
+        existingLines.addAll(lines);
+
+        // 写入文件，保持原内容，并追加新数据
+        FileUtil.writeFile("data/exam_results.txt", existingLines);
     }
+
 
     // --- TEACHER OPERATIONS ---
     public void addTeacher(Teacher teacher) {
@@ -182,15 +226,32 @@ public class DataManager {
                         teacher.getName(), teacher.getGender(), teacher.getAge(),
                         teacher.getTitle(), teacher.getDepartment()))
                 .collect(Collectors.toList());
-        FileUtil.writeFile("data/teachers.txt", lines);
+
+        // 读取现有内容
+        List<String> existingLines = FileUtil.readFile("data/teachers.txt");
+
+        // 合并新内容
+        existingLines.addAll(lines);
+
+        // 写入文件，保持原内容，并追加新数据
+        FileUtil.writeFile("data/teachers.txt", existingLines);
     }
 
-    // --- MANAGER OPERATIONS ---
+
     public void saveManagers() {
         List<String> lines = getManagers().stream()
                 .map(manager -> String.format("id:%s,username:%s,password:%s",
                         manager.getId(), manager.getUsername(), manager.getPassword()))
                 .collect(Collectors.toList());
-        FileUtil.writeFile("data/managers.txt", lines);
+
+        // 读取现有内容
+        List<String> existingLines = FileUtil.readFile("data/managers.txt");
+
+        // 合并新内容
+        existingLines.addAll(lines);
+
+        // 写入文件，保持原内容，并追加新数据
+        FileUtil.writeFile("data/managers.txt", existingLines);
     }
+
 }

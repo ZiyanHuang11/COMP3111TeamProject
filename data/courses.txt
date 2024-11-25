@@ -1,0 +1,4 @@
+id:1,courseID:COMP3111,courseName:Software Engineering,department:CSE
+id:2,courseID:COMP5111,courseName:Software Engineering II,department:CSE
+id:3,courseID:COMP4462,courseName:Data Visualization,department:CSE
+id:4,courseID:IT2020,courseName:Cybersecurity,department:IT；

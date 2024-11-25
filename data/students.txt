@@ -1,0 +1,8 @@
+id:1,username:jane_smith,name:Jane Smith,age:22,gender:Female,department:Business,password:password456
+id:2,username:alice_johnson,name:Alice Johnson,age:33,gender:Female,department:Mathematics,password:password789
+id:3,username:daisy_white,name:Daisy White,age:22,gender:Female,department:Chemistry,password:password303
+id:4,username:edward_green,name:Edward Green,age:24,gender:Male,department:Art,password:password404
+id:5,username:fiona_blue,name:Fiona Blue,age:20,gender:Female,department:History,password:password505
+id:6,username:hannah_yellow,name:Hannah Yellow,age:22,gender:Female,department:Literature,password:password707
+id:7,username:student1,name:Stu Example,age:19,gender:Male,department:Software Engineering,password:123456
+id:8,username:john_doe,name:John Doe,age:20,gender:Male,department:Computer Science,password:password123

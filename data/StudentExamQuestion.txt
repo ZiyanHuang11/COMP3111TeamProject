@@ -1,5 +1,0 @@
-QuestionID,Question,OptionA,OptionB,OptionC,OptionD,Answer,Type,Score
-1,What is Java?,A programming language,A coffee brand,An island,All of the above,A programming language,Single,5
-2,Explain OOP concepts.,Encapsulation,Inheritance,Polymorphism,Abstraction,All of the above,Multiple,10
-3,What is software engineering?,The application of engineering to software development,Designing bridges,Writing essays,None of the above,The application of engineering to software development,Single,5
-4,Define agile.,Iterative development,Static planning,No testing,None of the above,Iterative development,Single,5
