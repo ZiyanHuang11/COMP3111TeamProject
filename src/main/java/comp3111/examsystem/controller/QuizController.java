@@ -5,6 +5,9 @@ import comp3111.examsystem.entity.StudentQuestion;
 import comp3111.examsystem.service.QuizService;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.*;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Node;
@@ -293,26 +296,24 @@ public class QuizController {
         String entry = String.format("%s,%s,%s,%d,%d,%d", loggedInUsername, courseId, examType, score, fullScore, timeTakenSec);
         try {
             Path path = Paths.get(COMPLETED_GRADES_FILE);
-            if (!Files.exists(path)) {
-                // 如果文件不存在，创建文件
-                Files.createFile(path);
-            } else {
-                // 检查文件末尾是否有换行符
-                List<String> lines = Files.readAllLines(path);
-                if (!lines.isEmpty()) {
-                    String lastLine = lines.get(lines.size() - 1);
-                    if (!lastLine.endsWith(System.lineSeparator())) {
-                        Files.write(path, System.lineSeparator().getBytes(), StandardOpenOption.APPEND);
-                    }
+            boolean fileExists = Files.exists(path);
+
+            try (BufferedWriter writer = Files.newBufferedWriter(path, StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
+                if (fileExists && Files.size(path) > 0) {
+                    // 如果文件存在且不为空，先写一个换行符
+                    writer.newLine();
                 }
+                // 写入记录
+                writer.write(entry);
+                // 不需要在这里添加额外的换行符，因为下次写入时会在前面添加
             }
-            // 写入新记录，并确保独占一行
-            Files.write(path, (entry + System.lineSeparator()).getBytes(), StandardOpenOption.APPEND);
         } catch (IOException e) {
             e.printStackTrace();
             showAlert("Error", "Failed to record completed grade.", Alert.AlertType.ERROR);
         }
     }
+
+
 
 
     private void returnToMainUI() {
