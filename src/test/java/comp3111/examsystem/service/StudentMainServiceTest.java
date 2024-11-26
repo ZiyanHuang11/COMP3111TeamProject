@@ -13,8 +13,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class StudentMainServiceTest {
 
-    private static final String TEST_EXAMS_FILE_PATH = "test_student_exams.txt";
-    private static final String TEST_COMPLETED_QUIZZES_FILE_PATH = "test_completed_quizzes.txt";
+    private static final String TEST_EXAMS_FILE_PATH = "test_data/test_student_exams.txt";
+    private static final String TEST_COMPLETED_QUIZZES_FILE_PATH = "test_data/test_completed_quizzes.txt";
     private StudentMainService service;
 
     @BeforeEach
@@ -117,14 +117,14 @@ class StudentMainServiceTest {
 
     @Test
     void testGetExamsForStudent_FileNotFound() {
-        StudentMainService serviceWithMissingFile = new StudentMainService("missing_exams.txt", TEST_COMPLETED_QUIZZES_FILE_PATH);
+        StudentMainService serviceWithMissingFile = new StudentMainService("test_data/missing_exams.txt", TEST_COMPLETED_QUIZZES_FILE_PATH);
         List<String> exams = serviceWithMissingFile.getExamsForStudent("bonny");
         assertTrue(exams.isEmpty(), "Exams list should be empty when the exams file does not exist");
     }
 
     @Test
     void testGetGradesForStudent_FileNotFound() {
-        StudentMainService serviceWithMissingFile = new StudentMainService(TEST_EXAMS_FILE_PATH, "missing_grades.txt");
+        StudentMainService serviceWithMissingFile = new StudentMainService(TEST_EXAMS_FILE_PATH, "test_data/missing_grades.txt");
         List<String> grades = serviceWithMissingFile.getGradesForStudent("bonny");
         assertTrue(grades.isEmpty(), "Grades list should be empty when the grades file does not exist");
     }

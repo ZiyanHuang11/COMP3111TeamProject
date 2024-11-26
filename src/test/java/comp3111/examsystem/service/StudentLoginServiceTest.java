@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class StudentLoginServiceTest {
 
-    private static final String TEST_FILE_PATH = "test_students.txt";
+    private static final String TEST_FILE_PATH = "test_data/test_students.txt";
     private StudentLoginService service;
 
     @BeforeEach
@@ -75,7 +75,7 @@ class StudentLoginServiceTest {
     @Test
     void testValidateLogin_FileNotFound() {
         // Setup a service with a non-existing file
-        StudentLoginService serviceWithMissingFile = new StudentLoginService("non_existing_file.txt");
+        StudentLoginService serviceWithMissingFile = new StudentLoginService("test_data/non_existing_file.txt");
 
         // Act & Assert
         assertFalse(serviceWithMissingFile.validateLogin("user1", "password1"), "Missing file should return false");

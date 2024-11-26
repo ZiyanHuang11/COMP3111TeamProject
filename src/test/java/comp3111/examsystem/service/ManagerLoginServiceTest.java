@@ -18,7 +18,7 @@ public class ManagerLoginServiceTest {
 
     @BeforeEach
     public void setUp() throws IOException {
-        testFilePath = "test_managers.txt";
+        testFilePath = "test_data/test_managers.txt";
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(testFilePath))) {
             writer.write("admin,admin123\n");
@@ -51,7 +51,7 @@ public class ManagerLoginServiceTest {
 
     @Test
     public void testFileNotFound() {
-        ManagerLoginService invalidService = new ManagerLoginService("invalid_path/managers.txt");
+        ManagerLoginService invalidService = new ManagerLoginService("test_data/invalid_path/managers.txt");
         assertFalse(invalidService.validate("admin", "admin123")); // Should return false since file does not exist
     }
 

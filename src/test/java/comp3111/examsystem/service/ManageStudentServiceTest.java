@@ -13,8 +13,8 @@ import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ManageStudentServiceTest {
-    private static final String TEST_STUDENT_FILE = "test_students.txt";
-    private static final String TEST_EXAMS_FILE = "test_exams.txt";
+    private static final String TEST_STUDENT_FILE = "test_data/test_students.txt";
+    private static final String TEST_EXAMS_FILE = "test_data/test_exams.txt";
     private ManageStudentService service;
 
     @BeforeEach

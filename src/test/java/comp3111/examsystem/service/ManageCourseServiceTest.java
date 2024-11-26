@@ -20,7 +20,7 @@ public class ManageCourseServiceTest {
 
     @BeforeEach
     public void setUp() throws IOException {
-        testFilePath = "test_courses.txt";
+        testFilePath = "test_data/test_courses.txt";
 
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(testFilePath))) {
             writer.write("CS101,Introduction to Computer Science,CS\n");

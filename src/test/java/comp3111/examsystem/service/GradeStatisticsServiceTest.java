@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class GradeStatisticsServiceTest {
 
-    private static final String TEST_GRADES_FILE_PATH = "test_grades.txt";
+    private static final String TEST_GRADES_FILE_PATH = "test_data/test_grades.txt";
     private GradeStatisticsService service;
 
     @BeforeEach
@@ -50,7 +50,7 @@ class GradeStatisticsServiceTest {
     @Test
     void testGetAllGradeRecords_FileNotFound() {
         // Arrange
-        GradeStatisticsService serviceWithMissingFile = new GradeStatisticsService("nonexistent_file.txt");
+        GradeStatisticsService serviceWithMissingFile = new GradeStatisticsService("test_data/nonexistent_file.txt");
 
         // Act
         List<GradeRecord> records = serviceWithMissingFile.getAllGradeRecords();

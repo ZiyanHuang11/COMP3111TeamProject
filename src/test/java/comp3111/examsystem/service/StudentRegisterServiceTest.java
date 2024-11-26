@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class StudentRegisterServiceTest {
 
-    private static final String TEST_FILE_PATH = "test_students.txt";
+    private static final String TEST_FILE_PATH = "test_data/test_students.txt";
     private StudentRegisterService service;
 
     @BeforeEach
@@ -72,7 +72,7 @@ class StudentRegisterServiceTest {
 
     @Test
     void testRegisterStudent_FileCreation() throws Exception {
-        String newFilePath = "new_students.txt";
+        String newFilePath = "test_data/new_students.txt";
         Files.deleteIfExists(Path.of(newFilePath));
         StudentRegisterService newService = new StudentRegisterService(newFilePath);
 

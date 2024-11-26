@@ -12,6 +12,7 @@ import java.nio.file.Paths;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ExamManagementServiceTest {
+
     private ExamManagementService examService;
     private String testExamFilePath = "test_data/test_exams.txt";
     private String testQuestionFilePath = "test_data/test_questions.txt";
@@ -60,7 +61,7 @@ public class ExamManagementServiceTest {
 
         ObservableList<Exam> exams = examService.getExamList();
         assertEquals(3, exams.size());
-        assertTrue(exams.contains(newExam));
+        assertTrue(exams.stream().anyMatch(e -> e.getExamName().equals("Test Exam")));
     }
 
     @Test

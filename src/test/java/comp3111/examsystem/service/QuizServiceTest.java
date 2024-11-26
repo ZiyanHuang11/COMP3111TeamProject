@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class QuizServiceTest {
 
-    private static final String TEST_FILE_PATH = "test_quizzes.txt";
+    private static final String TEST_FILE_PATH = "test_data/test_quizzes.txt";
     private QuizService service;
 
     @BeforeEach
