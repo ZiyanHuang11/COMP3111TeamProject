@@ -3,8 +3,8 @@ package comp3111.examsystem.service;
 import comp3111.examsystem.entity.StudentQuestion;
 import comp3111.examsystem.entity.Quiz;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.*;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

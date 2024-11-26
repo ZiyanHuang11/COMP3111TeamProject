@@ -65,12 +65,19 @@ public class StudentMainController {
             String courseId = courseInfo[0];
             String examType = parts[1];
 
-            // Simulate completing an exam and saving the grade (example scores)
-            studentMainService.addCompletedExam(loggedInUsername, courseId, examType, 40, 50, 30);
+            // 加载 Quiz UI 并传递参数
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/comp3111/examsystem/QuizUI.fxml"));
+            Parent quizUI = loader.load();
 
-            // Refresh the exam list
-            loadExamsForUser();
-        } catch (Exception e) {
+            // 获取 QuizController 并传递数据
+            QuizController quizController = loader.getController();
+            quizController.initData(courseId, examType, loggedInUsername);
+
+            // 切换到 Quiz UI
+            Stage stage = (Stage) examCombox.getScene().getWindow();
+            stage.getScene().setRoot(quizUI);
+            stage.sizeToScene();
+        } catch (IOException e) {
             e.printStackTrace();
             showAlert("Error", "Failed to open the exam UI.", Alert.AlertType.ERROR);
         }

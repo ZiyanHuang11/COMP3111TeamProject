@@ -1,25 +1,48 @@
-Comp3111,Software Engineering,quiz1,60
-SINGLE,Which is a programming language?,Java,Excel,HTML,Photoshop,A,10
-SINGLE,What does HTML stand for?,Hyper Text Markup Language,Home Tool Markup Language,None,None,A,10
-MULTI,Which of the following are markup languages?,HTML,CSS,Java,XML,A,D,10
-SINGLE,Which is not a programming language?,Python,JavaScript,Excel,None,C,10
-Comp3111,Software Engineering,final,100
-SINGLE,What is the primary purpose of software requirements?,To define user expectations,To write code,To test software,To deploy software,A,20
-MULTI,Which of the following are Agile methodologies?,Scrum,Kanban,WATERFALL,Lean,A,B,D,20
-SINGLE,Which design pattern ensures a class has only one instance?,Singleton,Factory,Observer,Decorator,A,20
-MULTI,Select the key principles of SOLID.,Single Responsibility,Open/Closed,Database Normalization,Interface Segregation,A,B,D,20
-SINGLE,What is Continuous Integration?,A practice of merging all developers' working copies to a shared mainline multiple times a day,A development methodology,A testing framework,A version control system,A,20
-Comp5111,Software EngineeringII,final,100
-SINGLE,Which of the following is a key feature of DevOps?,Continuous Integration,Waterfall Model,Unified Modeling Language,Structured Programming,A,20
-MULTI,Identify the components of the Unified Process.,Inception,Elaboration,Construction,Transition,A,B,C,D,20
-SINGLE,What does CI/CD stand for?,Continuous Integration/Continuous Deployment,Continuous Improvement/Continuous Development,Continuous Integration/Continuous Design,Continuous Interaction/Continuous Delivery,A,20
-MULTI,Which tools are commonly used for version control?,Git,Subversion,Jira,Trello,A,B,C,D,20
-SINGLE,What is the main goal of software maintenance?,To fix bugs and improve performance,To design new features,To write documentation,To deploy software,A,20
-Comp5111,Software EngineeringII,quiz1,60
-SINGLE,What is the first phase of the software development lifecycle?,Requirements Analysis,Design,Implementation,Testing,A,10
-MULTI,Which of the following are testing types?,Unit Testing,Integration Testing,System Testing,Deployment Testing,A,B,C,D,10
-SINGLE,Which UML diagram is used to represent the static structure of a system?,Class Diagram,Use Case Diagram,Sequence Diagram,Activity Diagram,A,10
-MULTI,Select the Agile principles from the following.,Customer collaboration,Following a plan,Responding to change,Comprehensive documentation,A,C,10
-SINGLE,What is refactoring in software engineering?,Improving the internal structure of code without changing its external behavior,Adding new features to software,Fixing bugs in software,Deploying software to production,A,10
-MULTI,Which of the following are benefits of using design patterns?,Reusability,Maintainability,Performance,Scalability,A,B,C,D,10
+COMP3111,Software Engineering,final,100
+SINGLE,What is Software Engineering?,The application of engineering principles to software development,Writing code only,Creating hardware solutions,Testing software only,A,20
+SINGLE,What is the main objective of project management?,To meet objectives within constraints,To only manage resources,To only monitor teams,To only document processes,A,20
+MULTI,Which of the following are software development lifecycle models?,Waterfall,Agile,Spiral,V-Model,A,B,C,D,20
+SINGLE,What is a key principle of Agile development?,Customer collaboration over contract negotiation,Strict documentation over flexibility,Comprehensive design upfront,Testing after deployment,A,20
+MULTI,Select the characteristics of good software.,Maintainability,Reliability,Portability,Security,A,B,C,D,20
+COMP3111,Software Engineering,quiz1,60
+SINGLE,What is the foundation of Software Engineering?,Requirements analysis,Writing code,Testing software,Deploying solutions,A,10
+SINGLE,What does UML stand for?,Unified Modeling Language,Universal Modeling Language,Unified Markup Language,Universal Markup Language,A,10
+MULTI,Which are UML diagram types?,Class Diagram,Use Case Diagram,Sequence Diagram,Activity Diagram,A,B,C,D,10
+SINGLE,Which type of testing focuses on individual components?,Unit Testing,System Testing,Integration Testing,Regression Testing,A,10
+MULTI,Which of the following are object-oriented principles?,Encapsulation,Inheritance,Polymorphism,Abstraction,A,B,C,D,10
+COMP3111,Software Engineering,middle,80
+SINGLE,What is a primary goal of software design?,Creating a structure to fulfill requirements,Writing the code,Testing software,Deploying solutions,A,20
+MULTI,Select key phases in the software development lifecycle.,Planning,Design,Implementation,Maintenance,A,B,C,D,20
+SINGLE,Which diagram is used to model interactions between objects?,Sequence Diagram,Class Diagram,Use Case Diagram,Activity Diagram,A,20
+MULTI,Select the key goals of Agile development.,Fast delivery,Customer collaboration,Responding to change,Comprehensive documentation,A,B,C,D,20
+COMP3111,Software Engineering,quiz3,60
+SINGLE,Which of the following is not a software process model?,Database Model,Waterfall Model,Agile Model,Spiral Model,A,10
+MULTI,Select benefits of object-oriented programming.,Code Reusability,Encapsulation,Improved Maintainability,Code Optimization,A,B,C,D,10
+SINGLE,What does the "SOLID" principle stand for?,Single Responsibility,Open/Closed,Interface Segregation,Dependency Inversion,A,10
+SINGLE,What is an example of a runtime environment?,JVM,Python Interpreter,Web Browser,All of the above,D,10
+MULTI,Select the benefits of modular programming.,Ease of Debugging,Code Reusability,Independent Testing,Better Documentation,A,B,C,D,10
+COMP5111,Software EngineeringII,final,100
+SINGLE,What is the focus of DevOps?,Integration of development and operations,Software design,Hardware maintenance,Testing software,A,20
+MULTI,Select Agile artifacts.,Product Backlog,Sprint Backlog,Burndown Chart,Definition of Done,A,B,C,D,20
+SINGLE,Which diagram visualizes time-dependent interactions?,Sequence Diagram,Class Diagram,Use Case Diagram,Activity Diagram,A,20
+MULTI,Select benefits of version control systems.,Collaboration,Version Tracking,Code Review,Backup and Restore,A,B,C,D,20
+SINGLE,What is Continuous Delivery?,Releasing software to production in an automated way,Writing code quickly,Testing software manually,Deploying hardware systems,A,20
+COMP5111,Software EngineeringII,quiz1,60
+SINGLE,What is the primary focus of the Inception phase in the Unified Process?,Defining project goals,Writing code,Testing software,Deploying solutions,A,10
+MULTI,Select the benefits of CI/CD.,Faster Deployment,Improved Collaboration,Automated Testing,Scalability,A,B,C,D,10
+SINGLE,Which diagram is used to represent workflows?,Activity Diagram,Sequence Diagram,Class Diagram,Use Case Diagram,A,10
+SINGLE,What is the key principle of Lean Software Development?,Eliminating waste,Writing code quickly,Testing software frequently,Defining requirements,A,10
+MULTI,Select key metrics for software quality.,Reliability,Maintainability,Usability,Performance,A,B,C,D,10
+COMP3511,Operating System,final,100
+SINGLE,What is an operating system?,Software that manages hardware and software resources,A programming language,A compiler,A type of hardware,A,20
+MULTI,Which are types of operating systems?,Batch,Multitasking,Distributed,Real-time,A,B,C,D,20
+SINGLE,What is the primary function of a kernel?,To manage system resources,To write code,To provide user interfaces,To handle database connections,A,20
+MULTI,Select examples of system calls.,File Management,Process Control,Device Management,Memory Management,A,B,C,D,20
+SINGLE,What is the purpose of a scheduler in an OS?,To allocate CPU time to processes,To manage memory,To write logs,To handle errors,A,20
+COMP3511,Operating System,quiz2,60
+SINGLE,What is a thread in an operating system?,A lightweight process,Hardware component,A sequence of instructions,User input,A,10
+MULTI,Select types of memory in an OS.,RAM,ROM,Cache,Virtual Memory,A,B,C,D,10
+SINGLE,What is a deadlock?,A state where processes block each other indefinitely,A memory error,A hardware failure,A user error,A,10
+MULTI,Which are scheduling algorithms?,First-Come-First-Serve,Shortest Job Next,Round Robin,Priority Scheduling,A,B,C,D,10
+SINGLE,What is virtual memory?,A memory management technique,Physical memory,Cache memory,A type of hardware,A,10
 
