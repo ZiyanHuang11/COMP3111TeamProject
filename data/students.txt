@@ -10,3 +10,6 @@ bob_brown,Bob Brown,23,Male,Engineering,password101
 charlie_black,Charlie Black,19,Male,Physics,password202
 george_red,George Red,21,Male,Philosophy,password606
 student11,stu,19,Male,Software Engineering,aaaa1111
+bonny,Bonnie,20,Female,CSE,12345678
+bonny2,Bonnie2,20,Female,CSE,123
+bonny3,Bonnie3,20,Female,CSE,123456789

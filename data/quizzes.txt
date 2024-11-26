@@ -1,0 +1,25 @@
+Comp3111,Software Engineering,quiz1,60
+SINGLE,Which is a programming language?,Java,Excel,HTML,Photoshop,A,10
+SINGLE,What does HTML stand for?,Hyper Text Markup Language,Home Tool Markup Language,None,None,A,10
+MULTI,Which of the following are markup languages?,HTML,CSS,Java,XML,A,D,10
+SINGLE,Which is not a programming language?,Python,JavaScript,Excel,None,C,10
+Comp3111,Software Engineering,final,100
+SINGLE,What is the primary purpose of software requirements?,To define user expectations,To write code,To test software,To deploy software,A,20
+MULTI,Which of the following are Agile methodologies?,Scrum,Kanban,WATERFALL,Lean,A,B,D,20
+SINGLE,Which design pattern ensures a class has only one instance?,Singleton,Factory,Observer,Decorator,A,20
+MULTI,Select the key principles of SOLID.,Single Responsibility,Open/Closed,Database Normalization,Interface Segregation,A,B,D,20
+SINGLE,What is Continuous Integration?,A practice of merging all developers' working copies to a shared mainline multiple times a day,A development methodology,A testing framework,A version control system,A,20
+Comp5111,Software EngineeringII,final,100
+SINGLE,Which of the following is a key feature of DevOps?,Continuous Integration,Waterfall Model,Unified Modeling Language,Structured Programming,A,20
+MULTI,Identify the components of the Unified Process.,Inception,Elaboration,Construction,Transition,A,B,C,D,20
+SINGLE,What does CI/CD stand for?,Continuous Integration/Continuous Deployment,Continuous Improvement/Continuous Development,Continuous Integration/Continuous Design,Continuous Interaction/Continuous Delivery,A,20
+MULTI,Which tools are commonly used for version control?,Git,Subversion,Jira,Trello,A,B,C,D,20
+SINGLE,What is the main goal of software maintenance?,To fix bugs and improve performance,To design new features,To write documentation,To deploy software,A,20
+Comp5111,Software EngineeringII,quiz1,60
+SINGLE,What is the first phase of the software development lifecycle?,Requirements Analysis,Design,Implementation,Testing,A,10
+MULTI,Which of the following are testing types?,Unit Testing,Integration Testing,System Testing,Deployment Testing,A,B,C,D,10
+SINGLE,Which UML diagram is used to represent the static structure of a system?,Class Diagram,Use Case Diagram,Sequence Diagram,Activity Diagram,A,10
+MULTI,Select the Agile principles from the following.,Customer collaboration,Following a plan,Responding to change,Comprehensive documentation,A,C,10
+SINGLE,What is refactoring in software engineering?,Improving the internal structure of code without changing its external behavior,Adding new features to software,Fixing bugs in software,Deploying software to production,A,10
+MULTI,Which of the following are benefits of using design patterns?,Reusability,Maintainability,Performance,Scalability,A,B,C,D,10
+

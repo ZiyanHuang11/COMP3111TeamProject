@@ -1,5 +1,5 @@
-student1,comp3111,final,85,100,60
-student1,comp3111,quiz1,60,100,80
+student1,comp3111,final,85,100,60,Software Engineering
+student1,comp3111,quiz1,60,100,80,Software Engineering
 john_doe,comp3111,final,90,100,55
 jane_smith,comp4462,midterm,78,100,70
 alice_johnson,comp4462,final,92,100,65

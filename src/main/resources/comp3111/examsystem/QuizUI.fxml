@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.Region?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml" fx:controller="comp3111.examsystem.controller.QuizController">
+    <!-- 顶部区域 -->
+    <top>
+        <VBox spacing="10" alignment="CENTER">
+            <Label fx:id="quizTitle" text="Quiz Title" style="-fx-font-size: 20; -fx-font-weight: bold;"/>
+            <HBox spacing="20" alignment="CENTER">
+                <Label text="Total Question:"/>
+                <Label fx:id="totalQuestions" text="4"/>
+                <Region minWidth="20"/> <!-- 添加水平间距 -->
+                <Label text="Remain Time:"/>
+                <Label fx:id="timerLabel" text="60s"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- 左侧问题列表 -->
+    <left>
+        <VBox spacing="10">
+            <Label text="Question List:" style="-fx-font-weight: bold;"/>
+            <ListView fx:id="questionListView" prefWidth="200" />
+        </VBox>
+    </left>
+
+    <!-- 中心问题内容 -->
+    <center>
+        <VBox spacing="20" alignment="TOP_CENTER">
+            <Label fx:id="questionText" text="Question 1" wrapText="true" style="-fx-font-size: 16;"/>
+            <VBox fx:id="optionsContainer" spacing="10" alignment="TOP_LEFT" />
+        </VBox>
+    </center>
+
+    <!-- 底部导航按钮 -->
+    <bottom>
+        <HBox spacing="10" alignment="CENTER">
+            <Button text="Previous" onAction="#handlePrevious"/>
+            <Button text="Next" onAction="#handleNext"/>
+            <Button text="Submit" onAction="#handleSubmit"/>
+        </HBox>
+    </bottom>
+</BorderPane>

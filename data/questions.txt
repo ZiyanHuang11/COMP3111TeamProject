@@ -2,3 +2,8 @@ What is Java?,A programming language,A coffee brand,An island,All of the above,A
 Explain OOP concepts.,Encapsulation,Inheritance,Polymorphism,Abstraction,All of the above,Multiple,10
 What is Java1?,A programming language,A coffee brand,An island,All of the above,A programming language,Single,5
 What is Java5?,A programming language,A coffee brand,An island,All of the above,A programming language,Single,5
+Explain Python concepts.,Dynamic typing,Interpreted,Object-Oriented,All of the above,All of the above,Multiple,15
+What is HTML?,A markup language,A coffee brand,A scripting language,All of the above,A markup language,Single,10
+Name a feature of Java.,Platform independent,Object-Oriented,Secure,All of the above,All of the above,Multiple,10
+What is the output of 2+2 in Java?,3,5,6,4,4,Single,5
+
