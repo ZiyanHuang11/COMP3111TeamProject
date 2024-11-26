@@ -4,180 +4,124 @@ import comp3111.examsystem.service.StudentMainService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.List;
-import java.util.ResourceBundle;
 
-public class StudentMainController implements Initializable {
+public class StudentMainController {
     @FXML
     private ComboBox<String> examCombox;
 
-    private String loggedInUsername; // 当前登录用户名
+    private String loggedInUsername;
     private StudentMainService studentMainService;
 
     /**
-     * 设置登录用户名 (通过 LoginController 传递)
+     * Set the logged-in username and initialize the service.
      *
-     * @param username 登录用户名
+     * @param username Logged-in username.
      */
     public void setLoggedInUsername(String username) {
         this.loggedInUsername = username;
 
-        // 初始化考试服务
         String studentExamsFilePath = "data/studentsexams.txt";
         String completedQuizzesFilePath = "data/completed_quizzes.txt";
         studentMainService = new StudentMainService(studentExamsFilePath, completedQuizzesFilePath);
 
-        // 加载用户相关的考试信息到 ComboBox
-        List<String> exams = studentMainService.getExamsForStudent(loggedInUsername);
-        List<String> completedExams = studentMainService.getCompletedExams(loggedInUsername);
-
-        if (exams.isEmpty()) {
-            showAlert("No Exams Found", "No exams or grades available for the user: " + username, Alert.AlertType.WARNING);
-            return;
-        }
-
-        for (String exam : exams) {
-            String[] parts = exam.split(" \\| ");
-            if (parts.length < 2) {
-                // 格式不正确，跳过
-                continue;
-            }
-            String courseInfo = parts[0];
-            String examType = parts[1];
-            String[] courseParts = courseInfo.split(" ", 2);
-            String courseId = courseParts[0];
-
-            // 构建唯一标识符
-            String identifier = courseId + "," + examType;
-            boolean isCompleted = completedExams.contains(identifier);
-            if (isCompleted) {
-                examCombox.getItems().add(exam + " (Completed)");
-            } else {
-                examCombox.getItems().add(exam);
-            }
-        }
-
-        if (examCombox.getItems().isEmpty()) {
-            showAlert("No Exams to Display", "No exams or grades are available for display.", Alert.AlertType.WARNING);
-        }
+        loadExamsForUser();
     }
 
-    @Override
-    public void initialize(URL location, ResourceBundle resources) {
-        // 留空，等待 setLoggedInUsername 动态传递数据
+    /**
+     * Load exams for the logged-in user and populate the ComboBox.
+     */
+    private void loadExamsForUser() {
+        List<String> exams = studentMainService.getExamsForStudent(loggedInUsername);
+        if (exams.isEmpty()) {
+            showAlert("No Exams Found", "No exams or grades available for the user: " + loggedInUsername, Alert.AlertType.WARNING);
+        } else {
+            examCombox.getItems().setAll(exams);
+        }
     }
 
     @FXML
-    public void openExamUI(ActionEvent event) {
+    private void openExamUI(ActionEvent event) {
         String selectedExam = examCombox.getValue();
         if (selectedExam == null || selectedExam.isEmpty()) {
             showAlert("Error", "Please select an exam before proceeding.", Alert.AlertType.ERROR);
             return;
         }
 
-        // 检查所选考试是否已完成
-        boolean isCompleted = selectedExam.endsWith("(Completed)");
-        if (isCompleted) {
+        if (selectedExam.endsWith("(Completed)")) {
             showAlert("Info", "You have already completed this exam.", Alert.AlertType.INFORMATION);
             return;
         }
 
         try {
-            // 如果考试名包含 " (Completed)"，则去除该部分
-            if (selectedExam.endsWith("(Completed)")) {
-                selectedExam = selectedExam.substring(0, selectedExam.length() - " (Completed)".length()).trim();
-            }
-
-            // 解析选中的考试信息，获取 courseId 和 examType
             String[] parts = selectedExam.split(" \\| ");
-            if (parts.length < 2) {
-                showAlert("Error", "Invalid exam format.", Alert.AlertType.ERROR);
-                return;
-            }
-            String courseInfo = parts[0];
+            String[] courseInfo = parts[0].split(" ");
+            String courseId = courseInfo[0];
             String examType = parts[1];
 
-            String[] courseParts = courseInfo.split(" ", 2);
-            String courseId = courseParts[0];
+            // Simulate completing an exam and saving the grade (example scores)
+            studentMainService.addCompletedExam(loggedInUsername, courseId, examType, 40, 50, 30);
 
-            // 加载 QuizUI.fxml 界面
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/comp3111/examsystem/QuizUI.fxml"));
-            Parent quizUI = loader.load();
-            Stage stage = new Stage();
-            stage.setTitle("Exam: " + selectedExam);
-            stage.setScene(new Scene(quizUI));
-
-            // 获取控制器并传递数据
-            QuizController controller = loader.getController();
-            controller.initData(courseId, examType, loggedInUsername); // 传递三个参数
-
-            stage.show();
-
-            // 关闭当前窗口
-            closeCurrentWindow();
-        } catch (IOException e) {
+            // Refresh the exam list
+            loadExamsForUser();
+        } catch (Exception e) {
             e.printStackTrace();
             showAlert("Error", "Failed to open the exam UI.", Alert.AlertType.ERROR);
         }
     }
 
     @FXML
-    public void openGradeStatistic(ActionEvent event) {
+    private void openGradeStatistic(ActionEvent event) {
+        // Check if the logged-in username exists in the completed quizzes file
+        boolean hasCompletedExams = studentMainService.hasCompletedExams(loggedInUsername);
+
+        if (!hasCompletedExams) {
+            showAlert("No Completed Exams", "No completed exams or grades found for the user: " + loggedInUsername, Alert.AlertType.INFORMATION);
+            return;
+        }
+
         try {
-            // 加载 GradeStatistics.fxml 界面
+            // Load GradeStatistics UI
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/comp3111/examsystem/GradeStatistics.fxml"));
             Parent gradeStatisticsUI = loader.load();
 
-            // 获取 GradeStatisticsController 并传递必要的数据（如果需要）
+            // Pass logged-in username to GradeStatisticsController
             GradeStatisticsController controller = loader.getController();
             controller.setLoggedInUsername(this.loggedInUsername);
 
-            // 获取当前舞台并设置新的场景
+            // Get the current stage and set the new scene
             Stage stage = (Stage) examCombox.getScene().getWindow();
             stage.getScene().setRoot(gradeStatisticsUI);
-            stage.sizeToScene(); // 根据新界面调整窗口大小
-
+            stage.sizeToScene();
         } catch (IOException e) {
             e.printStackTrace();
-            showAlert("Error", "Failed to open the grade statistics UI.", Alert.AlertType.ERROR);
+            showAlert("Error", "Failed to open the Grade Statistics UI.", Alert.AlertType.ERROR);
         }
     }
 
     /**
-     * 显示警告弹窗
+     * Show an alert dialog with the given title, message, and type.
      *
-     * @param title   弹窗标题
-     * @param message 弹窗消息
-     * @param type    弹窗类型
+     * @param title   The title of the alert dialog.
+     * @param message The message to display in the alert.
+     * @param type    The type of the alert.
      */
     private void showAlert(String title, String message, Alert.AlertType type) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
-        ButtonType buttonTypeOk = new ButtonType("OK", ButtonBar.ButtonData.OK_DONE);
-        alert.getButtonTypes().setAll(buttonTypeOk);
         alert.showAndWait();
     }
 
-    /**
-     * 关闭当前窗口
-     */
-    private void closeCurrentWindow() {
-        Stage currentStage = (Stage) examCombox.getScene().getWindow();
-        currentStage.close();
-    }
-
     @FXML
-    public void exit(ActionEvent event) {
-        System.exit(0); // 退出程序
+    private void exit(ActionEvent event) {
+        System.exit(0);
     }
 }

@@ -1,4 +1,4 @@
-bonny,Comp3111,final,Software Engineering
-bonny,Comp3111,quiz1,Software Engineering
-bonny,Comp5111,final,Software EngineeringII
-bonny,Comp5111,quiz1,Software EngineeringII
+bonny,COMP3111,final,Software Engineering
+bonny,COMP3111,quiz1,Software Engineering
+bonny,COMP5111,final,Software EngineeringII
+bonny,COMP5111,quiz1,Software EngineeringII

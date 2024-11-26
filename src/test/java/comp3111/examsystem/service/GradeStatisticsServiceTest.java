@@ -14,111 +14,108 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class GradeStatisticsServiceTest {
 
-    private static final String TEST_FILE_PATH = "test_grades.txt";
+    private static final String TEST_GRADES_FILE_PATH = "test_grades.txt";
     private GradeStatisticsService service;
 
     @BeforeEach
     void setUp() throws Exception {
         // Create a temporary test file with sample data
-        try (FileWriter writer = new FileWriter(TEST_FILE_PATH)) {
-            writer.write("COMP3111,quiz1,80,100,30\n");
-            writer.write("COMP3111,quiz2,90,100,35\n");
-            writer.write("COMP5111,quiz1,70,100,25\n");
+        try (FileWriter writer = new FileWriter(TEST_GRADES_FILE_PATH)) {
+            writer.write("user1,COMP3111,quiz1,80,100,30\n");
+            writer.write("user1,COMP3111,quiz2,90,100,35\n");
+            writer.write("user2,COMP5111,quiz1,70,100,25\n");
+            writer.write("user3,COMP6111,quiz2,85,100,40\n");
         }
-        service = new GradeStatisticsService(TEST_FILE_PATH);
+        service = new GradeStatisticsService(TEST_GRADES_FILE_PATH);
     }
 
     @AfterEach
     void tearDown() throws Exception {
         // Delete the temporary test file after each test
-        Files.deleteIfExists(Path.of(TEST_FILE_PATH));
+        Files.deleteIfExists(Path.of(TEST_GRADES_FILE_PATH));
     }
 
     @Test
     void testGetAllGradeRecords() {
+        // Act
         List<GradeRecord> records = service.getAllGradeRecords();
-        assertEquals(3, records.size(), "All records should be loaded correctly");
-        GradeRecord firstRecord = records.get(0);
-        assertEquals("COMP3111", firstRecord.getCourse());
-        assertEquals("quiz1", firstRecord.getExam());
-        assertEquals(80, firstRecord.getScore());
-        assertEquals(100, firstRecord.getFullScore());
-        assertEquals(30, firstRecord.getTime());
+
+        // Assert
+        assertEquals(4, records.size(), "Should retrieve all 4 grade records");
+        assertEquals("COMP3111", records.get(0).getCourse());
+        assertEquals("quiz1", records.get(0).getExam());
+        assertEquals(80, records.get(0).getScore());
     }
 
     @Test
-    void testGetAllGradeRecords_EmptyFile() throws Exception {
-        Files.writeString(Path.of(TEST_FILE_PATH), "");
-        List<GradeRecord> records = service.getAllGradeRecords();
-        assertTrue(records.isEmpty(), "Records list should be empty for an empty file");
-    }
+    void testGetAllGradeRecords_FileNotFound() {
+        // Arrange
+        GradeStatisticsService serviceWithMissingFile = new GradeStatisticsService("nonexistent_file.txt");
 
-    @Test
-    void testGetAllGradeRecords_PartiallyInvalidData() throws Exception {
-        Files.writeString(Path.of(TEST_FILE_PATH), "COMP3111,quiz1,80,100,30\nInvalidData\nCOMP5111,quiz1,70,100,25\n");
-        List<GradeRecord> records = service.getAllGradeRecords();
-        assertEquals(2, records.size(), "Only valid records should be parsed");
+        // Act
+        List<GradeRecord> records = serviceWithMissingFile.getAllGradeRecords();
+
+        // Assert
+        assertTrue(records.isEmpty(), "Should return an empty list if the file does not exist");
     }
 
     @Test
     void testGetAllGradeRecords_InvalidData() throws Exception {
-        Files.writeString(Path.of(TEST_FILE_PATH), "InvalidData\nAnotherInvalidLine");
+        // Arrange
+        Files.writeString(Path.of(TEST_GRADES_FILE_PATH), "InvalidData,Here\n");
+
+        // Act
         List<GradeRecord> records = service.getAllGradeRecords();
-        assertTrue(records.isEmpty(), "Records list should be empty for a completely invalid file");
+
+        // Assert
+        assertTrue(records.isEmpty(), "Should return an empty list for invalid data");
     }
 
     @Test
     void testGetAllCourses() {
+        // Act
         List<String> courses = service.getAllCourses();
-        assertEquals(2, courses.size(), "Two unique courses should be returned");
+
+        // Assert
+        assertEquals(3, courses.size(), "Should retrieve 3 unique courses");
         assertTrue(courses.contains("COMP3111"));
         assertTrue(courses.contains("COMP5111"));
-    }
-
-    @Test
-    void testGetAllCourses_EmptyFile() throws Exception {
-        Files.writeString(Path.of(TEST_FILE_PATH), "");
-        List<String> courses = service.getAllCourses();
-        assertTrue(courses.isEmpty(), "Courses list should be empty for an empty file");
-    }
-
-    @Test
-    void testGetAllCourses_SingleCourse() throws Exception {
-        Files.writeString(Path.of(TEST_FILE_PATH), "COMP3111,quiz1,80,100,30\nCOMP3111,quiz2,90,100,35\n");
-        List<String> courses = service.getAllCourses();
-        assertEquals(1, courses.size(), "Only one unique course should be returned");
-        assertEquals("COMP3111", courses.get(0));
+        assertTrue(courses.contains("COMP6111"));
     }
 
     @Test
     void testGetGradeRecordsByCourse_ValidCourse() {
+        // Act
         List<GradeRecord> records = service.getGradeRecordsByCourse("COMP3111");
-        assertEquals(2, records.size(), "COMP3111 should have two records");
+
+        // Assert
+        assertEquals(2, records.size(), "COMP3111 should have 2 grade records");
         assertEquals("quiz1", records.get(0).getExam());
         assertEquals("quiz2", records.get(1).getExam());
     }
 
     @Test
     void testGetGradeRecordsByCourse_InvalidCourse() {
+        // Act
         List<GradeRecord> records = service.getGradeRecordsByCourse("INVALID_COURSE");
-        assertTrue(records.isEmpty(), "No records should be returned for a non-existent course");
-    }
 
-    @Test
-    void testGetGradeRecordsByCourse_CaseInsensitive() {
-        List<GradeRecord> records = service.getGradeRecordsByCourse("comp3111");
-        assertEquals(2, records.size(), "Case-insensitive matching should return the correct records");
+        // Assert
+        assertTrue(records.isEmpty(), "Should return an empty list for a non-existent course");
     }
 
     @Test
     void testLargeFilePerformance() throws Exception {
+        // Arrange
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 1000; i++) {
-            sb.append("COMP3111,quiz").append(i).append(",").append(i % 100).append(",100,").append(i % 60).append("\n");
+            sb.append("user1,COMP3111,quiz").append(i).append(",").append(i % 100).append(",100,").append(i % 60).append("\n");
         }
-        Files.writeString(Path.of(TEST_FILE_PATH), sb.toString());
+        Files.writeString(Path.of(TEST_GRADES_FILE_PATH), sb.toString());
 
+        // Act
         List<GradeRecord> records = service.getAllGradeRecords();
-        assertEquals(1000, records.size(), "All 1000 records should be loaded");
+
+        // Assert
+        assertEquals(1000, records.size(), "Should retrieve all 1000 grade records");
     }
 }

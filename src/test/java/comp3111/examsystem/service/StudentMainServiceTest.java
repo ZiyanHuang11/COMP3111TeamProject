@@ -23,17 +23,18 @@ class StudentMainServiceTest {
         try (FileWriter examsWriter = new FileWriter(TEST_EXAMS_FILE_PATH);
              FileWriter completedWriter = new FileWriter(TEST_COMPLETED_QUIZZES_FILE_PATH)) {
 
-            // Write to student exams file
-            examsWriter.write("user1,COMP3111,quiz1,\"Software Engineering\"\n");
-            examsWriter.write("user1,COMP3111,final,\"Software Engineering\"\n");
-            examsWriter.write("user2,COMP5111,quiz1,\"Advanced Software Engineering\"\n");
-            examsWriter.write("user3,COMP6111,quiz2,\"AI for Software Systems\"\n");
-            examsWriter.write("user1,COMP5111,quiz1,\"Advanced Software Engineering\"\n");
+            // Write to the student exams file
+            examsWriter.write("bonny,COMP3111,quiz1,\"Software Engineering\"\n");
+            examsWriter.write("bonny,COMP3111,quiz2,\"Software Engineering\"\n");
+            examsWriter.write("bonny,COMP5111,quiz1,\"Advanced Software Engineering\"\n");
+            examsWriter.write("john,COMP6111,quiz2,\"AI for Software Systems\"\n");
+            examsWriter.write("bonny,COMP5111,final,\"Advanced Software Engineering\"\n");
 
-            // Write to completed quizzes file
-            completedWriter.write("user1,COMP3111,quiz1,80,100,30\n");
-            completedWriter.write("user1,COMP5111,quiz1,70,100,25\n");
-            completedWriter.write("user2,COMP5111,quiz1,90,100,35\n");
+            // Write to the completed quizzes file
+            completedWriter.write("bonny,COMP3111,quiz1,20,50,30\n");
+            completedWriter.write("bonny,COMP3111,quiz2,40,50,30\n");
+            completedWriter.write("bonny,COMP5111,quiz1,35,50,45\n");
+            completedWriter.write("bonny,COMP5111,final,45,50,60\n");
         }
 
         service = new StudentMainService(TEST_EXAMS_FILE_PATH, TEST_COMPLETED_QUIZZES_FILE_PATH);
@@ -48,90 +49,93 @@ class StudentMainServiceTest {
 
     @Test
     void testGetExamsForStudent_ValidUser() {
-        List<String> exams = service.getExamsForStudent("user1");
-        assertEquals(3, exams.size(), "User1 should have 3 exams");
-        assertTrue(exams.contains("COMP3111 Software Engineering | quiz1"));
-        assertTrue(exams.contains("COMP3111 Software Engineering | final"));
-        assertTrue(exams.contains("COMP5111 Advanced Software Engineering | quiz1"));
+        List<String> exams = service.getExamsForStudent("bonny");
+        assertEquals(4, exams.size(), "bonny should have 4 exams");
+        assertTrue(exams.contains("COMP3111 Software Engineering | quiz1 (Completed)"));
+        assertTrue(exams.contains("COMP3111 Software Engineering | quiz2 (Completed)"));
+        assertTrue(exams.contains("COMP5111 Advanced Software Engineering | quiz1 (Completed)"));
+        assertTrue(exams.contains("COMP5111 Advanced Software Engineering | final (Completed)"));
     }
 
     @Test
-    void testGetCompletedExams_ValidUser() {
-        List<String> completedExams = service.getCompletedExams("user1");
-        assertEquals(2, completedExams.size(), "User1 should have 2 completed exams");
-        assertTrue(completedExams.contains("COMP3111,quiz1"));
-        assertTrue(completedExams.contains("COMP5111,quiz1"));
+    void testGetGradesForStudent_ValidUser() {
+        List<String> grades = service.getGradesForStudent("bonny");
+        assertEquals(4, grades.size(), "bonny should have 4 grades");
+        assertTrue(grades.contains("bonny,COMP3111,quiz1,20,50,30"));
+        assertTrue(grades.contains("bonny,COMP3111,quiz2,40,50,30"));
+        assertTrue(grades.contains("bonny,COMP5111,quiz1,35,50,45"));
+        assertTrue(grades.contains("bonny,COMP5111,final,45,50,60"));
     }
 
     @Test
     void testGetExamsForStudent_InvalidUser() {
-        List<String> exams = service.getExamsForStudent("nonexistent_user");
-        assertTrue(exams.isEmpty(), "Nonexistent user should have no exams");
+        List<String> exams = service.getExamsForStudent("unknown_user");
+        assertTrue(exams.isEmpty(), "unknown_user should not have any exams");
     }
 
     @Test
-    void testGetCompletedExams_InvalidUser() {
-        List<String> completedExams = service.getCompletedExams("nonexistent_user");
-        assertTrue(completedExams.isEmpty(), "Nonexistent user should have no completed exams");
+    void testGetGradesForStudent_InvalidUser() {
+        List<String> grades = service.getGradesForStudent("unknown_user");
+        assertTrue(grades.isEmpty(), "unknown_user should not have any grades");
+    }
+
+    @Test
+    void testAddCompletedExam() {
+        service.addCompletedExam("bonny", "COMP6111", "quiz2", 50, 50, 40);
+
+        List<String> grades = service.getGradesForStudent("bonny");
+        assertEquals(5, grades.size(), "After adding a new grade, bonny should have 5 grades");
+        assertTrue(grades.contains("bonny,COMP6111,quiz2,50,50,40"));
+    }
+
+    @Test
+    void testGetExamsForStudent_CaseInsensitiveUsername() {
+        List<String> exams = service.getExamsForStudent("BONNY");
+        assertEquals(4, exams.size(), "Username matching should be case-insensitive for bonny's exams");
+        assertTrue(exams.contains("COMP3111 Software Engineering | quiz1 (Completed)"));
+    }
+
+    @Test
+    void testGetGradesForStudent_CaseInsensitiveUsername() {
+        List<String> grades = service.getGradesForStudent("BONNY");
+        assertEquals(4, grades.size(), "Username matching should be case-insensitive for bonny's grades");
     }
 
     @Test
     void testGetExamsForStudent_EmptyFile() throws Exception {
         Files.writeString(Path.of(TEST_EXAMS_FILE_PATH), "");
-        List<String> exams = service.getExamsForStudent("user1");
-        assertTrue(exams.isEmpty(), "Exams list should be empty for an empty file");
+        List<String> exams = service.getExamsForStudent("bonny");
+        assertTrue(exams.isEmpty(), "Exams list should be empty when the file is empty");
     }
 
     @Test
-    void testGetCompletedExams_EmptyFile() throws Exception {
+    void testGetGradesForStudent_EmptyFile() throws Exception {
         Files.writeString(Path.of(TEST_COMPLETED_QUIZZES_FILE_PATH), "");
-        List<String> completedExams = service.getCompletedExams("user1");
-        assertTrue(completedExams.isEmpty(), "Completed exams list should be empty for an empty file");
-    }
-
-    @Test
-    void testGetExamsForStudent_PartiallyInvalidData() throws Exception {
-        Files.writeString(Path.of(TEST_EXAMS_FILE_PATH),
-                "user1,COMP3111,quiz1,\"Software Engineering\"\n" +
-                        "invalid_data_line\n" +
-                        "user1,COMP5111,quiz1,\"Advanced Software Engineering\"\n");
-        List<String> exams = service.getExamsForStudent("user1");
-        assertEquals(2, exams.size(), "Only valid records should be included");
-        assertTrue(exams.contains("COMP3111 Software Engineering | quiz1"));
-        assertTrue(exams.contains("COMP5111 Advanced Software Engineering | quiz1"));
-    }
-
-    @Test
-    void testGetExamsForStudent_CaseInsensitiveUsername() {
-        List<String> exams = service.getExamsForStudent("USER1");
-        assertEquals(3, exams.size(), "Username matching should be case-insensitive");
-        assertTrue(exams.contains("COMP3111 Software Engineering | quiz1"));
-        assertTrue(exams.contains("COMP3111 Software Engineering | final"));
-        assertTrue(exams.contains("COMP5111 Advanced Software Engineering | quiz1"));
-    }
-
-    @Test
-    void testGetCompletedExams_CaseInsensitiveUsername() {
-        List<String> completedExams = service.getCompletedExams("USER1");
-        assertEquals(2, completedExams.size(), "Username matching for completed exams should be case-insensitive");
-        assertTrue(completedExams.contains("COMP3111,quiz1"));
-        assertTrue(completedExams.contains("COMP5111,quiz1"));
+        List<String> grades = service.getGradesForStudent("bonny");
+        assertTrue(grades.isEmpty(), "Grades list should be empty when the file is empty");
     }
 
     @Test
     void testGetExamsForStudent_FileNotFound() {
-        StudentMainService nonExistentService = new StudentMainService("nonexistent_exams.txt", TEST_COMPLETED_QUIZZES_FILE_PATH);
-        List<String> exams = nonExistentService.getExamsForStudent("user1");
-        assertTrue(exams.isEmpty(), "Exams list should be empty if the exams file does not exist");
+        StudentMainService serviceWithMissingFile = new StudentMainService("missing_exams.txt", TEST_COMPLETED_QUIZZES_FILE_PATH);
+        List<String> exams = serviceWithMissingFile.getExamsForStudent("bonny");
+        assertTrue(exams.isEmpty(), "Exams list should be empty when the exams file does not exist");
     }
 
     @Test
-    void testGetCompletedExams_FileNotFound() {
-        StudentMainService nonExistentService = new StudentMainService(TEST_EXAMS_FILE_PATH, "nonexistent_completed.txt");
-        List<String> completedExams = nonExistentService.getCompletedExams("user1");
-        assertTrue(completedExams.isEmpty(), "Completed exams list should be empty if the completed quizzes file does not exist");
+    void testGetGradesForStudent_FileNotFound() {
+        StudentMainService serviceWithMissingFile = new StudentMainService(TEST_EXAMS_FILE_PATH, "missing_grades.txt");
+        List<String> grades = serviceWithMissingFile.getGradesForStudent("bonny");
+        assertTrue(grades.isEmpty(), "Grades list should be empty when the grades file does not exist");
+    }
+
+    @Test
+    void testHasCompletedExams_ValidUser() {
+        assertTrue(service.hasCompletedExams("bonny"), "bonny should have completed exams");
+    }
+
+    @Test
+    void testHasCompletedExams_InvalidUser() {
+        assertFalse(service.hasCompletedExams("unknown_user"), "unknown_user should not have completed exams");
     }
 }
-
-
-

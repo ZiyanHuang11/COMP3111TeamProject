@@ -1,5 +1,4 @@
-bonny COMP3111,quiz1,20,50,30
-bonny COMP3111,quiz2,40,50,30
-bonny COMP5111,quiz1,35,50,45
-bonny COMP5111,final,45,50,60
-
+bonny,COMP3111,quiz1,20,50,30
+bonny,COMP3111,final,40,50,30
+bonny,COMP5111,quiz1,35,50,45
+bonny,COMP5111,final,45,50,60

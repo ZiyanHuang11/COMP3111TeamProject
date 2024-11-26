@@ -40,12 +40,13 @@ public class GradeStatisticsService {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] parts = line.split(",");
-                if (parts.length == 5) {
-                    String course = parts[0].trim();
-                    String exam = parts[1].trim();
-                    int score = Integer.parseInt(parts[2].trim());
-                    int fullScore = Integer.parseInt(parts[3].trim());
-                    int time = Integer.parseInt(parts[4].trim());
+                if (parts.length == 6) { // Expect 6 fields
+                    // Skip the username field (parts[0])
+                    String course = parts[1].trim();
+                    String exam = parts[2].trim();
+                    int score = Integer.parseInt(parts[3].trim());
+                    int fullScore = Integer.parseInt(parts[4].trim());
+                    int time = Integer.parseInt(parts[5].trim());
                     records.add(new GradeRecord(course, exam, score, fullScore, time));
                 } else {
                     System.err.println("Warning: Invalid line format - " + line);
@@ -57,6 +58,7 @@ public class GradeStatisticsService {
 
         return records;
     }
+
 
     /**
      * Retrieves a list of unique course names from the grade records.

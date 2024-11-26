@@ -46,6 +46,7 @@ public class GradeStatisticsController {
 
     private GradeStatisticsService gradeStatisticsService;
     private ObservableList<GradeRecord> masterData = FXCollections.observableArrayList();
+    private String loggedInUsername;
 
     @FXML
     public void initialize() {
@@ -65,6 +66,16 @@ public class GradeStatisticsController {
             populateCourseComboBox();
             updateBarChart(masterData);
         }
+    }
+
+    /**
+     * Set the logged-in username.
+     *
+     * @param username the username of the logged-in user
+     */
+    public void setLoggedInUsername(String username) {
+        this.loggedInUsername = username;
+        System.out.println("Logged-in username: " + username);
     }
 
     /**
