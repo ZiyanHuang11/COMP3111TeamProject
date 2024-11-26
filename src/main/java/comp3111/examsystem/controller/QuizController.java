@@ -293,7 +293,7 @@ public class QuizController {
 
     private void recordCompletedGrade(String courseId, String examType, int score, int fullScore, int timeTakenSec) {
         // 修改记录格式：在最前面加上 username
-        String entry = String.format("%s,%s,%s,%d,%d,%d", loggedInUsername, courseId, examType, score, fullScore, timeTakenSec);
+        String entry = String.format("\n%s,%s,%s,%d,%d,%d", loggedInUsername, courseId, examType, score, fullScore, timeTakenSec);
         try {
             Path path = Paths.get(COMPLETED_GRADES_FILE);
             boolean fileExists = Files.exists(path);
@@ -301,7 +301,7 @@ public class QuizController {
             try (BufferedWriter writer = Files.newBufferedWriter(path, StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
                 if (fileExists && Files.size(path) > 0) {
                     // 如果文件存在且不为空，先写一个换行符
-                    writer.newLine();
+                    //writer.newLine();
                 }
                 // 写入记录
                 writer.write(entry);
