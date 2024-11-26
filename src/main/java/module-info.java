@@ -2,8 +2,6 @@ module comp3111.examsystem {
     requires javafx.controls;
     requires javafx.fxml;
     requires jdk.jconsole;
-    requires org.junit.jupiter.api;
-
 
     opens comp3111.examsystem to javafx.fxml;
     exports comp3111.examsystem;
