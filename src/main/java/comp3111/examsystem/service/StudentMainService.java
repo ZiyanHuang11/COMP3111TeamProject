@@ -5,31 +5,37 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * StudentMainService 负责管理和提供学生相关的考试信息。
  */
 public class StudentMainService {
     private final String studentExamsFilePath;
+    private final String completedQuizzesFilePath;
 
     /**
      * 构造函数，初始化考试文件路径。
      *
-     * @param studentExamsFilePath 学生考试文件的路径
+     * @param studentExamsFilePath    学生考试文件的路径
+     * @param completedQuizzesFilePath 已完成考试文件的路径
      */
-    public StudentMainService(String studentExamsFilePath) {
+    public StudentMainService(String studentExamsFilePath, String completedQuizzesFilePath) {
         this.studentExamsFilePath = studentExamsFilePath;
+        this.completedQuizzesFilePath = completedQuizzesFilePath;
     }
 
     /**
-     * 获取指定学生的考试列表。
+     * 获取指定学生的考试列表，并标记已完成的考试。
      *
      * @param username 登录用户名
-     * @return 考试信息列表，格式为 "CourseId CourseName | ExamType"
+     * @return 考试信息列表，格式为 "CourseId CourseName | ExamType (Completed)" 或 "CourseId CourseName | ExamType"
      */
     public List<String> getExamsForStudent(String username) {
         List<String> exams = new ArrayList<>();
+        Set<String> completedExamsSet = new HashSet<>(getCompletedExams(username));
 
         // 检查文件是否存在
         Path path = Paths.get(studentExamsFilePath);
@@ -47,7 +53,6 @@ public class StudentMainService {
                 }
 
                 // 文件格式：username,courseID,examType,courseName
-                // 注意：courseName 可能包含逗号，因此需要特别处理
                 String[] parts = splitCSVLine(line);
 
                 if (parts.length < 4) {
@@ -69,8 +74,14 @@ public class StudentMainService {
                     continue; // 跳过不完整的信息
                 }
 
+                // 构建唯一标识符，用于检查是否已完成
+                String identifier = courseID + "," + examType;
+
                 // 格式化为：courseID courseName | examType
                 String formattedExam = String.format("%s %s | %s", courseID, courseName, examType);
+                if (completedExamsSet.contains(identifier)) {
+                    formattedExam += " (Completed)";
+                }
                 exams.add(formattedExam);
             }
         } catch (IOException e) {
@@ -79,6 +90,56 @@ public class StudentMainService {
         }
 
         return exams;
+    }
+
+    /**
+     * 获取指定学生已完成的考试列表。
+     *
+     * @param username 登录用户名
+     * @return 已完成的考试列表，格式为 "courseId,examType"
+     */
+    public List<String> getCompletedExams(String username) {
+        List<String> completedExams = new ArrayList<>();
+
+        // 检查文件是否存在
+        Path path = Paths.get(completedQuizzesFilePath);
+        if (!Files.exists(path)) {
+            System.err.println("Error: File not found - " + completedQuizzesFilePath);
+            return completedExams; // 返回空列表
+        }
+
+        try (BufferedReader br = new BufferedReader(new FileReader(completedQuizzesFilePath))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                // 跳过空行
+                if (line.trim().isEmpty()) {
+                    continue;
+                }
+
+                // 文件格式：username,courseId,examType,score,fullScore,time
+                String[] parts = line.split(",");
+
+                if (parts.length < 3) {
+                    System.err.println("Warning: Invalid line format - " + line);
+                    continue; // 跳过格式不正确的行
+                }
+
+                String fileUsername = parts[0].trim();
+                if (!fileUsername.equalsIgnoreCase(username)) {
+                    continue; // 不是目标用户，跳过
+                }
+
+                String courseId = parts[1].trim();
+                String examType = parts[2].trim();
+
+                completedExams.add(courseId + "," + examType);
+            }
+        } catch (IOException e) {
+            System.err.println("Error reading file: " + completedQuizzesFilePath);
+            e.printStackTrace();
+        }
+
+        return completedExams;
     }
 
     /**

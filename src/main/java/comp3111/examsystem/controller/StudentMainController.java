@@ -12,11 +12,8 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.file.*;
-import java.util.HashSet;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.Set;
 
 public class StudentMainController implements Initializable {
     @FXML
@@ -24,9 +21,6 @@ public class StudentMainController implements Initializable {
 
     private String loggedInUsername; // 当前登录用户名
     private StudentMainService studentMainService;
-
-    private Set<String> completedQuizzes = new HashSet<>();
-    private final String COMPLETED_QUIZZES_FILE = "data/completed_quizzes.txt";
 
     /**
      * 设置登录用户名 (通过 LoginController 传递)
@@ -38,58 +32,47 @@ public class StudentMainController implements Initializable {
 
         // 初始化考试服务
         String studentExamsFilePath = "data/studentsexams.txt";
-        studentMainService = new StudentMainService(studentExamsFilePath);
-
-        // 加载已完成的考试
-        loadCompletedQuizzes();
+        String completedQuizzesFilePath = "data/completed_quizzes.txt";
+        studentMainService = new StudentMainService(studentExamsFilePath, completedQuizzesFilePath);
 
         // 加载用户相关的考试信息到 ComboBox
         List<String> exams = studentMainService.getExamsForStudent(loggedInUsername);
+        List<String> completedExams = studentMainService.getCompletedExams(loggedInUsername);
+
         if (exams.isEmpty()) {
-            showAlert("No Exams Found", "No exams available for the user: " + username, Alert.AlertType.INFORMATION);
-        } else {
-            for (String exam : exams) {
-                // 解析考试信息，假设格式为 "CourseId CourseName | ExamType"
-                String[] parts = exam.split(" \\| ");
-                if (parts.length < 2) {
-                    // 格式不正确，跳过
-                    continue;
-                }
-                String courseInfo = parts[0];
-                String examType = parts[1];
-                String[] courseParts = courseInfo.split(" ", 2);
-                String courseId = courseParts[0];
-                // 构建唯一标识符
-                String identifier = courseId + "," + examType;
-                boolean isCompleted = completedQuizzes.contains(identifier);
-                if (isCompleted) {
-                    examCombox.getItems().add(exam + " (Completed)");
-                } else {
-                    examCombox.getItems().add(exam);
-                }
+            showAlert("No Exams Found", "No exams or grades available for the user: " + username, Alert.AlertType.WARNING);
+            return;
+        }
+
+        for (String exam : exams) {
+            String[] parts = exam.split(" \\| ");
+            if (parts.length < 2) {
+                // 格式不正确，跳过
+                continue;
             }
+            String courseInfo = parts[0];
+            String examType = parts[1];
+            String[] courseParts = courseInfo.split(" ", 2);
+            String courseId = courseParts[0];
+
+            // 构建唯一标识符
+            String identifier = courseId + "," + examType;
+            boolean isCompleted = completedExams.contains(identifier);
+            if (isCompleted) {
+                examCombox.getItems().add(exam + " (Completed)");
+            } else {
+                examCombox.getItems().add(exam);
+            }
+        }
+
+        if (examCombox.getItems().isEmpty()) {
+            showAlert("No Exams to Display", "No exams or grades are available for display.", Alert.AlertType.WARNING);
         }
     }
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         // 留空，等待 setLoggedInUsername 动态传递数据
-    }
-
-    /**
-     * 加载已完成的考试记录
-     */
-    private void loadCompletedQuizzes() {
-        Path path = Paths.get(COMPLETED_QUIZZES_FILE);
-        if (Files.exists(path)) {
-            try {
-                List<String> lines = Files.readAllLines(path);
-                completedQuizzes.addAll(lines);
-            } catch (IOException e) {
-                e.printStackTrace();
-                showAlert("Error", "Failed to load completed quizzes.", Alert.AlertType.ERROR);
-            }
-        }
     }
 
     @FXML
@@ -155,8 +138,7 @@ public class StudentMainController implements Initializable {
 
             // 获取 GradeStatisticsController 并传递必要的数据（如果需要）
             GradeStatisticsController controller = loader.getController();
-            // 如果 GradeStatisticsController 需要用户名，可以在这里传递
-            // controller.setLoggedInUsername(this.loggedInUsername);
+            controller.setLoggedInUsername(this.loggedInUsername);
 
             // 获取当前舞台并设置新的场景
             Stage stage = (Stage) examCombox.getScene().getWindow();

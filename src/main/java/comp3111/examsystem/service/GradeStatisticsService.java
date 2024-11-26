@@ -8,23 +8,31 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
+/**
+ * Service to manage grade statistics for students.
+ */
 public class GradeStatisticsService {
     private final String gradesFilePath;
 
+    /**
+     * Constructor to initialize the grades file path.
+     *
+     * @param gradesFilePath Path to the file containing grade records.
+     */
     public GradeStatisticsService(String gradesFilePath) {
         this.gradesFilePath = gradesFilePath;
     }
 
     /**
-     * 获取所有成绩记录。
+     * Retrieves all grade records from the file.
      *
-     * @return 成绩记录列表
+     * @return A list of grade records.
      */
     public List<GradeRecord> getAllGradeRecords() {
         List<GradeRecord> records = new ArrayList<>();
 
         if (!Files.exists(Paths.get(gradesFilePath))) {
-            System.err.println("Grades file not found: " + gradesFilePath);
+            System.err.println("Error: Grades file not found - " + gradesFilePath);
             return records;
         }
 
@@ -39,6 +47,8 @@ public class GradeStatisticsService {
                     int fullScore = Integer.parseInt(parts[3].trim());
                     int time = Integer.parseInt(parts[4].trim());
                     records.add(new GradeRecord(course, exam, score, fullScore, time));
+                } else {
+                    System.err.println("Warning: Invalid line format - " + line);
                 }
             }
         } catch (Exception e) {
@@ -49,9 +59,9 @@ public class GradeStatisticsService {
     }
 
     /**
-     * 获取所有课程名称。
+     * Retrieves a list of unique course names from the grade records.
      *
-     * @return 课程名称列表
+     * @return A sorted list of course names.
      */
     public List<String> getAllCourses() {
         Set<String> courses = new HashSet<>();
@@ -59,23 +69,23 @@ public class GradeStatisticsService {
             courses.add(record.getCourse());
         }
         List<String> courseList = new ArrayList<>(courses);
-        Collections.sort(courseList); // 按字母排序
+        Collections.sort(courseList); // Sort alphabetically
         return courseList;
     }
 
     /**
-     * 根据课程名称获取成绩记录。
+     * Retrieves grade records for a specific course.
      *
-     * @param courseName 课程名称
-     * @return 过滤后的成绩记录列表
+     * @param courseName The course name to filter by.
+     * @return A list of grade records for the specified course.
      */
     public List<GradeRecord> getGradeRecordsByCourse(String courseName) {
-        List<GradeRecord> filtered = new ArrayList<>();
+        List<GradeRecord> filteredRecords = new ArrayList<>();
         for (GradeRecord record : getAllGradeRecords()) {
             if (record.getCourse().equalsIgnoreCase(courseName)) {
-                filtered.add(record);
+                filteredRecords.add(record);
             }
         }
-        return filtered;
+        return filteredRecords;
     }
 }

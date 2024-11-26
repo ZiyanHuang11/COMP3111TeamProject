@@ -35,9 +35,15 @@ class GradeStatisticsServiceTest {
     }
 
     @Test
-    void testGetAllGradeRecords() throws Exception {
+    void testGetAllGradeRecords() {
         List<GradeRecord> records = service.getAllGradeRecords();
-        assertEquals(3, records.size());
+        assertEquals(3, records.size(), "All records should be loaded correctly");
+        GradeRecord firstRecord = records.get(0);
+        assertEquals("COMP3111", firstRecord.getCourse());
+        assertEquals("quiz1", firstRecord.getExam());
+        assertEquals(80, firstRecord.getScore());
+        assertEquals(100, firstRecord.getFullScore());
+        assertEquals(30, firstRecord.getTime());
     }
 
     @Test
@@ -52,6 +58,21 @@ class GradeStatisticsServiceTest {
         Files.writeString(Path.of(TEST_FILE_PATH), "COMP3111,quiz1,80,100,30\nInvalidData\nCOMP5111,quiz1,70,100,25\n");
         List<GradeRecord> records = service.getAllGradeRecords();
         assertEquals(2, records.size(), "Only valid records should be parsed");
+    }
+
+    @Test
+    void testGetAllGradeRecords_InvalidData() throws Exception {
+        Files.writeString(Path.of(TEST_FILE_PATH), "InvalidData\nAnotherInvalidLine");
+        List<GradeRecord> records = service.getAllGradeRecords();
+        assertTrue(records.isEmpty(), "Records list should be empty for a completely invalid file");
+    }
+
+    @Test
+    void testGetAllCourses() {
+        List<String> courses = service.getAllCourses();
+        assertEquals(2, courses.size(), "Two unique courses should be returned");
+        assertTrue(courses.contains("COMP3111"));
+        assertTrue(courses.contains("COMP5111"));
     }
 
     @Test
@@ -70,10 +91,17 @@ class GradeStatisticsServiceTest {
     }
 
     @Test
-    void testGetGradeRecordsByCourse_SingleCourse() {
-        List<GradeRecord> records = service.getGradeRecordsByCourse("COMP5111");
-        assertEquals(1, records.size(), "COMP5111 should have exactly one record");
+    void testGetGradeRecordsByCourse_ValidCourse() {
+        List<GradeRecord> records = service.getGradeRecordsByCourse("COMP3111");
+        assertEquals(2, records.size(), "COMP3111 should have two records");
         assertEquals("quiz1", records.get(0).getExam());
+        assertEquals("quiz2", records.get(1).getExam());
+    }
+
+    @Test
+    void testGetGradeRecordsByCourse_InvalidCourse() {
+        List<GradeRecord> records = service.getGradeRecordsByCourse("INVALID_COURSE");
+        assertTrue(records.isEmpty(), "No records should be returned for a non-existent course");
     }
 
     @Test

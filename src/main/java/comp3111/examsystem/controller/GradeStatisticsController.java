@@ -8,6 +8,7 @@ import javafx.fxml.FXML;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -57,23 +58,28 @@ public class GradeStatisticsController {
         fullScoreColumn.setCellValueFactory(new PropertyValueFactory<>("fullScore"));
         timeColumn.setCellValueFactory(new PropertyValueFactory<>("time"));
 
-        // Load all grades
-        loadGradeData();
-
-        // Populate ComboBox for course filtering
-        populateCourseComboBox();
-
-        // Initialize bar chart
-        updateBarChart(masterData);
+        // Load grade data and populate components
+        if (!loadGradeData()) {
+            showAlert("No Data Available", "No grade statistics available to display.", Alert.AlertType.WARNING);
+        } else {
+            populateCourseComboBox();
+            updateBarChart(masterData);
+        }
     }
 
     /**
      * Load all grade data into the table.
+     *
+     * @return true if data is successfully loaded, false otherwise
      */
-    private void loadGradeData() {
+    private boolean loadGradeData() {
         List<GradeRecord> records = gradeStatisticsService.getAllGradeRecords();
+        if (records.isEmpty()) {
+            return false;
+        }
         masterData.addAll(records);
         gradeTable.setItems(masterData);
+        return true;
     }
 
     /**
@@ -81,6 +87,10 @@ public class GradeStatisticsController {
      */
     private void populateCourseComboBox() {
         List<String> courses = gradeStatisticsService.getAllCourses();
+        if (courses.isEmpty()) {
+            showAlert("No Courses Found", "No courses are available to filter.", Alert.AlertType.INFORMATION);
+            return;
+        }
         courses.add(0, "All Courses");
         courseComboBox.setItems(FXCollections.observableArrayList(courses));
         courseComboBox.getSelectionModel().selectFirst();
@@ -98,6 +108,9 @@ public class GradeStatisticsController {
             updateBarChart(masterData);
         } else {
             List<GradeRecord> filteredRecords = gradeStatisticsService.getGradeRecordsByCourse(selectedCourse);
+            if (filteredRecords.isEmpty()) {
+                showAlert("No Data Found", "No grade statistics found for the selected course.", Alert.AlertType.INFORMATION);
+            }
             ObservableList<GradeRecord> filteredData = FXCollections.observableArrayList(filteredRecords);
             gradeTable.setItems(filteredData);
             updateBarChart(filteredData);
@@ -122,7 +135,9 @@ public class GradeStatisticsController {
     @FXML
     private void handleRefresh() {
         masterData.clear();
-        loadGradeData();
+        if (!loadGradeData()) {
+            showAlert("No Data Available", "No grade statistics available to display after refresh.", Alert.AlertType.WARNING);
+        }
         populateCourseComboBox();
         updateBarChart(masterData);
     }
@@ -149,5 +164,20 @@ public class GradeStatisticsController {
         }
 
         gradeBarChart.getData().add(series);
+    }
+
+    /**
+     * Show alert dialog with a given title, message, and alert type.
+     *
+     * @param title   The title of the alert dialog.
+     * @param message The message to display in the alert.
+     * @param type    The type of the alert.
+     */
+    private void showAlert(String title, String message, Alert.AlertType type) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 }
