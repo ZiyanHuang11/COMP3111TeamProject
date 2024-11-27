@@ -5,17 +5,17 @@ HKUST COMP3111 team project: create an Examination System for HKUST
 | Group No. | 13   |
 | --------- | ---- |
 
-| Name         | GitHub User Id | UST Email        | Is Team Leader? | Owner of Team Repo? | Roles/Task in Group Project | dev branch id |
+|名字| GitHub User Id | UST Email        | Is Team Leader? | Owner of Team Repo? | Roles/Task in Group Project | dev branch id |
 | ------------ |----------------| ---------------- | --------------- | ------------------- | --------------------------- | --------------|
 | WANG Xinrui  | rrr921         | xwangjh@connect.ust.hk  | No              | No                  | Task 3                      | Task 3        |
 | SHI Juanquan | JessicaStOne   | jshibh@connect.ust.hk    | No              | No                  | Task 2                      | Task 2        |
 | HUANG Ziyan  | ZiyanHuang11   | zhuangfb@connect.ust.hk | Yes             | Yes                 | Task 1                      | Task 1        |
 
 ### How to Start?
-You are recommended to swich to the branch Master to clone the repository for the full funtions.
+You are recommended to swich to the branch *final_version* to clone the repository for the full funtions，you can also use branch *main* to test the task2&3 only.
 
 ### Project Information
-**The detailed information of the project is concluded into a pdf file. Please see the *"Information.pdf"***
+
 #### 1. Screenshots of the execution of the application showing sample inputs and outputs
 ![img_15.png](img_15.png)
 #### 2. Report on the unit testing for the implemented tasks (100% pass)
