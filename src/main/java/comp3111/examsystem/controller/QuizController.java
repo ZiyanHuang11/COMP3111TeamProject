@@ -35,7 +35,7 @@ public class QuizController {
 
     private Quiz quiz;
     private int currentQuestionIndex = 0;
-    private int remainingTime;
+    private int remainingTime; // 以秒为单位
     private Timer timer;
 
     private Map<Integer, Object> userAnswers = new HashMap<>();
@@ -46,16 +46,20 @@ public class QuizController {
 
     private long startTime;
 
+    // 修改：新增 QuizService 的 exam.txt 和 questions.txt 路径
+    private QuizService quizService;
+
     public void initData(String courseId, String examType, String username) {
         this.loggedInUsername = username;
 
-        QuizService quizService = new QuizService("data/quizzes.txt");
+        // 初始化 QuizService，传入 exam.txt 和 questions.txt 的路径
+        quizService = new QuizService("data/exam.txt", "data/questions.txt");
         quiz = quizService.loadQuiz(courseId, examType);
 
         if (quiz != null) {
             quizTitle.setText(quiz.getCourseName() + " - " + quiz.getExamType());
             totalQuestions.setText(String.valueOf(quiz.getQuestions().size()));
-            remainingTime = quiz.getDuration();
+            remainingTime = quiz.getDuration() * 60; // 假设 duration 是分钟，转换为秒
             startTimer();
             loadQuestion(0);
 
@@ -153,7 +157,7 @@ public class QuizController {
                 question.getOptionD()
         );
 
-        if ("MULTI".equalsIgnoreCase(question.getType())) {
+        if ("Multiple".equalsIgnoreCase(question.getType())) {
             for (int i = 0; i < options.size(); i++) {
                 String option = options.get(i);
                 String label = String.valueOf((char) ('A' + i));
@@ -174,7 +178,7 @@ public class QuizController {
 
                 optionsContainer.getChildren().add(checkBox);
             }
-        } else {
+        } else { // Single choice
             ToggleGroup toggleGroup = new ToggleGroup();
             for (int i = 0; i < options.size(); i++) {
                 String option = options.get(i);
@@ -208,7 +212,7 @@ public class QuizController {
         }
 
         StudentQuestion question = quiz.getQuestions().get(index);
-        if ("MULTI".equalsIgnoreCase(question.getType())) {
+        if ("Multiple".equalsIgnoreCase(question.getType())) {
             List<String> selectedOptions = new ArrayList<>();
             for (Node node : optionsContainer.getChildren()) {
                 if (node instanceof CheckBox) {
@@ -219,7 +223,7 @@ public class QuizController {
                 }
             }
             userAnswers.put(index, selectedOptions);
-        } else {
+        } else { // Single choice
             for (Node node : optionsContainer.getChildren()) {
                 if (node instanceof RadioButton) {
                     RadioButton radioButton = (RadioButton) node;
@@ -252,7 +256,7 @@ public class QuizController {
             Set<String> correctOptionSet = new HashSet<>(correctAnswerList);
 
             if (userAnswers.containsKey(i)) {
-                if ("MULTI".equalsIgnoreCase(q.getType())) {
+                if ("Multiple".equalsIgnoreCase(q.getType())) {
                     @SuppressWarnings("unchecked")
                     List<String> userSelectedOptions = (List<String>) userAnswers.get(i);
                     Set<String> userOptionSet = new HashSet<>(userSelectedOptions);
@@ -260,7 +264,7 @@ public class QuizController {
                         totalScore += questionScore;
                         correctAnswers++;
                     }
-                } else {
+                } else { // Single choice
                     String userSelectedOption = (String) userAnswers.get(i);
                     if (correctOptionSet.contains(userSelectedOption)) {
                         totalScore += questionScore;
@@ -299,22 +303,14 @@ public class QuizController {
             boolean fileExists = Files.exists(path);
 
             try (BufferedWriter writer = Files.newBufferedWriter(path, StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
-                if (fileExists && Files.size(path) > 0) {
-                    // 如果文件存在且不为空，先写一个换行符
-                    //writer.newLine();
-                }
-                // 写入记录
+                // entry 已经以 \n 开头，无需额外添加
                 writer.write(entry);
-                // 不需要在这里添加额外的换行符，因为下次写入时会在前面添加
             }
         } catch (IOException e) {
             e.printStackTrace();
             showAlert("Error", "Failed to record completed grade.", Alert.AlertType.ERROR);
         }
     }
-
-
-
 
     private void returnToMainUI() {
         try {
@@ -354,4 +350,3 @@ public class QuizController {
         });
     }
 }
-

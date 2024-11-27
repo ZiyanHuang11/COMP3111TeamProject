@@ -73,6 +73,8 @@
                 <TableColumn fx:id="courseIDColumn" text="Course ID"/>
                 <TableColumn fx:id="examTimeColumn" text="Exam Time"/>
                 <TableColumn fx:id="publishColumn" text="Publish"/>
+                <TableColumn fx:id="courseNameColumn" text="Course Name" />
+                <TableColumn fx:id="durationColumn" text="Duration (s)" />
             </columns>
         </TableView>
     </left>

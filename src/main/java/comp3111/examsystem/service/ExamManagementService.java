@@ -6,6 +6,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 import java.io.*;
+import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,6 +18,12 @@ public class ExamManagementService {
     private String examFilePath;
     private String questionFilePath;
 
+    /**
+     * 构造函数
+     *
+     * @param examFilePath     考试文件路径
+     * @param questionFilePath 问题文件路径
+     */
     public ExamManagementService(String examFilePath, String questionFilePath) {
         this.examFilePath = examFilePath;
         this.questionFilePath = questionFilePath;
@@ -26,29 +33,70 @@ public class ExamManagementService {
         loadExams();
     }
 
+    /**
+     * 获取所有考试列表
+     *
+     * @return 考试的可观察列表
+     */
     public ObservableList<Exam> getExamList() {
         return examList;
     }
 
+    /**
+     * 获取所有问题列表
+     *
+     * @return 问题的可观察列表
+     */
     public ObservableList<Question> getQuestionList() {
         return questionList;
     }
 
-    // Load questions from file
+    /**
+     * 从文件加载问题
+     */
     public void loadQuestions() {
         try (BufferedReader br = new BufferedReader(new FileReader(questionFilePath))) {
             String line;
             while ((line = br.readLine()) != null) {
+                // Expected format:
+                // questionText,optionA,optionB,optionC,optionD,answers,type,score
                 String[] parts = line.split(",");
                 if (parts.length >= 8) {
-                    String questionText = parts[0];
-                    String optionA = parts[1];
-                    String optionB = parts[2];
-                    String optionC = parts[3];
-                    String optionD = parts[4];
-                    String answer = parts[5];
-                    String type = parts[6];
-                    int score = Integer.parseInt(parts[7]);
+                    String questionText = parts[0].trim();
+                    String optionA = parts[1].trim();
+                    String optionB = parts[2].trim();
+                    String optionC = parts[3].trim();
+                    String optionD = parts[4].trim();
+                    String answersRaw = parts[5].trim(); // 使用标签如 A, B, etc.
+                    String type = parts[6].trim();
+                    int score;
+                    try {
+                        score = Integer.parseInt(parts[7].trim());
+                    } catch (NumberFormatException e) {
+                        System.err.println("Invalid score in questions.txt: " + parts[7].trim());
+                        score = 0; // 默认分数
+                    }
+
+                    List<String> answers = new ArrayList<>();
+                    if (type.equalsIgnoreCase("Multiple")) {
+                        // 多选答案使用 '|' 分隔
+                        String[] answerParts = answersRaw.split("\\|");
+                        for (String ans : answerParts) {
+                            ans = ans.trim().toUpperCase();
+                            if (ans.matches("[A-D]")) { // 验证答案标签
+                                answers.add(ans);
+                            } else {
+                                System.err.println("Invalid answer label in questions.txt: " + ans);
+                            }
+                        }
+                    } else { // 单选答案
+                        String ans = answersRaw.trim().toUpperCase();
+                        if (ans.matches("[A-D]")) { // 验证答案标签
+                            answers.add(ans);
+                        } else {
+                            System.err.println("Invalid answer label in questions.txt: " + ans);
+                        }
+                    }
 
                     Question question = new Question(
                             questionText,
@@ -56,55 +104,75 @@ public class ExamManagementService {
                             optionB,
                             optionC,
                             optionD,
-                            answer,
+                            String.join("|", answers), // 使用 '|' 分隔标签
                             type,
                             score
                     );
                     questionList.add(question);
+                } else {
+                    System.err.println("questions.txt line does not have enough fields: " + line);
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
-            // Handle exception appropriately
+            // 适当处理异常
         }
     }
 
-    // Load exams from file
+    /**
+     * 从文件加载考试
+     */
     public void loadExams() {
         try (BufferedReader br = new BufferedReader(new FileReader(examFilePath))) {
             String line;
             while ((line = br.readLine()) != null) {
-                String[] parts = line.split(",", 5);
-                if (parts.length >= 5) {
-                    String examName = parts[0];
-                    String examTime = parts[1];
-                    String courseID = parts[2];
-                    String publishStatus = parts[3];
-                    String questionNames = parts[4];
+                // Expected format:
+                // examName, examTime, courseID, publish, courseName, duration, question1|question2|...
+                String[] parts = line.split(",", 7);
+                if (parts.length >= 7) {
+                    String examName = parts[0].trim();
+                    String examTime = parts[1].trim(); // 考试时间
+                    String courseID = parts[2].trim();
+                    String publishStatus = parts[3].trim();
+                    String courseName = parts[4].trim();
+                    int duration = 0;
+                    try {
+                        duration = Integer.parseInt(parts[5].trim());
+                    } catch (NumberFormatException e) {
+                        System.err.println("Invalid duration in exam.txt: " + parts[5].trim());
+                    }
+                    String questionsPart = parts[6].trim();
 
-                    Exam exam = new Exam(examName, courseID, examTime, publishStatus);
-
-                    // Parse question names
-                    String[] questionArray = questionNames.split("\\|");
-                    for (String qName : questionArray) {
+                    // 解析问题名称
+                    String[] questionNames = questionsPart.split("\\|");
+                    List<Question> examQuestions = new ArrayList<>();
+                    for (String qName : questionNames) {
+                        qName = qName.trim();
                         for (Question q : questionList) {
-                            if (q.getQuestion().equals(qName)) {
-                                exam.getQuestions().add(q);
+                            if (q.getQuestion().equalsIgnoreCase(qName)) {
+                                examQuestions.add(q);
                                 break;
                             }
                         }
                     }
 
+                    Exam exam = new Exam(examName, courseID, examTime, publishStatus, courseName, duration, examQuestions);
                     examList.add(exam);
+                } else {
+                    System.err.println("exam.txt line does not have enough fields: " + line);
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
-            // Handle exception appropriately
+            // 适当处理异常
         }
     }
 
-    // Save exams to file
+    /**
+     * 将考试列表保存到文件
+     *
+     * @throws IOException 如果文件写入失败
+     */
     public void saveExams() throws IOException {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(examFilePath))) {
             for (Exam exam : examList) {
@@ -113,8 +181,10 @@ public class ExamManagementService {
                 sb.append(exam.getExamTime()).append(",");
                 sb.append(exam.getCourseID()).append(",");
                 sb.append(exam.getPublish()).append(",");
+                sb.append(exam.getCourseName()).append(",");
+                sb.append(exam.getDuration()).append(",");
 
-                // Add question names
+                // 添加问题名称
                 List<String> questionNames = new ArrayList<>();
                 for (Question q : exam.getQuestions()) {
                     questionNames.add(q.getQuestion());
@@ -127,11 +197,18 @@ public class ExamManagementService {
         }
     }
 
-    // Add a new exam
+    /**
+     * 添加新的考试
+     *
+     * @param newExam 新考试对象
+     * @return 如果成功添加返回 true，否则返回 false（例如，重复的考试）
+     * @throws IOException 如果保存考试到文件失败
+     */
     public boolean addExam(Exam newExam) throws IOException {
         for (Exam exam : examList) {
-            if (exam.getExamName().equalsIgnoreCase(newExam.getExamName())) {
-                return false; // Exam with same name exists
+            if (exam.getExamName().equalsIgnoreCase(newExam.getExamName())
+                    && exam.getCourseID().equalsIgnoreCase(newExam.getCourseID())) {
+                return false; // 已存在相同类型和课程ID的考试
             }
         }
         examList.add(newExam);
@@ -139,32 +216,55 @@ public class ExamManagementService {
         return true;
     }
 
-    // Update an existing exam
-    public boolean updateExam(Exam updatedExam, String originalExamName) throws IOException {
+    /**
+     * 更新现有的考试
+     *
+     * @param updatedExam       更新后的考试对象
+     * @param originalExamName   原始考试名称
+     * @param originalCourseID   原始课程ID
+     * @return 如果成功更新返回 true，否则返回 false（例如，重复的考试）
+     * @throws IOException 如果保存考试到文件失败
+     */
+    public boolean updateExam(Exam updatedExam, String originalExamName, String originalCourseID) throws IOException {
         for (Exam exam : examList) {
-            if (exam.getExamName().equalsIgnoreCase(originalExamName)) {
-                // Check for duplicate name (excluding the exam being updated)
+            if (exam.getExamName().equalsIgnoreCase(originalExamName)
+                    && exam.getCourseID().equalsIgnoreCase(originalCourseID)) {
+                // 检查是否存在重复的类型和课程ID（不包括当前考试）
                 for (Exam otherExam : examList) {
-                    if (otherExam != exam && otherExam.getExamName().equalsIgnoreCase(updatedExam.getExamName())) {
-                        return false; // Duplicate name exists
+                    if (otherExam != exam
+                            && otherExam.getExamName().equalsIgnoreCase(updatedExam.getExamName())
+                            && otherExam.getCourseID().equalsIgnoreCase(updatedExam.getCourseID())) {
+                        return false; // 存在重复
                     }
                 }
+                // 更新字段
                 exam.setExamName(updatedExam.getExamName());
                 exam.setExamTime(updatedExam.getExamTime());
                 exam.setCourseID(updatedExam.getCourseID());
                 exam.setPublish(updatedExam.getPublish());
+                exam.setCourseName(updatedExam.getCourseName());
+                exam.setDuration(updatedExam.getDuration());
+                exam.setQuestions(updatedExam.getQuestions());
                 saveExams();
                 return true;
             }
         }
-        return false; // Exam not found
+        return false; // 未找到考试
     }
 
-    // Delete an exam
-    public boolean deleteExam(String examName) throws IOException {
+    /**
+     * 删除考试
+     *
+     * @param examName 考试名称
+     * @param courseID 课程ID
+     * @return 如果成功删除返回 true，否则返回 false
+     * @throws IOException 如果保存考试到文件失败
+     */
+    public boolean deleteExam(String examName, String courseID) throws IOException {
         Exam examToRemove = null;
         for (Exam exam : examList) {
-            if (exam.getExamName().equalsIgnoreCase(examName)) {
+            if (exam.getExamName().equalsIgnoreCase(examName)
+                    && exam.getCourseID().equalsIgnoreCase(courseID)) {
                 examToRemove = exam;
                 break;
             }
@@ -174,43 +274,71 @@ public class ExamManagementService {
             saveExams();
             return true;
         }
-        return false; // Exam not found
+        return false; // 未找到考试
     }
 
-    // Add a question to an exam
+    /**
+     * 向考试中添加问题
+     *
+     * @param exam     要添加问题的考试
+     * @param question 要添加的问题
+     * @return 如果成功添加返回 true，否则返回 false（例如，问题已存在）
+     * @throws IOException 如果保存考试到文件失败
+     */
     public boolean addQuestionToExam(Exam exam, Question question) throws IOException {
         if (!exam.getQuestions().contains(question)) {
-            exam.getQuestions().add(question);
+            exam.addQuestion(question);
             saveExams();
             return true;
         }
-        return false; // Question already exists in the exam
+        return false; // 问题已存在于考试中
     }
 
-    // Remove a question from an exam
+    /**
+     * 从考试中移除问题
+     *
+     * @param exam     要移除问题的考试
+     * @param question 要移除的问题
+     * @return 如果成功移除返回 true，否则返回 false（例如，问题未找到）
+     * @throws IOException 如果保存考试到文件失败
+     */
     public boolean removeQuestionFromExam(Exam exam, Question question) throws IOException {
         if (exam.getQuestions().remove(question)) {
             saveExams();
             return true;
         }
-        return false; // Question not found in the exam
+        return false; // 问题未找到
     }
 
-    // Filter exams based on criteria
+    /**
+     * 根据过滤条件过滤考试
+     *
+     * @param examName      考试名称过滤
+     * @param courseID      课程ID过滤
+     * @param publishStatus 发布状态过滤
+     * @return 过滤后的考试列表
+     */
     public List<Exam> filterExams(String examName, String courseID, String publishStatus) {
         return examList.stream()
-                .filter(exam -> (examName.isEmpty() || exam.getExamName().toLowerCase().contains(examName.toLowerCase())) &&
-                        (courseID.equals("All") || exam.getCourseID().equals(courseID)) &&
-                        (publishStatus.equals("All") || exam.getPublish().equals(publishStatus)))
+                .filter(exam -> (examName.isEmpty() || exam.getExamName().toLowerCase().contains(examName.toLowerCase()))
+                        && (courseID.equalsIgnoreCase("All") || exam.getCourseID().equalsIgnoreCase(courseID))
+                        && (publishStatus.equalsIgnoreCase("All") || exam.getPublish().equalsIgnoreCase(publishStatus)))
                 .collect(Collectors.toList());
     }
 
-    // Filter questions based on criteria
-    public List<Question> filterQuestions(String questionText, String type, String scoreText) {
+    /**
+     * 根据过滤条件过滤问题
+     *
+     * @param questionText 问题文本过滤
+     * @param typeFilter   问题类型过滤
+     * @param scoreFilter  分数过滤
+     * @return 过滤后的问题列表
+     */
+    public List<Question> filterQuestions(String questionText, String typeFilter, String scoreFilter) {
         return questionList.stream()
-                .filter(q -> (questionText.isEmpty() || q.getQuestion().toLowerCase().contains(questionText.toLowerCase())) &&
-                        (type.equals("All") || q.getType().equals(type)) &&
-                        (scoreText.isEmpty() || String.valueOf(q.getScore()).equals(scoreText)))
+                .filter(q -> (questionText.isEmpty() || q.getQuestion().toLowerCase().contains(questionText.toLowerCase()))
+                        && (typeFilter.equalsIgnoreCase("All") || q.getType().equalsIgnoreCase(typeFilter))
+                        && (scoreFilter.isEmpty() || String.valueOf(q.getScore()).equals(scoreFilter)))
                 .collect(Collectors.toList());
     }
 }
