@@ -1,9 +1,0 @@
-username,course,quiz
-john_doe,COMP3111 Software Engineering,Quiz 1
-john_doe,COMP3111 Software Engineering,Quiz 2
-john_doe,COMP5111 Software Engineering II,Quiz 1
-john_doe,COMP5111 Software Engineering II,Quiz 2
-alice_white,COMP3111 Software Engineering,Quiz 1
-alice_white,COMP5111 Software Engineering II,Quiz 2
-bonny,COMP3111 Software Engineering,Quiz 1
-bonny,COMP5111 Software Engineering II,Quiz 2

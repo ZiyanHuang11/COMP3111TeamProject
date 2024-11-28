@@ -101,7 +101,7 @@ public class TeacherGradeStatisticController implements Initializable {
         fullScoreColumn.setCellValueFactory(new PropertyValueFactory<>("fullScore"));
         timeSpendColumn.setCellValueFactory(new PropertyValueFactory<>("timeSpend"));
 
-        service.loadGradesFromFile("data/students_exams.txt");
+        service.loadGradesFromFile("data/completed_quizzes.txt");
         gradeTable.setItems(service.getGradeList());
         populateChoiceBoxes();
         loadChart();

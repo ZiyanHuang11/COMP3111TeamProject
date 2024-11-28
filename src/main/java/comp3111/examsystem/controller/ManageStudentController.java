@@ -46,11 +46,15 @@ public class ManageStudentController {
     TextField departmentField;
     @FXML
     TextField passwordField;
+    @FXML
+    private ListView<String> allCoursesListView;
+    @FXML
+    private ListView<String> selectedCoursesListView;
 
     private ManageStudentService studentService;
 
     public ManageStudentController() {
-        studentService = new ManageStudentService("data/students.txt", "data/students_exams.txt");
+        studentService = new ManageStudentService("data/students.txt", "data/completed_quizzes.txt");
     }
 
     public void showAlert(String message) {
@@ -77,6 +81,12 @@ public class ManageStudentController {
                 clearFields();
             }
         });
+        loadCourses();
+    }
+
+    private void loadCourses() {
+        List<String> courses = studentService.getCourseList();
+        allCoursesListView.setItems(FXCollections.observableArrayList(courses));
     }
 
     private void displayStudents(ObservableList<Student> students) {
@@ -221,7 +231,38 @@ public class ManageStudentController {
 
     @FXML
     public void assignCourse() {
+        String selectedCourse = allCoursesListView.getSelectionModel().getSelectedItem();
+        Student selectedStudent = studentTable.getSelectionModel().getSelectedItem();
 
+        if (selectedStudent != null && selectedCourse != null) {
+            try {
+                studentService.assignCourseToStudent(selectedStudent.getUsername(), selectedCourse);
+                selectedCoursesListView.getItems().add(selectedCourse);
+                showAlert("Course assigned successfully.");
+            } catch (IOException e) {
+                showAlert(e.getMessage());
+            }
+        } else {
+            showAlert("Please select a student and a course to assign.");
+        }
+    }
+
+    @FXML
+    public void removeCourse() {
+        String selectedCourse = selectedCoursesListView.getSelectionModel().getSelectedItem();
+        Student selectedStudent = studentTable.getSelectionModel().getSelectedItem();
+
+        if (selectedStudent != null && selectedCourse != null) {
+            try {
+                studentService.removeCourseFromStudent(selectedStudent.getUsername(), selectedCourse);
+                selectedCoursesListView.getItems().remove(selectedCourse);
+                showAlert("Course removed successfully.");
+            } catch (IOException e) {
+                showAlert(e.getMessage());
+            }
+        } else {
+            showAlert("Please select a student and a course to remove.");
+        }
     }
 
     void clearFields() {
@@ -240,5 +281,18 @@ public class ManageStudentController {
         genderComboBox.setValue(student.getGender());
         departmentField.setText(student.getDepartment());
         passwordField.setText(student.getPassword());
+
+        // Clear the ListView for selected courses
+        selectedCoursesListView.getItems().clear();
+
+        // Get courses for the selected student and display them
+        List<String> assignedCourses = studentService.getCoursesForStudent(student.getUsername());
+
+        // Add courses to the ListView without duplicates
+        for (String course : assignedCourses) {
+            if (!selectedCoursesListView.getItems().contains(course)) {
+                selectedCoursesListView.getItems().add(course);
+            }
+        }
     }
 }
