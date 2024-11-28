@@ -1,4 +1,4 @@
-/*package comp3111.examsystem.controller;
+package comp3111.examsystem.controller;
 
 import comp3111.examsystem.entity.Teacher;
 import comp3111.examsystem.service.ManageTeacherService;
@@ -51,6 +51,11 @@ public class ManageTeacherController {
     @FXML
     TextField passwordField;
 
+    @FXML
+    private ListView<String> selectedCoursesListView;
+    @FXML
+    private ListView<String> allCoursesListView;
+
     private ManageTeacherService manageTeacherService;
 
     public ManageTeacherController() {
@@ -66,14 +71,19 @@ public class ManageTeacherController {
         positionColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPosition()));
         departmentColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getDepartment()));
         passwordColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPassword()));
+
+        displayTeachers(manageTeacherService.getTeacherList());
+
+        allCoursesListView.setItems(manageTeacherService.getAllCourses());
+
         teacherTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 updateFields(newValue);
+                loadSelectedCourses(newValue);
             } else {
                 clearFields();
             }
         });
-        displayTeachers(manageTeacherService.getTeacherList());
     }
 
     private void displayTeachers(ObservableList<Teacher> teachers) {
@@ -167,7 +177,6 @@ public class ManageTeacherController {
     public void deleteTeacher() {
         Teacher selectedTeacher = teacherTable.getSelectionModel().getSelectedItem();
         if (selectedTeacher != null) {
-
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Confirm Deletion");
             alert.setHeaderText("Are you sure you want to delete teacher " + selectedTeacher.getName() + "?");
@@ -196,6 +205,59 @@ public class ManageTeacherController {
         displayTeachers(manageTeacherService.getTeacherList());
     }
 
+    @FXML
+    public void assignCourse() {
+        Teacher selectedTeacher = teacherTable.getSelectionModel().getSelectedItem();
+        if (selectedTeacher != null) {
+            String selectedCourse = allCoursesListView.getSelectionModel().getSelectedItem();
+            if (selectedCourse != null) {
+                try {
+                    manageTeacherService.assignCourseToTeacher(selectedTeacher, selectedCourse);
+                    showAlert("Course assigned: " + selectedCourse);
+                    loadSelectedCourses(selectedTeacher);
+                } catch (IOException e) {
+                    showAlert(e.getMessage());
+                }
+            } else {
+                showAlert("Please select a course.");
+            }
+        } else {
+            showAlert("Please select a teacher first.");
+        }
+    }
+
+    @FXML
+    public void removeCourse() {
+        Teacher selectedTeacher = teacherTable.getSelectionModel().getSelectedItem();
+        if (selectedTeacher != null) {
+            String selectedCourse = selectedCoursesListView.getSelectionModel().getSelectedItem();
+            if (selectedCourse != null) {
+                try {
+                    manageTeacherService.removeCourseFromTeacher(selectedTeacher, selectedCourse);
+                    showAlert("Course removed: " + selectedCourse);
+                    loadSelectedCourses(selectedTeacher);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    showAlert("Error updating teacher information.");
+                }
+            } else {
+                showAlert("Please select a course to remove.");
+            }
+        } else {
+            showAlert("Please select a teacher first.");
+        }
+    }
+
+    private void loadSelectedCourses(Teacher teacher) {
+        selectedCoursesListView.getItems().clear(); // 清空当前列表
+        if (teacher.getCourseid1() != null) {
+            selectedCoursesListView.getItems().add(teacher.getCourseid1());
+        }
+        if (teacher.getCourseid2() != null) {
+            selectedCoursesListView.getItems().add(teacher.getCourseid2());
+        }
+    }
+
     private void updateFields(Teacher teacher) {
         usernameField.setText(teacher.getUsername());
         nameField.setText(teacher.getName());
@@ -213,13 +275,14 @@ public class ManageTeacherController {
         genderComboBox.getSelectionModel().clearSelection();
         departmentField.clear();
         passwordField.clear();
+        selectedCoursesListView.getItems().clear(); // 清空已选课程列表
     }
 
     private void showAlert(String message) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Hint");
+        alert.setTitle("提示");
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
     }
-}*/
+}

@@ -8,10 +8,10 @@ public class Teacher {
     private String position;
     private String department;
     private String password;
-    private String courseid1;
-    private String courseid2;
+    private String courseId1; // 第一门课程ID
+    private String courseId2; // 第二门课程ID
 
-    public Teacher(String username, String password, String name, String gender, int age, String position, String department, String courseid1, String courseid2) {
+    public Teacher(String username, String password, String name, String gender, int age, String position, String department, String courseId1, String courseId2) {
         this.username = username;
         this.password = password;
         this.name = name;
@@ -19,10 +19,23 @@ public class Teacher {
         this.age = age;
         this.position = position;
         this.department = department;
-        this.courseid1 = courseid1;
-        this.courseid2 = courseid2;
+        this.courseId1 = courseId1;
+        this.courseId2 = courseId2;
     }
 
+    public Teacher(String username, String password, String name, String gender, int age, String position, String department) {
+        this.username = username;
+        this.password = password;
+        this.name = name;
+        this.gender = gender;
+        this.age = age;
+        this.position = position;
+        this.department = department;
+        this.courseId1 = null; // 初始化为空
+        this.courseId2 = null; // 初始化为空
+    }
+
+    // 现有的 getter 和 setter
     public String getUsername() { return username; }
     public String getName() { return name; }
     public String getDepartment() { return department; }
@@ -60,10 +73,28 @@ public class Teacher {
     }
 
     public String getCourseid1() {
-        return courseid1;
+        return courseId1;
     }
 
     public String getCourseid2() {
-        return courseid2;
+        return courseId2;
+    }
+
+    public void setCourseId1(String courseId) {
+        this.courseId1 = courseId;
+    }
+
+    public void setCourseId2(String courseId) {
+        this.courseId2 = courseId;
+    }
+
+    public void addCourse(String courseId) {
+        if (courseId1 == null) {
+            courseId1 = courseId;
+        } else if (courseId2 == null) {
+            courseId2 = courseId;
+        } else {
+            System.out.println("该教师已达到最大课程数量");
+        }
     }
 }

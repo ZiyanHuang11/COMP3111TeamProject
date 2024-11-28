@@ -2,11 +2,10 @@
 
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-
 <?import javafx.collections.FXCollections?>
-
 <?import java.lang.String?>
 <?import javafx.geometry.Insets?>
+
 <VBox alignment="TOP_CENTER" maxHeight="-Infinity" maxWidth="-Infinity" style="-fx-background-repeat: stretch; -fx-background-position: center center;" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600" prefWidth="1023.0" spacing="20.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="comp3111.examsystem.controller.ManageStudentController">
     <children>
         <GridPane alignment="CENTER" hgap="10" vgap="10" prefHeight="90">
@@ -72,18 +71,24 @@
                 <Label text="Password:" />
                 <TextField fx:id="passwordField" promptText="Please enter password" />
             </VBox>
+
+            <VBox spacing="10.0" prefWidth="250">
+                <Label text="已选课程:" />
+                <ListView fx:id="selectedCoursesListView" prefHeight="200" />
+
+                <Label text="所有课程:" />
+                <ListView fx:id="allCoursesListView" prefHeight="200" />
+
+                <Button mnemonicParsing="false" onAction="#assignCourse" text="分配课程" />
+            </VBox>
         </HBox>
 
         <HBox alignment="CENTER_RIGHT" spacing="20.0" prefHeight="80" style="-fx-padding: 0 20 0 0;">
             <children>
                 <Button mnemonicParsing="false" onAction="#deleteStudent" text="Delete" />
-
                 <Button mnemonicParsing="false" onAction="#refreshStudent" text="Refresh" />
-
                 <Region prefWidth="20"/>
-
                 <Button mnemonicParsing="false" onAction="#addStudent" text="Add" />
-
                 <Button mnemonicParsing="false" onAction="#updateStudent" text="Update" />
             </children>
         </HBox>

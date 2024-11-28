@@ -219,6 +219,11 @@ public class ManageStudentController {
         displayStudents(studentService.getStudentList());
     }
 
+    @FXML
+    public void assignCourse() {
+
+    }
+
     void clearFields() {
         usernameField.clear();
         nameField.clear();
