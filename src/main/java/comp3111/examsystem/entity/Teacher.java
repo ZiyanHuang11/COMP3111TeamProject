@@ -8,15 +8,19 @@ public class Teacher {
     private String position;
     private String department;
     private String password;
+    private String courseid1;
+    private String courseid2;
 
-    public Teacher(String username, String password, String name, String gender, int age, String position, String department) {
+    public Teacher(String username, String password, String name, String gender, int age, String position, String department, String courseid1, String courseid2) {
         this.username = username;
+        this.password = password;
         this.name = name;
         this.gender = gender;
         this.age = age;
         this.position = position;
         this.department = department;
-        this.password = password;
+        this.courseid1 = courseid1;
+        this.courseid2 = courseid2;
     }
 
     public String getUsername() { return username; }
@@ -53,5 +57,13 @@ public class Teacher {
 
     public void setPosition(String position) {
         this.position = position;
+    }
+
+    public String getCourseid1() {
+        return courseid1;
+    }
+
+    public String getCourseid2() {
+        return courseid2;
     }
 }

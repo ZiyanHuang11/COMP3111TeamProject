@@ -1,4 +1,4 @@
-package comp3111.examsystem.service;
+/*package comp3111.examsystem.service;
 
 import comp3111.examsystem.entity.Teacher;
 import javafx.collections.FXCollections;
@@ -144,4 +144,4 @@ public class ManageTeacherService {
         }
         return null;
     }
-}
+}*/

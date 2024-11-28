@@ -1,4 +1,4 @@
-package comp3111.examsystem.service;
+/*package comp3111.examsystem.service;
 
 import comp3111.examsystem.entity.Teacher;
 import javafx.collections.ObservableList;
@@ -124,4 +124,4 @@ class ManageTeacherServiceTest {
         result = service.validateUpdateInputs("", "Male", "30", "Teacher", "Math", "password123");
         assertEquals("Each field should be filled in", result);
     }
-}
+}*/

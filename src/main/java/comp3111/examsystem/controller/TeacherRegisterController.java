@@ -26,7 +26,7 @@ public class TeacherRegisterController {
     private PasswordField passwordTxt;
     @FXML
     private PasswordField confirmPasswordTxt;
-
+    @FXML
     private TeacherRegisterService registerService;
 
     @FXML
@@ -104,6 +104,7 @@ public class TeacherRegisterController {
     private void showAlert(String title, String message, Alert.AlertType type) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
+        alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
     }

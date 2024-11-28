@@ -1,6 +1,7 @@
 package comp3111.examsystem.controller;
 
 import comp3111.examsystem.Main;
+import comp3111.examsystem.entity.Teacher;
 import comp3111.examsystem.service.TeacherLoginService;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -33,34 +34,35 @@ public class TeacherLoginController implements Initializable {
         String username = usernameTxt.getText();
         String password = passwordTxt.getText();
 
-        if (loginService.validate(username, password)) {
-            // Login successful, show success alert and proceed
+        Teacher loggedInTeacher = loginService.validate(username, password);
+        if (loggedInTeacher != null) {
+            // 登录成功
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Hint");
             alert.setHeaderText(null);
-            alert.setContentText("Login successful");
+            alert.setContentText("Login Successful");
             alert.showAndWait();
 
-            // Load the main UI for teachers
-            FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("TeacherMainUI.fxml"));
-            Stage stage = new Stage();
-            stage.setTitle("Hi " + username + ", Welcome to HKUST Examination System");
             try {
+                FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("TeacherMainUI.fxml"));
+                Stage stage = new Stage();
+                stage.setTitle("Hi " + username + ", Welcome to HKUST Examination System");
                 stage.setScene(new Scene(fxmlLoader.load()));
+
+                // 获取控制器实例
+                TeacherMainController controller = fxmlLoader.getController();
+                // 将当前登录的教师对象传递给控制器
+                controller.setLoggedInTeacher(loggedInTeacher);
+
+                stage.show();
+
+                // 关闭登录窗口
+                ((Stage) ((Button) e.getSource()).getScene().getWindow()).close();
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
-            stage.show();
-
-            // Close the login window
-            ((Stage) ((Button) e.getSource()).getScene().getWindow()).close();
         } else {
-            // Invalid credentials, show error alert
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Hint");
-            alert.setHeaderText(null);
-            alert.setContentText("Invalid username or password");
-            alert.showAndWait();
+            // 登录失败
         }
     }
 

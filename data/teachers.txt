@@ -1,0 +1,4 @@
+Teacher1,Mark1111,Mark,Male,60,Professor,CSE,COMP3111,COMP5111
+Teacher2,James111,James,Male,80,Professor,CSE,COMP3711,COMP4411
+Teacher3,Alice111,Alice,Female,30,Assistant Professor,CSE,COMP3311,
+Teacher4,Mary1111,Mary,Female,24,Researcher,CSE,COMP4622,

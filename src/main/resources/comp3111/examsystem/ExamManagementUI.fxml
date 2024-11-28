@@ -8,27 +8,23 @@
 <BorderPane xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8"
             fx:controller="comp3111.examsystem.controller.ExamManagementController">
 
-    <!-- 顶部区域：考试和问题过滤器 -->
+    <!-- 添加内边距到BorderPane -->
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <!-- 顶部区域：过滤器 -->
     <top>
         <VBox spacing="10">
+            <!-- 为VBox添加内边距 -->
             <padding>
                 <Insets top="10" right="10" bottom="10" left="10"/>
             </padding>
-
-            <!-- 当前考试的过滤器 -->
             <HBox spacing="10">
                 <Label text="Exam Name:"/>
                 <TextField fx:id="examNameFilterTxt"/>
                 <Label text="Course ID:"/>
-                <ComboBox fx:id="courseIDFilterComboBox">
-                    <items>
-                        <FXCollections fx:factory="observableArrayList">
-                            <String fx:value="All"/>
-                            <String fx:value="COMP3111"/>
-                            <String fx:value="COMP5111"/>
-                        </FXCollections>
-                    </items>
-                </ComboBox>
+                <ComboBox fx:id="courseIDFilterComboBox"/>
                 <Label text="Publish:"/>
                 <ComboBox fx:id="publishFilterComboBox">
                     <items>
@@ -42,21 +38,12 @@
                 <Button text="Reset" onAction="#handleReset"/>
                 <Button text="Filter" onAction="#handleFilter"/>
             </HBox>
-
             <!-- 现有问题的过滤器 -->
             <HBox spacing="10">
                 <Label text="Question:"/>
                 <TextField fx:id="questionFilterTxt"/>
                 <Label text="Type:"/>
-                <ComboBox fx:id="typeFilterComboBox">
-                    <items>
-                        <FXCollections fx:factory="observableArrayList">
-                            <String fx:value="All"/>
-                            <String fx:value="Single"/>
-                            <String fx:value="Multiple"/>
-                        </FXCollections>
-                    </items>
-                </ComboBox>
+                <ComboBox fx:id="typeFilterComboBox"/>
                 <Label text="Score:"/>
                 <TextField fx:id="scoreFilterTxt"/>
                 <Button text="Reset" onAction="#handleQuestionFilterReset"/>
@@ -73,7 +60,7 @@
                 <TableColumn fx:id="courseIDColumn" text="Course ID"/>
                 <TableColumn fx:id="examTimeColumn" text="Exam Time"/>
                 <TableColumn fx:id="publishColumn" text="Publish"/>
-                <TableColumn fx:id="courseNameColumn" text="Course Name" />
+                <!-- 移除 Course Name 列 -->
                 <TableColumn fx:id="durationColumn" text="Duration (s)" />
             </columns>
         </TableView>
@@ -119,23 +106,13 @@
     <!-- 底部区域：考试编辑字段 -->
     <bottom>
         <HBox spacing="10">
-            <padding>
-                <Insets top="10" right="10" bottom="10" left="10"/>
-            </padding>
             <VBox spacing="10">
                 <Label text="Exam Name:"/>
                 <TextField fx:id="examNameTxt"/>
                 <Label text="Exam Time:"/>
                 <TextField fx:id="examTimeTxt"/>
                 <Label text="Course ID:"/>
-                <ComboBox fx:id="courseIDComboBox">
-                    <items>
-                        <FXCollections fx:factory="observableArrayList">
-                            <String fx:value="COMP3111"/>
-                            <String fx:value="COMP5111"/>
-                        </FXCollections>
-                    </items>
-                </ComboBox>
+                <ComboBox fx:id="courseIDComboBox"/>
                 <Label text="Publish:"/>
                 <ComboBox fx:id="publishComboBox">
                     <items>
@@ -145,6 +122,8 @@
                         </FXCollections>
                     </items>
                 </ComboBox>
+                <Label text="Duration:"/>
+                <TextField fx:id="durationTxt"/>
             </VBox>
             <VBox spacing="10">
                 <Button text="Add" onAction="#handleAdd"/>

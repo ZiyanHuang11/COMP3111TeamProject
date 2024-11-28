@@ -1,4 +1,4 @@
-package comp3111.examsystem.controller;
+/*package comp3111.examsystem.controller;
 
 import comp3111.examsystem.entity.Teacher;
 import comp3111.examsystem.service.ManageTeacherService;
@@ -222,4 +222,4 @@ public class ManageTeacherController {
         alert.setContentText(message);
         alert.showAndWait();
     }
-}
+}*/

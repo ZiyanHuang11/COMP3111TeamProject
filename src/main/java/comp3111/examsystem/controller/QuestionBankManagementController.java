@@ -6,6 +6,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.TextFormatter;
 
 import java.io.IOException;
 import java.util.List;
@@ -89,6 +91,15 @@ public class QuestionBankManagementController {
         // Set table click event to show question details
         questionTable.getSelectionModel().selectedItemProperty().addListener(
                 (observable, oldValue, newValue) -> showQuestionDetails(newValue));
+
+        // Add TextFormatter to scoreTxt to allow only positive integers
+        scoreTxt.setTextFormatter(new TextFormatter<String>(change -> {
+            String newText = change.getControlNewText();
+            if (newText.matches("([1-9][0-9]*)?")) { // Allow empty or positive integers
+                return change;
+            }
+            return null;
+        }));
     }
 
     // Show question details
@@ -123,8 +134,11 @@ public class QuestionBankManagementController {
 
         String validationMessage = questionService.validateInputs(questionText, optionA, optionB, optionC, optionD, answer, type, scoreText);
         if (validationMessage != null) {
-            showAlert("Invalid Input", validationMessage, Alert.AlertType.ERROR);
+            showAlert("Invalid Input", validationMessage, AlertType.ERROR);
+            scoreTxt.setStyle("-fx-border-color: red;");
             return;
+        } else {
+            scoreTxt.setStyle(null); // Reset style
         }
 
         int score = Integer.parseInt(scoreText);
@@ -138,7 +152,7 @@ public class QuestionBankManagementController {
             // Clear input fields
             clearInputFields();
         } catch (IOException e) {
-            showAlert("Error", "Failed to save question to file.", Alert.AlertType.ERROR);
+            showAlert("Error", "Failed to save question to file.", AlertType.ERROR);
         }
     }
 
@@ -158,8 +172,11 @@ public class QuestionBankManagementController {
 
             String validationMessage = questionService.validateInputs(questionText, optionA, optionB, optionC, optionD, answer, type, scoreText);
             if (validationMessage != null) {
-                showAlert("Invalid Input", validationMessage, Alert.AlertType.ERROR);
+                showAlert("Invalid Input", validationMessage, AlertType.ERROR);
+                scoreTxt.setStyle("-fx-border-color: red;");
                 return;
+            } else {
+                scoreTxt.setStyle(null); // Reset style
             }
 
             int score = Integer.parseInt(scoreText);
@@ -176,10 +193,10 @@ public class QuestionBankManagementController {
                 // Clear selection
                 questionTable.getSelectionModel().clearSelection();
             } catch (IOException e) {
-                showAlert("Error", "Failed to update question.", Alert.AlertType.ERROR);
+                showAlert("Error", "Failed to update question.", AlertType.ERROR);
             }
         } else {
-            showAlert("No Selection", "Please select a question to update", Alert.AlertType.WARNING);
+            showAlert("No Selection", "Please select a question to update", AlertType.WARNING);
         }
     }
 
@@ -195,10 +212,10 @@ public class QuestionBankManagementController {
                 // Clear input fields
                 clearInputFields();
             } catch (IOException e) {
-                showAlert("Error", "Failed to delete question.", Alert.AlertType.ERROR);
+                showAlert("Error", "Failed to delete question.", AlertType.ERROR);
             }
         } else {
-            showAlert("No Selection", "Please select a question to delete", Alert.AlertType.WARNING);
+            showAlert("No Selection", "Please select a question to delete", AlertType.WARNING);
         }
     }
 
@@ -237,12 +254,14 @@ public class QuestionBankManagementController {
         answerTxt.clear();
         typeComboBox.setValue(null);
         scoreTxt.clear();
+        scoreTxt.setStyle(null); // Reset style
     }
 
     // Show alert
-    private void showAlert(String title, String message, Alert.AlertType type) {
+    private void showAlert(String title, String message, AlertType type) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
+        alert.setHeaderText(null); // Remove header
         alert.setContentText(message);
         alert.showAndWait();
     }

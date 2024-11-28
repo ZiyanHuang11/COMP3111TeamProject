@@ -26,26 +26,57 @@ public class TeacherRegisterService {
      */
     public String validateInputs(String username, String name, String gender, String ageText, String position,
                                  String department, String password, String confirmPassword) {
+
+        // Check for empty fields
         if (username.isEmpty() || name.isEmpty() || gender == null || ageText.isEmpty() ||
                 position == null || department.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
             return "All fields are required.";
         }
 
+        // Check if gender and position are selected
         if ("Gender".equals(gender) || "Position".equals(position)) {
             return "Please select your gender and position.";
         }
 
+        // Check if passwords match
         if (!password.equals(confirmPassword)) {
             return "Passwords do not match.";
         }
 
+        // Check if age is a valid number
+        int age;
         try {
-            Integer.parseInt(ageText);
+            age = Integer.parseInt(ageText);
         } catch (NumberFormatException e) {
             return "Age must be a valid number.";
         }
 
+        // Check if age is within the valid range
+        if (age < 20 || age > 80) {
+            return "Age must be between 20 and 80.";
+        }
+
+        // Check password complexity
+        if (!isValidPassword(password)) {
+            return "Password must be at least 8 characters long and contain both letters and numbers.";
+        }
+
+        // Check if the username already exists
+        if (isUserExists(username)) {
+            return "Username already exists";
+        }
+
         return null; // All inputs are valid
+    }
+
+    /**
+     * Checks if the password is at least 8 characters long and contains both letters and numbers.
+     *
+     * @param password The password to validate.
+     * @return true if the password is valid; false otherwise.
+     */
+    private boolean isValidPassword(String password) {
+        return password.length() >= 8 && password.matches("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]+$");
     }
 
     /**
@@ -68,7 +99,7 @@ public class TeacherRegisterService {
             }
         } catch (IOException e) {
             e.printStackTrace();
-            // Handle exception appropriately, possibly rethrow or log
+            // Handle exception appropriately
         }
         return false; // User does not exist
     }
@@ -94,7 +125,9 @@ public class TeacherRegisterService {
             sb.append(teacherInfo.get("gender")).append(",");
             sb.append(teacherInfo.get("age")).append(",");
             sb.append(teacherInfo.get("position")).append(",");
-            sb.append(teacherInfo.get("department")).append("\n");
+            sb.append(teacherInfo.get("department")).append(",");
+            sb.append("").append(",");
+            sb.append("").append("\n");
 
             writer.write(sb.toString());
         }

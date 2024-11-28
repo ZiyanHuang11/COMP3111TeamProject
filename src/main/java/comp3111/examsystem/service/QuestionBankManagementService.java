@@ -186,8 +186,8 @@ public class QuestionBankManagementService {
         }
         try {
             int score = Integer.parseInt(scoreText);
-            if (score <= 0) {
-                return "Score must be a positive integer.";
+            if (score <= 0 || score > 100) {
+                return "Score must be between 1 and 100.";
             }
         } catch (NumberFormatException e) {
             return "Score must be a number.";
