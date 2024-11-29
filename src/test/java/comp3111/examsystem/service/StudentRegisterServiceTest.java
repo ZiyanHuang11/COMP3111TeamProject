@@ -1,115 +1,121 @@
 package comp3111.examsystem.service;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.io.FileWriter;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-
 import static org.junit.jupiter.api.Assertions.*;
 
-class StudentRegisterServiceTest {
+import java.io.*;
 
-    private static final String TEST_FILE_PATH = "test_data/test_students.txt";
+
+public class StudentRegisterServiceTest {
+
     private StudentRegisterService service;
+    private String studentFilePath = "test_data/test_students.txt";  // Use a test file path
 
     @BeforeEach
-    void setUp() throws Exception {
-        try (FileWriter writer = new FileWriter(TEST_FILE_PATH)) {
-            writer.write("user1,John,Male,20,CS,password1\n");
-            writer.write("user2,Jane,Female,21,IT,password2\n");
-        }
-        service = new StudentRegisterService(TEST_FILE_PATH);
+    public void setUp() {
+        service = new StudentRegisterService(studentFilePath);
     }
 
-    @AfterEach
-    void tearDown() throws Exception {
-        Files.deleteIfExists(Path.of(TEST_FILE_PATH));
-    }
-
+    // Test for username being numeric
     @Test
-    void testValidateInputs_Valid() {
-        String result = service.validateInputs("user3", "Alice", "Female", "22", "Math", "pass123", "pass123");
-        assertNull(result);
+    public void testValidateInputs_UsernameIsNumber() {
+        String result = service.validateInputs("12345", "John Doe", "Male", "25", "Computer Science", "password123", "password123");
+        assertEquals("Username cannot be numeric.", result);
     }
 
+    // Test for name being numeric
     @Test
-    void testValidateInputs_InvalidGender() {
-        String result = service.validateInputs("user3", "Alice", "Gender", "22", "Math", "pass123", "pass123");
-        assertEquals("Please select your gender.", result);
+    public void testValidateInputs_NameIsNumber() {
+        String result = service.validateInputs("johndoe", "12345", "Male", "25", "Computer Science", "password123", "password123");
+        assertEquals("Name cannot be numeric.", result);
     }
 
+    // Test for username already existing in the system
     @Test
-    void testIsUserExists_UserExists() {
-        assertTrue(service.isUserExists("user1"));
+    public void testRegisterStudent_UsernameAlreadyExists() throws IOException {
+        // Register the first student
+        Map<String, String> studentInfo1 = new HashMap<>();
+        studentInfo1.put("username", "johndoe");
+        studentInfo1.put("name", "John Doe");
+        studentInfo1.put("gender", "Male");
+        studentInfo1.put("age", "25");
+        studentInfo1.put("department", "Computer Science");
+        studentInfo1.put("password", "password123");
+        studentInfo1.put("confirmPassword", "password123");
+        service.registerStudent(studentInfo1);
+
+        // Try registering with the same username
+        String result = service.validateInputs("johndoe", "Jane Doe", "Female", "22", "Math", "password123", "password123");
+        assertEquals("Username already exists!", result);
     }
 
+    // Test for valid username, name, and valid inputs
     @Test
-    void testIsUserExists_UserDoesNotExist() {
-        assertFalse(service.isUserExists("user3"));
+    public void testValidateInputs_ValidInputs() {
+        String result = service.validateInputs("janedoe", "Jane Doe", "Female", "22", "Mathematics", "password123", "password123");
+        assertNull(result);  // No errors should be returned
     }
 
+    // Test for invalid age
     @Test
-    void testRegisterStudent() throws Exception {
+    public void testValidateInputs_AgeIsInvalid() {
+        String result = service.validateInputs("janedoe", "Jane Doe", "Female", "-5", "Mathematics", "password123", "password123");
+        assertEquals("Age must be a whole number between 1 and 60.", result);
+    }
+
+    // Test for age being too high
+    @Test
+    public void testValidateInputs_AgeIsTooHigh() {
+        String result = service.validateInputs("janedoe", "Jane Doe", "Female", "100", "Mathematics", "password123", "password123");
+        assertEquals("Age must be a whole number between 1 and 60.", result);
+    }
+
+    // Test for invalid password length
+    @Test
+    public void testValidateInputs_PasswordTooShort() {
+        String result = service.validateInputs("janedoe", "Jane Doe", "Female", "22", "Mathematics", "pass", "pass");
+        assertEquals("Password must be at least 8 characters long.", result);
+    }
+
+    // Test for mismatched passwords
+    @Test
+    public void testValidateInputs_PasswordsDontMatch() {
+        String result = service.validateInputs("janedoe", "Jane Doe", "Female", "22", "Mathematics", "password123", "password456");
+        assertEquals("Passwords do not match.", result);
+    }
+
+    // Test for department being empty
+    @Test
+    public void testValidateInputs_DepartmentIsEmpty() {
+        String result = service.validateInputs("janedoe", "Jane Doe", "Female", "22", "", "password123", "password123");
+        assertEquals("All fields are required.", result);  // Because department is empty
+    }
+
+    // Test for successful student registration
+    @Test
+    public void testRegisterStudent_Success() throws IOException {
         Map<String, String> studentInfo = new HashMap<>();
-        studentInfo.put("username", "user3");
-        studentInfo.put("name", "Alice");
-        studentInfo.put("age", "22");
+        studentInfo.put("username", "janedoe");
+        studentInfo.put("name", "Jane Doe");
         studentInfo.put("gender", "Female");
-        studentInfo.put("department", "Math");
-        studentInfo.put("password", "pass123");
+        studentInfo.put("age", "22");
+        studentInfo.put("department", "Mathematics");
+        studentInfo.put("password", "password123");
+        studentInfo.put("confirmPassword", "password123");
 
+        // Register student and check that the username and name are cached
         service.registerStudent(studentInfo);
-
-        assertTrue(service.isUserExists("user3"));
-        Map<String, String> students = service.getAllStudents();
-        assertEquals(3, students.size());
+        assertTrue(service.isUserExists("janedoe"));
     }
 
+    // Test for invalid age format (non-integer)
     @Test
-    void testRegisterStudent_FileCreation() throws Exception {
-        String newFilePath = "test_data/new_students.txt";
-        Files.deleteIfExists(Path.of(newFilePath));
-        StudentRegisterService newService = new StudentRegisterService(newFilePath);
-
-        Map<String, String> studentInfo = new HashMap<>();
-        studentInfo.put("username", "user3");
-        studentInfo.put("name", "Alice");
-        studentInfo.put("age", "22");
-        studentInfo.put("gender", "Female");
-        studentInfo.put("department", "Math");
-        studentInfo.put("password", "pass123");
-
-        newService.registerStudent(studentInfo);
-
-        assertTrue(Files.exists(Path.of(newFilePath)));
-        Files.deleteIfExists(Path.of(newFilePath));
-    }
-
-    @Test
-    void testGetAllStudents() {
-        Map<String, String> students = service.getAllStudents();
-        assertEquals(2, students.size());
-        assertTrue(students.containsKey("user1"));
-        assertTrue(students.containsKey("user2"));
-    }
-
-    @Test
-    void testGetAllStudents_EmptyFile() throws Exception {
-        Files.writeString(Path.of(TEST_FILE_PATH), "");
-        Map<String, String> students = service.getAllStudents();
-        assertTrue(students.isEmpty());
-    }
-
-    @Test
-    void testGetAllStudents_PartiallyCorruptedData() throws Exception {
-        Files.writeString(Path.of(TEST_FILE_PATH), "user1,John,Male,20,CS,password1\nInvalidData\n");
-        Map<String, String> students = service.getAllStudents();
-        assertEquals(1, students.size());
-        assertTrue(students.containsKey("user1"));
+    public void testValidateInputs_AgeIsNonInteger() {
+        String result = service.validateInputs("janedoe", "Jane Doe", "Female", "twenty", "Mathematics", "password123", "password123");
+        assertEquals("Age must be a whole number between 1 and 60.", result);
     }
 }

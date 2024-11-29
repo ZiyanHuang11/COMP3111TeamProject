@@ -4,10 +4,8 @@ import comp3111.examsystem.service.StudentRegisterService;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.List;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,12 +57,6 @@ public class StudentRegisterController {
             return;
         }
 
-        // Check if user exists
-        if (registerService.isUserExists(username)) {
-            showAlert("Registration Failed", "Username already exists!", Alert.AlertType.ERROR);
-            return;
-        }
-
         // Prepare student information
         Map<String, String> studentInfo = new HashMap<>();
         studentInfo.put("username", username);
@@ -88,7 +80,6 @@ public class StudentRegisterController {
         }
     }
 
-
     @FXML
     private void handleClose() {
         // Close the registration window
@@ -98,7 +89,7 @@ public class StudentRegisterController {
 
     private void showAlert(String title, String message, Alert.AlertType type) {
         Alert alert = new Alert(type);
-        alert.setTitle("Hint");
+        alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
 

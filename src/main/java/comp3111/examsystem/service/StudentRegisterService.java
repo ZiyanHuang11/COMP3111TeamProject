@@ -2,137 +2,124 @@ package comp3111.examsystem.service;
 
 import java.io.*;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class StudentRegisterService {
 
     private final String studentFilePath;
     private List<String> cachedUsernames; // Cached usernames for efficiency
+    private List<String> cachedNames; // Cached names to check for duplicates
 
     public StudentRegisterService(String studentFilePath) {
         this.studentFilePath = studentFilePath;
+        this.cachedUsernames = new ArrayList<>();
+        this.cachedNames = new ArrayList<>();
 
         // Ensure the file exists; create a new one if it doesn't
         File studentFile = new File(studentFilePath);
         if (!studentFile.exists()) {
             try {
                 studentFile.createNewFile();
-                System.out.println("Student file created at: " + studentFile.getAbsolutePath());
             } catch (IOException e) {
                 e.printStackTrace();
-                System.err.println("Failed to create student file");
             }
+        }
+
+        // Load existing data into memory for faster checks
+        loadExistingUsers();
+    }
+
+    // Load existing usernames and names from the student file
+    private void loadExistingUsers() {
+        try (BufferedReader reader = new BufferedReader(new FileReader(studentFilePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts.length >= 6) {  // Ensure each record has enough fields
+                    cachedUsernames.add(parts[0].trim());
+                    cachedNames.add(parts[1].trim());
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    /**
-     * Validates the registration inputs.
-     *
-     * @param username        The username entered.
-     * @param name            The name entered.
-     * @param gender          The gender selected.
-     * @param ageText         The age entered as text.
-     * @param department      The department entered.
-     * @param password        The password entered.
-     * @param confirmPassword The password confirmation entered.
-     * @return null if all inputs are valid; otherwise, an error message.
-     */
-    public String validateInputs(String username, String name, String gender, String ageText,
-                                 String department, String password, String confirmPassword) {
-        String[] fields = {username, name, gender, ageText, department, password, confirmPassword};
-        for (String field : fields) {
-            if (field == null || field.isEmpty()) {
-                return "All fields are required.";
-            }
+    // Validate the inputs for registration
+    public String validateInputs(String username, String name, String gender, String ageText, String department, String password, String confirmPassword) {
+        if (username.isEmpty() || name.isEmpty() || gender == null || ageText.isEmpty() || department.isEmpty() || password.isEmpty()) {
+            return "All fields are required.";
         }
 
-        if ("Gender".equals(gender)) {
-            return "Please select your gender.";
+        if (isInvalidUsername(username)) {
+            return "Username cannot be numeric.";
+        }
+
+        if (isInvalidName(name)) {
+            return "Name cannot be numeric.";
+        }
+
+        if (isUserExists(username)) {
+            return "Username already exists!";
+        }
+
+        if (isNameExists(name)) {
+            return "Name already exists!";
+        }
+
+        if (isInvalidAge(ageText)) {
+            return "Age must be a whole number between 1 and 60.";
+        }
+
+        if (isInvalidPassword(password)) {
+            return "Password must be at least 8 characters long.";
         }
 
         if (!password.equals(confirmPassword)) {
             return "Passwords do not match.";
         }
 
-        try {
-            Integer.parseInt(ageText);
-        } catch (NumberFormatException e) {
-            return "Age must be a valid number.";
-        }
-
-        return null; // All inputs are valid
+        return null;  // No errors
     }
 
-    /**
-     * Checks if a user with the given username already exists.
-     *
-     * @param username The username to check.
-     * @return true if the user exists; false otherwise.
-     */
-    public boolean isUserExists(String username) {
-        if (cachedUsernames == null) {
-            cachedUsernames = loadAllUsernames();
+    private boolean isInvalidUsername(String username) {
+        return username.matches("\\d+");  // Check if username is numeric
+    }
+
+    private boolean isInvalidName(String name) {
+        return name.matches("\\d+");  // Check if name is numeric
+    }
+
+    private boolean isInvalidAge(String ageText) {
+        try {
+            int age = Integer.parseInt(ageText);
+            return age < 1 || age > 60;
+        } catch (NumberFormatException e) {
+            return true;  // Age is not a valid integer
         }
+    }
+
+    private boolean isInvalidPassword(String password) {
+        return password.length() < 8;  // Password must be at least 8 characters
+    }
+
+    public boolean isUserExists(String username) {
         return cachedUsernames.contains(username);
     }
 
-    private List<String> loadAllUsernames() {
-        List<String> usernames = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(studentFilePath))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] credentials = line.split(",");
-                if (credentials.length > 0) {
-                    usernames.add(credentials[0].trim());
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return usernames;
+    private boolean isNameExists(String name) {
+        return cachedNames.contains(name);
     }
 
-    /**
-     * Registers a new student by writing their information to the file.
-     *
-     * @param studentInfo A map containing the student's information.
-     * @throws IOException If an I/O error occurs.
-     */
+    // Register student by saving data to file
     public void registerStudent(Map<String, String> studentInfo) throws IOException {
-        try (FileWriter writer = new FileWriter(studentFilePath, true)) {
-            String record = String.join(",",
-                    studentInfo.get("username"),
-                    studentInfo.get("name"),
-                    studentInfo.get("age"),
-                    studentInfo.get("gender"),
-                    studentInfo.get("department"),
-                    studentInfo.get("password")) + "\n";
-            writer.write(record);
-
-            // Update cached usernames
-            if (cachedUsernames != null) {
-                cachedUsernames.add(studentInfo.get("username"));
-            }
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(studentFilePath, true))) {
+            String studentData = String.join(",", studentInfo.values());
+            writer.write(studentData);
+            writer.newLine();
         }
-    }
-
-    /**
-     * Retrieves all students' data from the file.
-     *
-     * @return A map where the key is the username and the value is the full record as a string.
-     */
-    public Map<String, String> getAllStudents() {
-        Map<String, String> students = new HashMap<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(studentFilePath))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] credentials = line.split(",");
-                if (credentials.length >= 6) {
-                    students.put(credentials[0].trim(), line);
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return students;
+        // Update the cached usernames and names for future checks
+        cachedUsernames.add(studentInfo.get("username"));
+        cachedNames.add(studentInfo.get("name"));
     }
 }
