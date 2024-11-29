@@ -2,176 +2,171 @@ package comp3111.examsystem.service;
 
 import comp3111.examsystem.entity.Student;
 import comp3111.examsystem.service.ManageStudentService;
-import javafx.collections.ObservableList;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ManageStudentServiceTest {
-    private static final String TEST_STUDENT_FILE = "test_data/test_students.txt";
-    private static final String TEST_EXAMS_FILE = "test_data/test_exams.txt";
     private ManageStudentService service;
+    private final String studentFilePath = "test_students.txt";
+    private final String studentExamsFilePath = "test_studentsexams.txt";
 
     @BeforeEach
     public void setUp() throws IOException {
+        // 创建测试文件
+        new File(studentFilePath).createNewFile();
+        new File(studentExamsFilePath).createNewFile();
 
-        new File(TEST_STUDENT_FILE).createNewFile();
-        new File(TEST_EXAMS_FILE).createNewFile();
-        service = new ManageStudentService(TEST_STUDENT_FILE, TEST_EXAMS_FILE);
-    }
-
-    @AfterEach
-    public void tearDown() {
-
-        new File(TEST_STUDENT_FILE).delete();
-        new File(TEST_EXAMS_FILE).delete();
-    }
-
-    @Test
-    public void testLoadStudentsFromFile() throws IOException {
-
-        try (var bw = new BufferedWriter(new FileWriter(TEST_STUDENT_FILE))) {
-            bw.write("user1,John Doe,20,Male,CS,password123");
-            bw.newLine();
-            bw.write("user2,Jane Smith,22,Female,EE,password456");
-        }
-
-        service.loadStudentsFromFile();
-        ObservableList<Student> students = service.getStudentList();
-
-        assertEquals(2, students.size());
-        assertEquals("user1", students.get(0).getUsername());
-        assertEquals("John Doe", students.get(0).getName());
+        service = new ManageStudentService(studentFilePath, studentExamsFilePath);
     }
 
     @Test
     public void testAddStudent() throws IOException {
-        Student student = new Student("user1", "John Doe", 20, "Male", "CS", "password123");
+        Student student = new Student("john_doe", "John Doe", 20, "Male", "CS", "password123");
         service.addStudent(student);
 
-        ObservableList<Student> students = service.getStudentList();
-        assertEquals(1, students.size());
-        assertEquals("user1", students.get(0).getUsername());
+        assertEquals(1, service.getStudentList().size());
+        assertEquals("john_doe", service.getStudentList().get(0).getUsername());
     }
 
     @Test
     public void testUpdateStudent() throws IOException {
-        Student student = new Student("user1", "John Doe", 20, "Male", "CS", "password123");
+        Student student = new Student("john_doe", "John Doe", 20, "Male", "CS", "password123");
         service.addStudent(student);
 
-        Student updatedStudent = new Student("user1", "John Doe Updated", 21, "Male", "CS", "newpassword123");
-        service.updateStudent(updatedStudent, "user1");
+        Student updatedStudent = new Student("john_doe", "Johnathan Doe", 21, "Male", "CS", "newpassword123");
+        service.updateStudent(updatedStudent, "john_doe");
 
-        assertEquals("John Doe Updated", service.getStudentList().get(0).getName());
+        assertEquals("Johnathan Doe", service.getStudentList().get(0).getName());
+        assertEquals(21, service.getStudentList().get(0).getAge());
     }
 
     @Test
-    public void testUpdateStudentNotFound() {
-        Student updatedStudent = new Student("user1", "John Doe Updated", 21, "Male", "CS", "newpassword123");
-        IOException exception = assertThrows(IOException.class, () -> {
-            service.updateStudent(updatedStudent, "nonexistentUser");
-        });
-        assertEquals("Student with username nonexistentUser does not exist.", exception.getMessage());
+    public void testUpdateNonExistentStudent() {
+        Student updatedStudent = new Student("nonexistent", "Non Existent", 21, "Male", "CS", "newpassword123");
+        try {
+            service.updateStudent(updatedStudent, "nonexistent");
+            fail("Expected IOException for non-existent student");
+        } catch (IOException e) {
+            assertEquals("Student with username nonexistent does not exist.", e.getMessage());
+        }
     }
 
     @Test
     public void testDeleteStudent() throws IOException {
-        Student student = new Student("user1", "John Doe", 20, "Male", "CS", "password123");
+        Student student = new Student("john_doe", "John Doe", 20, "Male", "CS", "password123");
         service.addStudent(student);
+        assertEquals(1, service.getStudentList().size());
 
-        service.deleteStudent("user1");
+        service.deleteStudent("john_doe");
         assertEquals(0, service.getStudentList().size());
     }
 
     @Test
-    public void testDeleteStudentNotFound() {
-        IOException exception = assertThrows(IOException.class, () -> {
-            service.deleteStudent("nonexistentUser");
-        });
-        assertEquals("Student with username nonexistentUser does not exist.", exception.getMessage());
+    public void testDeleteNonExistentStudent() {
+        try {
+            service.deleteStudent("nonexistent");
+            fail("Expected IOException for non-existent student");
+        } catch (IOException e) {
+            assertEquals("Student with username nonexistent does not exist.", e.getMessage());
+        }
     }
 
     @Test
-    public void testFilterStudents() throws IOException {
-        service.addStudent(new Student("user1", "John Doe", 20, "Male", "CS", "password123"));
-        service.addStudent(new Student("user2", "Jane Smith", 22, "Female", "EE", "password456"));
+    public void testAssignCourseToStudent() throws IOException {
+        Student student = new Student("john_doe", "John Doe", 20, "Male", "CS", "password123");
+        service.addStudent(student);
+        service.loadCoursesFromFile(); // Ensure courses are loaded
 
-        var filtered = service.filterStudents("user1", "", "");
-        assertEquals(1, filtered.size());
-        assertEquals("user1", filtered.get(0).getUsername());
+        service.assignCourseToStudent("john_doe", "CS101");
 
-        filtered = service.filterStudents("nonexistent", "", "");
-        assertEquals(0, filtered.size());
+        assertEquals(1, service.getCoursesForStudent("john_doe").size());
+        assertEquals("CS101", service.getCoursesForStudent("john_doe").get(0));
+    }
+
+    @Test
+    public void testAssignDuplicateCourseToStudent() throws IOException {
+        Student student = new Student("john_doe", "John Doe", 20, "Male", "CS", "password123");
+        service.addStudent(student);
+        service.loadCoursesFromFile(); // Ensure courses are loaded
+        service.assignCourseToStudent("john_doe", "CS101");
+
+        try {
+            service.assignCourseToStudent("john_doe", "CS101"); // Attempt to assign the same course again
+            fail("Expected IOException for duplicate course assignment");
+        } catch (IOException e) {
+            assertEquals("The student is already assigned this course.", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testRemoveCourseFromStudent() throws IOException {
+        Student student = new Student("john_doe", "John Doe", 20, "Male", "CS", "password123");
+        service.addStudent(student);
+        service.loadCoursesFromFile(); // Ensure courses are loaded
+        service.assignCourseToStudent("john_doe", "CS101");
+
+        service.removeCourseFromStudent("john_doe", "CS101");
+
+        assertEquals(0, service.getCoursesForStudent("john_doe").size());
     }
 
     @Test
     public void testValidateUsername() throws IOException {
-        service.addStudent(new Student("user1", "John Doe", 20, "Male", "CS", "password123"));
-        String result = service.validateUsername("user1");
-        assertEquals("The user name already exists", result);
-
-        result = service.validateUsername("newuser");
-        assertNull(result);
+        service.addStudent(new Student("john_doe", "John Doe", 20, "Male", "CS", "password123"));
+        assertEquals("The user name already exists", service.validateUsername("john_doe"));
+        assertNull(service.validateUsername("jane_doe"));
     }
 
     @Test
     public void testValidateInputs() {
-        String result = service.validateInputs("user1", "John Doe", "20", "Male", "CS", "password123");
+        String result = service.validateInputs("john_doe", "John Doe", "20", "Male", "CS", "password123");
         assertNull(result);
 
         result = service.validateInputs("", "John Doe", "20", "Male", "CS", "password123");
         assertEquals("Each field should be filled in", result);
 
-        result = service.validateInputs("user1", "John Doe", "invalidAge", "Male", "CS", "password123");
+        result = service.validateInputs("john_doe", "John Doe", "twenty", "Male", "CS", "password123");
         assertEquals("Age must be a valid number", result);
 
-        result = service.validateInputs("user1", "John Doe", "20", "Male", "", "password123");
-        assertEquals("Each field should be filled in", result);
-
-        result = service.validateInputs("user1", "John Doe", "20", "Male", "CS", "short");
+        result = service.validateInputs("john_doe", "John Doe", "20", "Male", "CS", "pass");
         assertEquals("The password must contain both letters and numbers and be at least eight characters long", result);
     }
 
     @Test
     public void testIsValidPassword() {
-        assertFalse(service.isValidPassword("validPass1"));
-        assertTrue(service.isValidPassword("short1"));
-        assertTrue(service.isValidPassword("onlyletters"));
-        assertTrue(service.isValidPassword("12345678"));
+        assertTrue(service.isValidPassword("short"));
+        assertFalse(service.isValidPassword("valid123"));
     }
 
     @Test
-    public void testValidateUpdateInputs() {
-        String result = service.validateUpdateInputs("John Doe", "20", "Male", "CS", "password123");
-        assertNull(result);
-
-        result = service.validateUpdateInputs("", "20", "Male", "CS", "password123");
-        assertEquals("Each field should be filled in", result);
-
-        result = service.validateUpdateInputs("John Doe", "invalidAge", "Male", "CS", "password123");
-        assertEquals("Age must be a valid number", result);
-
-        result = service.validateUpdateInputs("John Doe", "20", "Male", "CS", "short");
-        assertEquals("The password must contain both letters and numbers and be at least eight characters long", result);
-    }
-
-
-
-    @Test
-    public void testUpdateStudentExams() throws IOException {
-        service.addStudent(new Student("user1", "John Doe", 20, "Male", "CS", "password123"));
-        service.updateStudentExams("user1", "user1_updated");
+    public void testUpdateInputs() {
+        assertEquals("Each field should be filled in",service.validateUpdateInputs("","17","Male","CSE","aaaa1111"));
+        assertEquals("Age must be a valid number",service.validateUpdateInputs("aaa","b","Male","CSE","aaaa1111"));
+        assertEquals("The password must contain both letters and numbers and be at least eight characters long",service.validateUpdateInputs("aaa","18","Male","CSE","11"));
+        assertNull(service.validateUpdateInputs("aaa","21","Male","CSE","aaaa1111"));
     }
 
     @Test
-    public void testDeleteStudentFromExams() throws IOException {
-        // Add a student and simulate exam deletion
-        service.addStudent(new Student("user1", "John Doe", 20, "Male", "CS", "password123"));
-        service.deleteStudentFromExams("user1");
+    public void testFilterStudents() throws IOException {
+        Student student1 = new Student("john_doe", "John Doe", 20, "Male","CS", "password123");
+        Student student2 = new Student("jane_doe", "Jane Doe", 22, "Female","Math", "password456");
+        service.addStudent(student1);
+        service.addStudent(student2);
+
+        assertEquals(1, service.filterStudents("john", "", "").size());
+        assertEquals(1, service.filterStudents("", "Doe", "Math").size());
+        assertEquals(1, service.filterStudents("john", "Doe", "").size());
+    }
+
+    @AfterEach
+    public void tearDown() {
+        new File(studentFilePath).delete();
+        new File(studentExamsFilePath).delete();
     }
 }

@@ -1,9 +1,11 @@
 package comp3111.examsystem.service;
 
+import comp3111.examsystem.controller.TeacherGradeStatisticController;
 import comp3111.examsystem.entity.GradeRecord;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -89,5 +91,26 @@ public class GradeStatisticsService {
             }
         }
         return filteredRecords;
+    }
+
+    public List<GradeRecord> getStudentGradeRecords(String loggedInUsername) {
+        List<GradeRecord> records = new ArrayList<>();
+        try (BufferedReader br = new BufferedReader(new FileReader(gradesFilePath))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split(",");
+                if (data.length == 6 && data[0].equals(loggedInUsername)) {
+                    String course = data[1].trim();
+                    String exam = data[2].trim();
+                    int score = Integer.parseInt(data[3].trim());
+                    int fullScore = Integer.parseInt(data[4].trim());
+                    int time = Integer.parseInt(data[5].trim());
+                    records.add(new GradeRecord(course, exam, score, fullScore, time));
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return records;
     }
 }

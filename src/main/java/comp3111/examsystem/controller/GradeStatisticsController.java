@@ -14,7 +14,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 
-import java.util.List;
+import java.util.*;
 
 public class GradeStatisticsController {
     @FXML
@@ -58,14 +58,6 @@ public class GradeStatisticsController {
         scoreColumn.setCellValueFactory(new PropertyValueFactory<>("score"));
         fullScoreColumn.setCellValueFactory(new PropertyValueFactory<>("fullScore"));
         timeColumn.setCellValueFactory(new PropertyValueFactory<>("time"));
-
-        // Load grade data and populate components
-        if (!loadGradeData()) {
-            showAlert("No Data Available", "No grade statistics available to display.", Alert.AlertType.WARNING);
-        } else {
-            populateCourseComboBox();
-            updateBarChart(masterData);
-        }
     }
 
     /**
@@ -74,8 +66,13 @@ public class GradeStatisticsController {
      * @param username the username of the logged-in user
      */
     public void setLoggedInUsername(String username) {
-        this.loggedInUsername = username;
-        System.out.println("Logged-in username: " + username);
+        loggedInUsername = username;
+        System.out.println("Logged-in username: " + loggedInUsername);
+
+        // Load grade data immediately after setting the username
+        if (!loadGradeData()) {
+            showAlert("No Data Available", "No grade statistics available for the logged-in user.", Alert.AlertType.WARNING);
+        }
     }
 
     /**
@@ -84,12 +81,16 @@ public class GradeStatisticsController {
      * @return true if data is successfully loaded, false otherwise
      */
     private boolean loadGradeData() {
-        List<GradeRecord> records = gradeStatisticsService.getAllGradeRecords();
+        List<GradeRecord> records = gradeStatisticsService.getStudentGradeRecords(loggedInUsername);
         if (records.isEmpty()) {
             return false;
         }
-        masterData.addAll(records);
-        gradeTable.setItems(masterData);
+        masterData.clear();
+        masterData.addAll(records); // 添加新数据
+        gradeTable.setItems(masterData); // 更新表格数据
+
+        populateCourseComboBox(); // 加载课程下拉框
+
         return true;
     }
 
@@ -97,13 +98,20 @@ public class GradeStatisticsController {
      * Populate course ComboBox with unique courses from data.
      */
     private void populateCourseComboBox() {
-        List<String> courses = gradeStatisticsService.getAllCourses();
+        Set<String> courses = new HashSet<>(); // 使用 HashSet 避免重复
+        for (GradeRecord record : masterData) {
+            courses.add(record.getCourse());
+        }
+
         if (courses.isEmpty()) {
             showAlert("No Courses Found", "No courses are available to filter.", Alert.AlertType.INFORMATION);
             return;
         }
-        courses.add(0, "All Courses");
-        courseComboBox.setItems(FXCollections.observableArrayList(courses));
+
+        List<String> courseList = new ArrayList<>(courses); // 转换为 List
+        Collections.sort(courseList); // 排序
+        courseList.add(0, "All Courses"); // 添加 "All Courses" 选项
+        courseComboBox.setItems(FXCollections.observableArrayList(courseList));
         courseComboBox.getSelectionModel().selectFirst();
     }
 
@@ -119,6 +127,7 @@ public class GradeStatisticsController {
             updateBarChart(masterData);
         } else {
             List<GradeRecord> filteredRecords = gradeStatisticsService.getGradeRecordsByCourse(selectedCourse);
+            filteredRecords.removeIf(record -> !record.getCourse().equals(selectedCourse)); // 只保留当前用户的记录
             if (filteredRecords.isEmpty()) {
                 showAlert("No Data Found", "No grade statistics found for the selected course.", Alert.AlertType.INFORMATION);
             }

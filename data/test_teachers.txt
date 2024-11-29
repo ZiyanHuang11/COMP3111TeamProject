@@ -1,0 +1,2 @@
+john_doe,password123,John Doe,Male,30,Teacher,Math
+jane_doe,password456,Jane Doe,Female,28,Teacher,Science

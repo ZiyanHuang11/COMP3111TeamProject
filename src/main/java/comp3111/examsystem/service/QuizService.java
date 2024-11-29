@@ -92,7 +92,7 @@ public class QuizService {
      *
      * @return 一个包含所有问题的 Map，键为 questionText
      */
-    private Map<String, StudentQuestion> loadAllQuestions() {
+    Map<String, StudentQuestion> loadAllQuestions() {
         Map<String, StudentQuestion> questionMap = new HashMap<>();
 
         try (BufferedReader br = new BufferedReader(new FileReader(questionsFilePath))) {

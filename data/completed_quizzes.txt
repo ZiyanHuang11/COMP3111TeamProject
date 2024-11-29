@@ -3,6 +3,6 @@ bonny,COMP3111,final,40,50,30
 bonny,COMP5111,quiz1,35,50,45
 bonny,COMP3111,middle,20,80,12
 bonny,COMP3111,quiz3,10,50,23
-bonny,COMP3111,Quiz1,0,5,10bonnie1,COMP3111,Midterm Exam
-bonny2,COMP3111,Midterm Exam
-bonny2,COMP3111,Midterm Exam,software engineering
+bonny,COMP3111,Quiz1,0,5,10
+bonnie1,COMP3111,Midterm Exam,10,20,30
+bonny2,COMP4462,Quiz1,0,5,7

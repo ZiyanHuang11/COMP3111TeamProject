@@ -42,7 +42,7 @@ public class ManageTeacherService {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] data = line.split(",");
-                if (data.length >= 8) { // 确保读取的行有足够的数据
+                if (data.length >= 7) { // 确保读取的行有足够的数据
                     String username = data[0];
                     String password = data[1];
                     String name = data[2];
@@ -165,6 +165,12 @@ public class ManageTeacherService {
         } catch (NumberFormatException e) {
             return "Age must be a valid number";
         }
+        if(Integer.parseInt(ageText) <= 0) {
+            return "Age must be a positive number";
+        }
+        if(Integer.parseInt(ageText) > 150) {
+            return "Age can't larger than 150";
+        }
         if (isUsernameExists(username)) {
             return "The user name already exists";
         }
@@ -217,6 +223,12 @@ public class ManageTeacherService {
             Integer.parseInt(ageText);
         } catch (NumberFormatException e) {
             return "Age must be a valid number";
+        }
+        if(Integer.parseInt(ageText) <= 0) {
+            return "Age must be a positive number";
+        }
+        if(Integer.parseInt(ageText) > 150) {
+            return "Age can't larger than 150";
         }
         if (isValidPassword(password)) {
             return "The password must contain both letters and numbers and be at least eight characters long";

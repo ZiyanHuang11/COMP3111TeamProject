@@ -8,3 +8,5 @@ bonny,COMP3511,Final Exam,Operating System
 bonny,COMP3511,Quiz2,Operating System
 bonny,COMP4462,Quiz1,data visualization
 bonny,COMP4462,Quiz2,data visualization
+bonny2,COMP4462,Quiz1,data visualization
+bonny2,COMP4462,Quiz2,data visualization

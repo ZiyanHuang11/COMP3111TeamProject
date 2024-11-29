@@ -2,3 +2,4 @@ What is Java?,A programming language,A coffee brand,An island,All of the above,A
 What is Java3?,A new version of Java,A third-party tool,An unrelated product,D,D,Single,5
 Explain OOP concepts.,Encapsulation,Inheritance,Polymorphism,Abstraction,A|B|C|D,Multiple,10
 Explain OS concepts.,Process Management,Memory Management,File Systems,All of the above,A|B|C|D,Multiple,10
+What is Java5?,A programming language,A coffee brand,An island,All of the above,A|B,Single,5

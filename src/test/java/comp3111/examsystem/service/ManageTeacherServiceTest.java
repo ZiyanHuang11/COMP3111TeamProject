@@ -1,4 +1,4 @@
-/*package comp3111.examsystem.service;
+package comp3111.examsystem.service;
 
 import comp3111.examsystem.entity.Teacher;
 import javafx.collections.ObservableList;
@@ -32,23 +32,6 @@ class ManageTeacherServiceTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    @Test
-    void testLoadTeachersFromFile() throws IOException {
-        // Prepare test data
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter("data/teachers.txt"))) {
-            bw.write("john_doe,password123,John Doe,Male,30,Teacher,Math\n");
-            bw.write("jane_doe,password456,Jane Doe,Female,28,Teacher,Science\n");
-        }
-
-        // Reload service to load teachers from file
-        service = new ManageTeacherService();
-        ObservableList<Teacher> teachers = service.getTeacherList();
-
-        assertEquals(2, teachers.size());
-        assertEquals("john_doe", teachers.get(0).getUsername());
-        assertEquals("jane_doe", teachers.get(1).getUsername());
     }
 
     @Test
@@ -102,19 +85,79 @@ class ManageTeacherServiceTest {
     }
 
     @Test
-    void testValidateInputs() {
-        String result = service.validateInputs("john_doe", "John Doe", "Male", "30", "Teacher", "Math", "password123");
-        assertNull(result);
+    public void testAssignCourseToTeacherAlreadyAssigned() throws IOException {
+        Teacher teacher = new Teacher("john_doe", "password123", "John Doe", "Male", 30, "Professor", "CS", "CS101", null);
+        service.addTeacher(teacher);
 
-        result = service.validateInputs("", "John Doe", "Male", "30", "Teacher", "Math", "password123");
+        // 尝试再次分配已经分配的课程
+        Exception exception = assertThrows(IOException.class, () -> service.assignCourseToTeacher(teacher, "CS101"));
+        assertEquals("This course is already assigned to the teacher.", exception.getMessage());
+    }
+
+    @Test
+    public void testAssignCourseToTeacherExceedLimit() throws IOException {
+        Teacher teacher = new Teacher("john_doe", "password123", "John Doe", "Male", 30, "Professor", "CS", "CS101", "CS102");
+        service.addTeacher(teacher);
+
+        // 尝试为教师分配超过最大课程限制的课程
+        Exception exception = assertThrows(IOException.class, () -> service.assignCourseToTeacher(teacher, "CS103"));
+        assertEquals("Teacher has reached maximum course limit.", exception.getMessage());
+    }
+
+    @Test
+    public void testValidateInputsAllValid() {
+        String result = service.validateInputs("john_doe", "John Doe", "Male", "30", "Professor", "CS", "password123");
+        assertNull(result);  // 应返回 null，表示没有错误
+    }
+
+    @Test
+    public void testValidateInputsEmptyFields() {
+        String result = service.validateInputs("", "John Doe", "Male", "30", "Professor", "CS", "password123");
         assertEquals("Each field should be filled in", result);
 
-        result = service.validateInputs("john_doe", "John Doe", "Male", "abc", "Teacher", "Math", "pass");
-        assertEquals("Age must be a valid number", result);
+        result = service.validateInputs("john_doe", "", "Male", "30", "Professor", "CS", "password123");
+        assertEquals("Each field should be filled in", result);
 
-        result = service.validateInputs("john_doe", "John Doe", "Male", "30", "Teacher", "Math", "short");
+        result = service.validateInputs("john_doe", "John Doe", null, "30", "Professor", "CS", "password123");
+        assertEquals("Each field should be filled in", result);
+
+        result = service.validateInputs("john_doe", "John Doe", "Male", "", "Professor", "CS", "password123");
+        assertEquals("Each field should be filled in", result);
+
+        result = service.validateInputs("john_doe", "John Doe", "Male", "30", null, "CS", "password123");
+        assertEquals("Each field should be filled in", result);
+
+        result = service.validateInputs("john_doe", "John Doe", "Male", "30", "Professor", "", "password123");
+        assertEquals("Each field should be filled in", result);
+
+        result = service.validateInputs("john_doe", "John Doe", "Male", "30", "Professor", "CS", "");
+        assertEquals("Each field should be filled in", result);
+    }
+
+    @Test
+    public void testValidateInputsInvalidAge() {
+        String result = service.validateInputs("john_doe", "John Doe", "Male", "thirty", "Professor", "CS", "password123");
+        assertEquals("Age must be a valid number", result);
+    }
+
+    @Test
+    public void testValidateInputsUsernameExists() throws IOException {
+        // 假设已经存在的用户
+        service.addTeacher(new Teacher("john_doe", "password123", "John Doe", "Male", 30, "Professor", "CS", null, null));
+
+        String result = service.validateInputs("john_doe", "John Doe", "Male", "30", "Professor", "CS", "password123");
+        assertEquals("The user name already exists", result);
+    }
+
+    @Test
+    public void testValidateInputsInvalidPassword() {
+        String result =service.validateInputs("john_doe", "John Doe", "Male", "30", "Professor", "CS", "short");
+        assertEquals("The password must contain both letters and numbers and be at least eight characters long", result);
+
+        result = service.validateInputs("john_doe", "John Doe", "Male", "30", "Professor", "CS", "12345678");
         assertEquals("The password must contain both letters and numbers and be at least eight characters long", result);
     }
+
 
     @Test
     void testValidateUpdateInputs() {
@@ -124,4 +167,4 @@ class ManageTeacherServiceTest {
         result = service.validateUpdateInputs("", "Male", "30", "Teacher", "Math", "password123");
         assertEquals("Each field should be filled in", result);
     }
-}*/
+}
