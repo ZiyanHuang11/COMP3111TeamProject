@@ -6,3 +6,9 @@ bonny,COMP3111,quiz3,10,50,23
 bonny,COMP3111,Quiz1,0,5,10
 bonnie1,COMP3111,Midterm Exam,10,20,30
 bonny2,COMP4462,Quiz1,0,5,7
+aaaaa,COMP3111,Midterm Exam,15,20,26
+aaaaa,COMP3111,Middle Exam,10,15,10
+aaaaa,COMP4462,Quiz2,5,5,4
+Stud,COMP3111,Midterm Exam,20,20,17
+Stud,COMP3111,Quiz1,5,15,6
+Stud,COMP4462,Quiz2,5,15,6

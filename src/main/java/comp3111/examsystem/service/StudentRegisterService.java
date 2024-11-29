@@ -114,7 +114,14 @@ public class StudentRegisterService {
     // Register student by saving data to file
     public void registerStudent(Map<String, String> studentInfo) throws IOException {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(studentFilePath, true))) {
-            String studentData = String.join(",", studentInfo.values());
+            String studentData = String.join(",",
+                    studentInfo.get("username"),
+                    studentInfo.get("name"),
+                    studentInfo.get("age"),
+                    studentInfo.get("gender"),
+                    studentInfo.get("department"),
+                    studentInfo.get("password")
+            );
             writer.write(studentData);
             writer.newLine();
         }

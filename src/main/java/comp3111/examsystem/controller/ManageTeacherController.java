@@ -156,7 +156,17 @@ public class ManageTeacherController {
                 showAlert(validationMessage);
                 return;
             }
-
+            if (!newUsername.equals(originalUsername)) {
+                String usernameValidationMessage = manageTeacherService.validateUsername(newUsername);
+                if (usernameValidationMessage != null) {
+                    Alert alert = new Alert(Alert.AlertType.ERROR);
+                    alert.setTitle("Hint");
+                    alert.setHeaderText(null);
+                    alert.setContentText(usernameValidationMessage);
+                    alert.showAndWait();
+                    return;
+                }
+            }
             Teacher updatedTeacher = new Teacher(newUsername, password, name, gender, Integer.parseInt(ageText), position, department);
 
             try {

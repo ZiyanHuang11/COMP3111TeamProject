@@ -10,3 +10,17 @@ bonny,COMP4462,Quiz1,data visualization
 bonny,COMP4462,Quiz2,data visualization
 bonny2,COMP4462,Quiz1,data visualization
 bonny2,COMP4462,Quiz2,data visualization
+aaaaa,COMP4462,Quiz1,data visualization
+aaaaa,COMP4462,Quiz2,data visualization
+aaaaa,COMP3111,Midterm Exam,software engineering
+aaaaa,COMP3111,Middle Exam,software engineering
+aaaaa,COMP3111,Quiz1,software engineering
+aaaaa,COMP3111,Quiz3,software engineering
+bonny3,COMP4462,Quiz1,data visualization
+bonny3,COMP4462,Quiz2,data visualization
+Stud,COMP4462,Quiz1,data visualization
+Stud,COMP4462,Quiz2,data visualization
+Stud,COMP3111,Midterm Exam,software engineering
+Stud,COMP3111,Middle Exam,software engineering
+Stud,COMP3111,Quiz1,software engineering
+Stud,COMP3111,Quiz3,software engineering

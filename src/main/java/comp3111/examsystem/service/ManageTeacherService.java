@@ -1,5 +1,6 @@
 package comp3111.examsystem.service;
 
+import comp3111.examsystem.entity.Student;
 import comp3111.examsystem.entity.Teacher;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -112,6 +113,7 @@ public class ManageTeacherService {
         if (!found) {
             throw new IOException("Teacher not found");
         }
+
         writeAllTeachersToFile();
     }
 
@@ -232,6 +234,15 @@ public class ManageTeacherService {
         }
         if (isValidPassword(password)) {
             return "The password must contain both letters and numbers and be at least eight characters long";
+        }
+        return null;
+    }
+
+    public String validateUsername(String username) {
+        for (Teacher teacher : teacherList) {
+            if (teacher.getUsername().equals(username)) {
+                return "The user name already exists";
+            }
         }
         return null;
     }

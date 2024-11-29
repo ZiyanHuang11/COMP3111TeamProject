@@ -276,6 +276,12 @@ public class ManageStudentService {
         } catch (NumberFormatException e) {
             return "Age must be a valid number";
         }
+        if(Integer.parseInt(ageText) <= 0) {
+            return "Age must be a positive number";
+        }
+        if(Integer.parseInt(ageText) > 150) {
+            return "Age can't larger than 150";
+        }
         for (Student student : studentList) {
             if (student.getUsername().equals(username)) {
                 return "The user name already exists";

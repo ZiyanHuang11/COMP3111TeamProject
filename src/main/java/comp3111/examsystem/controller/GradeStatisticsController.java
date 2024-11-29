@@ -122,19 +122,24 @@ public class GradeStatisticsController {
     @FXML
     private void handleFilter() {
         String selectedCourse = courseComboBox.getSelectionModel().getSelectedItem();
-        if (selectedCourse == null || selectedCourse.equals("All Courses")) {
-            gradeTable.setItems(masterData);
-            updateBarChart(masterData);
-        } else {
-            List<GradeRecord> filteredRecords = gradeStatisticsService.getGradeRecordsByCourse(selectedCourse);
-            filteredRecords.removeIf(record -> !record.getCourse().equals(selectedCourse)); // 只保留当前用户的记录
-            if (filteredRecords.isEmpty()) {
-                showAlert("No Data Found", "No grade statistics found for the selected course.", Alert.AlertType.INFORMATION);
-            }
-            ObservableList<GradeRecord> filteredData = FXCollections.observableArrayList(filteredRecords);
-            gradeTable.setItems(filteredData);
-            updateBarChart(filteredData);
+
+        // 获取当前登录的学生的成绩记录
+        List<GradeRecord> filteredRecords = gradeStatisticsService.getStudentGradeRecords(loggedInUsername);
+
+        // 如果没有选中 "All Courses"，进一步按课程进行筛选
+        if (selectedCourse != null && !selectedCourse.equals("All Courses")) {
+            filteredRecords.removeIf(record -> !record.getCourse().equals(selectedCourse)); // 只保留选中的课程
         }
+
+        // 如果没有符合条件的记录，显示提示信息
+        if (filteredRecords.isEmpty()) {
+            showAlert("No Data Found", "No grade statistics found for the selected course.", Alert.AlertType.INFORMATION);
+        }
+
+        // 更新表格和图表
+        ObservableList<GradeRecord> filteredData = FXCollections.observableArrayList(filteredRecords);
+        gradeTable.setItems(filteredData);
+        updateBarChart(filteredData);
     }
 
     /**

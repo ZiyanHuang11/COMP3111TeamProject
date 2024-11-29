@@ -1,6 +1,6 @@
 jane_smith,Jane Smith,25,Male,Business,password456
 alice_johnson,Alice Johnson,33,Female,Mathematics,password789
-daisy_white,Daisy White,22,Female,Chemistry,password303
+daisy_white,Daisy White,10,Female,Chemistry,password303
 edward_green,Edward Green,24,Female,Art,password404
 fiona_blue,Fiona Blue,20,Female,History,password505
 hannah_yellow,Hannah Yellow,22,Female,Literature,password707
@@ -11,9 +11,8 @@ charlie_black,Charlie Black,19,Male,Physics,password202
 george_red,George Red,21,Male,Philosophy,password606
 student11,stu,19,Male,Software Engineering,aaaa1111
 bonny,Bonnie,20,Female,CSE,12345678
-bonny2,Bonnie2,20,Female,CSE,123
 bonny3,Bonnie3,20,Female,CSE,123456789
 bonny4,Bonnie4,20,Female,CSE,12345678
-bonnie,Bonnie,20,Female,CSE,1234
-bonnie1,Bonnie1,20,Female,CSE,12345
-bonnie5,bonnie2,20,Female,CSE,1234
+aaaaa,aaa,19,Female,CSE,aaaa1111
+student111d,stu,19,Male,Software Engineering,aaaa1111
+Stud,s,13,Male,CSE,aaaa1111

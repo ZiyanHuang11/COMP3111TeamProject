@@ -3,4 +3,4 @@ Teacher2,James111,James,Male,80,Professor,CSE,COMP4411
 Teacher3,Alice111,Alice,Female,30,Assistant Professor,CSE,COMP3311
 Teacher4,Mary1111,Mary,Female,24,Researcher,CSE,COMP4462,COMP3210
 Teacher5,Mary1111,Mary,Female,24,Researcher,CSE,COMP4462,COMP3210
-ab,aaaa1111,a,Male,50,Lecturer,cse,COMP4462
+Teacher6,aaaa1111,a,Male,80,Lecturer,cse
