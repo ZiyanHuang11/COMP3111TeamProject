@@ -400,12 +400,38 @@ public class ExamManagementController {
             return;
         }
 
+        // 检查该问题是否已被添加
         if (!selectedQuestionList.contains(selectedQuestion)) {
             selectedQuestionList.add(selectedQuestion);
         } else {
             showAlert("Duplicate Question", "The selected question is already in the exam.", Alert.AlertType.ERROR);
+            return;
+        }
+
+        // 获取选中的考试
+        Exam selectedExam = examTable.getSelectionModel().getSelectedItem();
+        if (selectedExam == null) {
+            showAlert("No Selection", "Please select an exam to update.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        // 将问题添加到选中的考试中
+        selectedExam.setQuestions(new ArrayList<>(selectedQuestionList)); // 更新考试中的问题列表
+
+        // 更新考试对象并保存到文件
+        try {
+            boolean success = examService.updateExam(selectedExam, selectedExam.getExamName(), selectedExam.getCourseID());
+            if (success) {
+                showAlert("Success", "Question added to the exam successfully.", Alert.AlertType.INFORMATION);
+                examTable.refresh(); // 刷新表格显示更新后的考试
+            } else {
+                showAlert("Error", "Failed to update the exam.", Alert.AlertType.ERROR);
+            }
+        } catch (IOException e) {
+            showAlert("Error", "Failed to save exams to file.", Alert.AlertType.ERROR);
         }
     }
+
 
     /**
      * 处理从已选择问题中删除的方法
@@ -418,8 +444,38 @@ public class ExamManagementController {
             return;
         }
 
-        selectedQuestionList.remove(selectedQuestion);
+        // 获取当前选中的考试
+        Exam selectedExam = examTable.getSelectionModel().getSelectedItem();
+        if (selectedExam == null) {
+            showAlert("No Selection", "Please select an exam to update.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        // 从 selectedQuestionList 中移除选中的问题
+        if (selectedQuestionList.contains(selectedQuestion)) {
+            selectedQuestionList.remove(selectedQuestion);
+        } else {
+            showAlert("Not Found", "The selected question is not in the exam.", Alert.AlertType.ERROR);
+            return;
+        }
+
+        // 更新考试中的问题列表
+        selectedExam.setQuestions(new ArrayList<>(selectedQuestionList));
+
+        // 将更新后的考试数据保存到 exam.txt 文件中
+        try {
+            boolean success = examService.updateExam(selectedExam, selectedExam.getExamName(), selectedExam.getCourseID());
+            if (success) {
+                showAlert("Success", "Question deleted from the exam successfully.", Alert.AlertType.INFORMATION);
+                examTable.refresh();  // 刷新表格显示更新后的考试
+            } else {
+                showAlert("Error", "Failed to update the exam.", Alert.AlertType.ERROR);
+            }
+        } catch (IOException e) {
+            showAlert("Error", "Failed to save exams to file.", Alert.AlertType.ERROR);
+        }
     }
+
 
     /**
      * 过滤考试
